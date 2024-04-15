@@ -1,0 +1,5 @@
+###### Requirements without Version Specifiers ######
+
+django
+Pillow
+django_rest_framework
