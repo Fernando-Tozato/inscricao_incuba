@@ -118,7 +118,7 @@
                         <div class="accordion-body p-3">
                             <div class="row">
                                 <div class="col-sm form-floating">
-                                    <input type="email" class="form-control" id="email">
+                                    <input type="email" class="form-control" id="email" required>
                                     <label for="email">E-mail</label>
                                 </div>
                             </div>
@@ -128,7 +128,7 @@
                                     <label for="tel">Telefone</label>
                                 </div>
                                 <div class="col-sm mt-3 form-floating">
-                                    <input type="tel" class="form-control" id="cel">
+                                    <input type="tel" class="form-control" id="cel" required>
                                     <label for="cel">Celular</label>
                                 </div>
                             </div>
@@ -145,17 +145,17 @@
                         <div class="accordion-body p-3">
                             <div class="row">
                                 <div class="col-sm-4 form-floating">
-                                    <input type="text" class="form-control" oninput="mascara_cep(this)" onblur="achar_cep(this.value)" id="cep">
+                                    <input type="text" class="form-control" oninput="mascara_cep(this)" onblur="achar_cep(this.value)" id="cep" required>
                                     <label for="cep">CEP</label>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-sm-9 mt-3 form-floating">
-                                    <input type="text" class="form-control" id="rua">
+                                    <input type="text" class="form-control" id="rua" required>
                                     <label for="rua">Logradouro</label>
                                 </div>
                                 <div class="col-sm-3 mt-3 form-floating">
-                                    <input type="text" class="form-control" id="num">
+                                    <input type="text" class="form-control" id="num" required>
                                     <label for="num">Número</label>
                                 </div>
                             </div>
@@ -165,15 +165,44 @@
                                     <label for="comp">Complemento</label>
                                 </div>
                                 <div class="col-sm mt-3 form-floating">
-                                    <input type="text" class="form-control" id="bairro">
+                                    <input type="text" class="form-control" id="bairro" required>
                                     <label for="bairro">Bairro</label>
                                 </div>
                                 <div class="col-sm mt-3 form-floating">
-                                    <input type="text" class="form-control" id="cidade">
+                                    <input type="text" class="form-control" id="cidade" required>
                                     <label for="cidade">Cidade</label>
                                 </div>
                                 <div class="col-sm mt-3 form-floating">
-                                    <input type="text" class="form-control" id="uf">
+                                    <select class="form-select" id="uf" required>
+                                        <option selected></option>
+                                        <option value="AC">AC</option>
+                                        <option value="AL">AL</option>
+                                        <option value="AP">AP</option>
+                                        <option value="AM">AM</option>
+                                        <option value="BA">BA</option>
+                                        <option value="CE">CE</option>
+                                        <option value="DF">DF</option>
+                                        <option value="ES">ES</option>
+                                        <option value="GO">GO</option>
+                                        <option value="MA">MA</option>
+                                        <option value="MT">MT</option>
+                                        <option value="MS">MS</option>
+                                        <option value="MG">MG</option>
+                                        <option value="PA">PA</option>
+                                        <option value="PB">PB</option>
+                                        <option value="PR">PR</option>
+                                        <option value="PE">PE</option>
+                                        <option value="PI">PI</option>
+                                        <option value="RJ">RJ</option>
+                                        <option value="RN">RN</option>
+                                        <option value="RS">RS</option>
+                                        <option value="RO">RO</option>
+                                        <option value="RR">RR</option>
+                                        <option value="SC">SC</option>
+                                        <option value="SP">SP</option>
+                                        <option value="SE">SE</option>
+                                        <option value="TO">TO</option>
+                                    </select>
                                     <label for="uf">Estado</label>
                                 </div>
                             </div>

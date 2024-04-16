@@ -58,6 +58,11 @@ function callback(conteudo){
         document.getElementById('bairro').value=(conteudo.bairro);
         document.getElementById('cidade').value=(conteudo.localidade);
         document.getElementById('uf').value=(conteudo.uf);
+
+        document.getElementById('rua').disabled=true;
+        document.getElementById('bairro').disabled=true;
+        document.getElementById('cidade').disabled=true;
+        document.getElementById('uf').disabled=true;
     } else {
         alert("CEP não encontrado.");
     }
