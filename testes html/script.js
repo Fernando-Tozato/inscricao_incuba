@@ -107,6 +107,7 @@ function mascara_cep(i){
 }
 
 function callback(conteudo){
+    const placeholder = document.getElementById('cep_placeholder');
     if (!("erro" in conteudo)) {
         document.getElementById('rua').value=(conteudo.logradouro);
         document.getElementById('bairro').value=(conteudo.bairro);
@@ -117,26 +118,23 @@ function callback(conteudo){
         document.getElementById('bairro').disabled=true;
         document.getElementById('cidade').disabled=true;
         document.getElementById('uf').disabled=true;
-    } else {
-        const placeholder = document.getElementById('cep_placeholder');
-        if(placeholder.innerHTML.length == 0){
-            const wrapper = document.createElement('div');
-            wrapper.innerHTML = [
-                '<div class="alert alert-warning d-flex align-items-center mt-3" role="alert">',
-                    '<i class="fa-solid fa-triangle-exclamation bi flex-shrink-0 me-2" role="img" aria-label="Danger:" style="color: #cfac2a;"></i>',
-                    '<div>CEP inválido. Verifique se foi digitado corretamente.</</div>',
-                '</div>'
-            ].join('');
-            placeholder.append(wrapper);
-        }
-            
+
+        placeholder.innerHTML = '';
+    } else if(placeholder.innerHTML.length == 0){
+        placeholder.innerHTML = [
+            '<div class="alert alert-warning d-flex align-items-center mt-3" role="alert">',
+                '<i class="fa-solid fa-triangle-exclamation bi flex-shrink-0 me-2" role="img" aria-label="Danger:" style="color: #cfac2a;"></i>',
+                '<div>CEP inválido. Verifique se foi digitado corretamente.</</div>',
+            '</div>'
+        ].join('');
     }
 }
 
 function achar_cep(i){
     const cep = i.replace(/\D/g, '');
+    const placeholder = document.getElementById('cep_placeholder');
 
-    if (cep != ""){
+    if(cep != ""){
         const validacep = /^[0-9]{8}$/;
 
         if(validacep.test(cep)){
@@ -145,19 +143,13 @@ function achar_cep(i){
             script.src = 'https://viacep.com.br/ws/'+ cep + '/json/?callback=callback';
             
             document.body.appendChild(script);
-        } else {
-            const placeholder = document.getElementById('cep_placeholder');
-            if(placeholder.innerHTML.length == 0){
-                const wrapper = document.createElement('div');
-                wrapper.innerHTML = [
-                    '<div class="alert alert-warning d-flex align-items-center mt-3" role="alert">',
-                        '<i class="fa-solid fa-triangle-exclamation bi flex-shrink-0 me-2" role="img" aria-label="Danger:" style="color: #cfac2a;"></i>',
-                        '<div>CEP inválido. Verifique se foi digitado corretamente.</div>',
-                    '</div>'
-                ].join('');
-                placeholder.append(wrapper);
-            }
-            
+        } else if(placeholder.innerHTML.length == 0){
+            placeholder.innerHTML = [
+                '<div class="alert alert-warning d-flex align-items-center mt-3" role="alert">',
+                    '<i class="fa-solid fa-triangle-exclamation bi flex-shrink-0 me-2" role="img" aria-label="Danger:" style="color: #cfac2a;"></i>',
+                    '<div>CEP inválido. Verifique se foi digitado corretamente.</div>',
+                '</div>'
+            ].join('');
         }
     }
 }
@@ -165,26 +157,25 @@ function achar_cep(i){
 function enviar(){
     var preenchido = false;
     var inputs = document.getElementsByClassName('required');
+    const placeholder = document.getElementById('alert_placeholder');
 
     for(var i = 0; i < inputs.length; i++) {
         preenchido = false;
-
+        console.log(i)
         if(inputs[i].value.length > 0){
             preenchido = true;
         }
 
-        const placeholder = document.getElementById('alert_placeholder');
+        
 
         if(preenchido == false && placeholder.innerHTML.length == 0){
-            const placeholder = document.getElementById('alert_placeholder');
-            const wrapper = document.createElement('div');
-            wrapper.innerHTML = [
+            document.getElementById('danger_badge').innerHTML = ''
+            placeholder.innerHTML = [
                 '<div class="alert alert-danger d-flex align-items-center mt-3" role="alert">',
-                    '<i class="fa-solid fa-triangle-exclamation bi flex-shrink-0 me-2" role="img" aria-label="Danger:" style="color: #b20101;"></i>',
+                    '<i class="fa-solid fa-triangle-exclamation bi flex-shrink-0 me-3" role="img" aria-label="Danger:" style="color: #b20101;"></i>',
                     '<div>Preencha todos os campos marcados como obrigatórios (*) antes de enviar o formulário!</div>',
                 '</div>'
             ].join('');
-            placeholder.append(wrapper);
             break;
         }
     }
