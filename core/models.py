@@ -1,16 +1,16 @@
 from django.db import models
 
-class Turmas(models.Model):
+class Turma(models.Model):
     curso = models.CharField(max_length=100)
     dias = models.CharField(max_length=20)
     horario = models.TimeField()
 
-class Contatos(models.Model):
+class Contato(models.Model):
     email = models.EmailField()
     telefone = models.CharField(max_length=10)
     celular = models.CharField(max_length=11)
 
-class Enderecos(models.Model):
+class Endereco(models.Model):
     cep = models.CharField(max_length=8)
     rua = models.CharField(max_length=100)
     numero = models.IntegerField()
@@ -19,7 +19,7 @@ class Enderecos(models.Model):
     cidade = models.CharField(max_length=100)
     uf = models.CharField(max_length=2)
 
-class Alunos(models.Model):
+class Aluno(models.Model):
     nome = models.CharField(max_length=100)
     nascimento = models.DateField()
     cpf = models.CharField(max_length=11)
@@ -33,6 +33,6 @@ class Alunos(models.Model):
     nasc_pai = models.DateField()
     nivel_escola = models.CharField(max_length=24)
     instituicao = models.CharField(max_length=100)
-    id_contato = models.OneToOneField(Contatos, on_delete=models.CASCADE)
-    id_endereco = models.OneToOneField(Enderecos, on_delete=models.CASCADE)
-    id_turma = models.ForeignKey(Turmas, on_delete=models.CASCADE)
+    id_contato = models.OneToOneField(Contato, on_delete=models.CASCADE)
+    id_endereco = models.OneToOneField(Endereco, on_delete=models.CASCADE)
+    id_turma = models.ForeignKey(Turma, on_delete=models.CASCADE)

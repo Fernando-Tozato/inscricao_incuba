@@ -1,22 +1,22 @@
 from rest_framework import serializers
-from .models import Turmas, Contatos, Enderecos, Alunos
+from .models import Turma, Contato, Endereco, Aluno
 
-class TurmasSerializer(serializers.ModelSerializer):
+class TurmaSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Turmas
+        model = Turma
         fields = '__all__'
 
-class ContatosSerializer(serializers.ModelSerializer):
+class ContatoSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Contatos
+        model = Contato
         fields = '__all__'
 
-class EnderecosSerializer(serializers.ModelSerializer):
+class EnderecoSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Enderecos
+        model = Endereco
         fields = '__all__'
 
-class AlunosSerializer(serializers.ModelSerializer):
+class AlunoSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Alunos
+        model = Aluno
         fields = '__all__'

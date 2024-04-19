@@ -1,3 +1,5 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="pt_br">
 <head>
@@ -11,6 +13,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
     <script src="https://kit.fontawesome.com/b87058db00.js" crossorigin="anonymous"></script>
+    <script src="{% static 'js/script.js' %}"></script>
 
     <div class="container my-5">
         <form>
@@ -23,6 +26,7 @@
                     </h2>
                     <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordion">
                         <div class="accordion-body">
+                            <div id="cpf_placeholder"></div>
                             <div class="row">
                                 <div class="col-sm mt-auto form-floating">
                                     <input type="text" class="form-control required" id="nome" autocomplete="name">
@@ -35,7 +39,7 @@
                                     <label for="nasc">Nascimento *</label>
                                 </div>
                                 <div class="col-sm mt-3 form-floating">
-                                    <input type="text" class="form-control required" oninput="mascara_cpf(this)" id="cpf">
+                                    <input type="text" class="form-control required" oninput="mascara_cpf(this)" onblur="validar_cpf(this.value.replace(/\D/g, ''))" id="cpf">
                                     <label for="cpf">CPF *</label>
                                 </div>
                                 <div class="col-sm mt-3 form-floating">
@@ -155,7 +159,7 @@
                             <div id="cep_placeholder"></div>
                             <div class="row">
                                 <div class="col-sm-4 mt-auto form-floating">
-                                    <input type="text" class="form-control required" oninput="mascara_cep(this)" onblur="achar_cep(this.value)" id="cep" autocomplete="postal-code">
+                                    <input type="text" class="form-control required" oninput="mascara_cep(this)" onblur="achar_cep(this.value.replace(/\D/g, ''))" id="cep" autocomplete="postal-code">
                                     <label for="cep">CEP *</label>
                                 </div>
                             </div>
@@ -243,6 +247,5 @@
             </div>
         </form>
     </div>
-    <script src="script.js"></script>
 </body>
 </html>

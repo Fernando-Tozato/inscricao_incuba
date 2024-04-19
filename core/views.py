@@ -1,20 +1,23 @@
 from django.shortcuts import render
 from rest_framework import viewsets
-from .models import Turmas, Contatos, Enderecos, Alunos
-from .serializers import TurmasSerializer, ContatosSerializer, EnderecosSerializer, AlunosSerializer
+from .models import Turma, Contato, Endereco, Aluno
+from .serializers import TurmaSerializer, ContatoSerializer, EnderecoSerializer, AlunoSerializer
 
-class TurmasViewSet(viewsets.ModelViewSet):
-    queryset = Turmas.objects.all()
-    serializer_class = TurmasSerializer
+def index(request):
+    return render(request, 'index.html')
 
-class ContatosViewSet(viewsets.ModelViewSet):
-    queryset = Contatos.objects.all()
-    serializer_class = ContatosSerializer
+class TurmaViewSet(viewsets.ModelViewSet):
+    queryset = Turma.objects.all()
+    serializer_class = TurmaSerializer
 
-class EnderecosViewSet(viewsets.ModelViewSet):
-    queryset = Enderecos.objects.all()
-    serializer_class = EnderecosSerializer
+class ContatoViewSet(viewsets.ModelViewSet):
+    queryset = Contato.objects.all()
+    serializer_class = ContatoSerializer
 
-class AlunosViewSet(viewsets.ModelViewSet):
-    queryset = Alunos.objects.all()
-    serializer_class = AlunosSerializer
+class EnderecoViewSet(viewsets.ModelViewSet):
+    queryset = Endereco.objects.all()
+    serializer_class = EnderecoSerializer
+
+class AlunoViewSet(viewsets.ModelViewSet):
+    queryset = Aluno.objects.all()
+    serializer_class = AlunoSerializer

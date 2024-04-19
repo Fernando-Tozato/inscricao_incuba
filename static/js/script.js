@@ -130,8 +130,7 @@ function callback(conteudo){
     }
 }
 
-function achar_cep(i){
-    const cep = i.replace(/\D/g, '');
+function achar_cep(cep){
     const placeholder = document.getElementById('cep_placeholder');
 
     if(cep != ""){
@@ -152,6 +151,43 @@ function achar_cep(i){
             ].join('');
         }
     }
+}
+
+function validar_cpf(cpf){
+    const placeholder = document.getElementById('cpf_placeholder');
+    
+    if (cpf.length === 0){
+        return;
+    } else if (cpf.length === 11){
+        let soma = 0;
+        for(let i=0; i<9; i++){
+            soma += parseInt(cpf.charAt(i)) * (10 - i);
+        }
+        let resto = 11 - (soma % 11);
+        if (resto === 10 || resto === 11) {
+            resto = 0;
+        }
+        if (resto === parseInt(cpf.charAt(9))) {
+            soma = 0;
+            for (let i = 0; i < 10; i++) {
+                soma += parseInt(cpf.charAt(i)) * (11 - i);
+            }
+            resto = 11 - (soma % 11);
+            if (resto === 10 || resto === 11) {
+                resto = 0;
+            }
+            if (resto === parseInt(cpf.charAt(10))) {
+                placeholder.innerHTML = ''
+                return;
+            }
+        }
+    }
+    placeholder.innerHTML = [
+        '<div class="alert alert-warning d-flex align-items-center mt-3" role="alert">',
+            '<i class="fa-solid fa-triangle-exclamation bi flex-shrink-0 me-2" role="img" aria-label="Danger:" style="color: #cfac2a;"></i>',
+            '<div>CPF inválido. Verifique se foi digitado corretamente.</div>',
+        '</div>'
+    ].join('');
 }
 
 function enviar(){
