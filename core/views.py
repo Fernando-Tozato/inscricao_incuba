@@ -1,10 +1,12 @@
+from urllib import request
 from django.shortcuts import render
 from rest_framework import viewsets
 from .models import Turma, Contato, Endereco, Aluno
 from .serializers import TurmaSerializer, ContatoSerializer, EnderecoSerializer, AlunoSerializer
 
 def index(request):
-    return render(request, 'index.html')
+    turmas = Turma.objects.all()
+    return render(request, 'index.html', {'turmas': turmas})
 
 class TurmaViewSet(viewsets.ModelViewSet):
     queryset = Turma.objects.all()

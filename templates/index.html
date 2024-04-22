@@ -5,18 +5,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>index</title>
+    <title>Inscrição incubadora</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 </head>
 <body>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
-    <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
     <script src="https://kit.fontawesome.com/b87058db00.js" crossorigin="anonymous"></script>
     <script src="{% static 'js/script.js' %}"></script>
 
+    {% for turma in turmas %}
+        {{ turma.fields }}
+    {% endfor %}
+
     <div class="container my-5">
-        <form>
+        <form id="form">
             <div class="accordion" id="accordion">
                 <div class="accordion-item">
                     <h2 class="accordion-header">
@@ -25,7 +29,7 @@
                         </button>
                     </h2>
                     <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordion">
-                        <div class="accordion-body">
+                        <div class="accordion-body" id="infos_pessoais">
                             <div id="cpf_placeholder"></div>
                             <div class="row">
                                 <div class="col-sm mt-auto form-floating">
@@ -58,7 +62,7 @@
                                 </div>
                                 <div class="col-sm mt-3 form-floating">
                                     <select class="form-select required" id="uf_emissao">
-                                        <option selected></option>
+                                        <option selected disabled hidden></option>
                                         <option value="ac">AC</option>
                                         <option value="al">AL</option>
                                         <option value="ap">AP</option>
@@ -103,7 +107,7 @@
                             <div class="row">
                                 <div class="col-sm mt-3 form-floating">
                                     <select class="form-select required" id="nivel">
-                                        <option selected></option>
+                                        <option selected disabled hidden></option>
                                         <option value="fun_inc">Fundamental incompleto</option>
                                         <option value="fun_com">Fundamental completo</option>
                                         <option value="med_inc">Médio incompleto</option>
@@ -128,10 +132,11 @@
                         </button>
                     </h2>
                     <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordion">
-                        <div class="accordion-body">
+                        <div class="accordion-body" id="infos_contato">
+                            <div id="contatos_placeholder"></div>
                             <div class="row">
                                 <div class="col-sm mt-auto form-floating">
-                                    <input type="email" class="form-control required" id="email" autocomplete="email">
+                                    <input type="text" class="form-control required" id="email" onblur="verificar_email(this)" autocomplete="email">
                                     <label for="email">E-mail *</label>
                                 </div>
                             </div>
@@ -155,7 +160,7 @@
                         </button>
                     </h2>
                     <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordion">
-                        <div class="accordion-body">
+                        <div class="accordion-body" id="infos_endereco">
                             <div id="cep_placeholder"></div>
                             <div class="row">
                                 <div class="col-sm-4 mt-auto form-floating">
@@ -188,7 +193,7 @@
                                 </div>
                                 <div class="col-sm mt-3 form-floating">
                                     <select class="form-select required" id="uf">
-                                        <option selected></option>
+                                        <option selected disabled hidden></option>
                                         <option value="AC">AC</option>
                                         <option value="AL">AL</option>
                                         <option value="AP">AP</option>
@@ -230,8 +235,29 @@
                         </button>
                     </h2>
                     <div id="collapseFour" class="accordion-collapse collapse" data-bs-parent="#accordion">
-                        <div class="accordion-body">
-
+                        <div class="accordion-body" id="infos_curso">
+                            <div class="row">
+                                <div class="col-sm form-floating">
+                                    <select class="form-select required" id="curso" disabled onchange="habilitar_dias()">
+                                        <option selected disabled hidden></option>
+                                    </select>
+                                    <label for="curso">Curso *</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm mt-3 form-floating">
+                                    <select class="form-select required" id="dias" disabled onchange="habilitar_horarios()">
+                                        <option selected disabled hidden></option>
+                                    </select>
+                                    <label for="dias">Dias *</label>
+                                </div>
+                                <div class="col-sm mt-3 form-floating">
+                                    <select class="form-select required" id="horario" disabled>
+                                        <option selected disabled hidden></option>
+                                    </select>
+                                    <label for="horario">Horário *</label>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -243,7 +269,7 @@
                 <label class="form-check-label" for="termos">Marque para aceitar os termos e condições. *</label>
             </div>
             <div class="float-end my-3">
-                <button class="btn btn-primary" type="button" onclick="enviar()">Enviar formulário</button>
+                <button class="btn btn-primary" type="submit">Enviar formulário</button>
             </div>
         </form>
     </div>
