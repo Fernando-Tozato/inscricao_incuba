@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-from core.views import TurmaViewSet, AlunoViewSet, index
+from core.views import TurmaViewSet, AlunoViewSet, index, enviado
 
 router = DefaultRouter()
 
@@ -28,4 +28,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
     path('', index, name='index'),
+    path('enviado/', enviado, name='enviado'),
 ]

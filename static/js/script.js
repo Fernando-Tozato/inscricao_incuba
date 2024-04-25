@@ -154,12 +154,15 @@ function achar_cep(cep){
 }
 
 function validar_cpf(cpf){
-    cpf = cpf.value.replace(/\D/g, '');
     const placeholder = document.getElementById('cpf_placeholder');
-    
-    if (cpf.length === 0){
-        return;
-    } else if (cpf.length === 11){
+    let invalido = true;
+    let existente = false;
+    const invalidos = ['00000000000', '11111111111', '22222222222', '33333333333', '44444444444', '55555555555', '66666666666', '77777777777', '88888888888', '99999999999'];
+
+    if(cpf.length === 0){
+        invalido = false;
+    }
+    else if (cpf.length === 11 && !invalidos.includes(cpf)) {
         let soma = 0;
         for(let i=0; i<9; i++){
             soma += parseInt(cpf.charAt(i)) * (10 - i);
@@ -179,25 +182,62 @@ function validar_cpf(cpf){
             }
             if (resto === parseInt(cpf.charAt(10))) {
                 placeholder.innerHTML = ''
-                return;
+                invalido = false;
             }
         }
     }
-    placeholder.innerHTML = [
-        '<div class="alert alert-warning d-flex align-items-center mt-3" role="alert">',
-            '<i class="fa-solid fa-triangle-exclamation bi flex-shrink-0 me-2" role="img" aria-label="Danger:" style="color: #cfac2a;"></i>',
-            '<div>CPF inválido. Verifique se foi digitado corretamente.</div>',
-        '</div>'
-    ].join('');
+
+    if(invalido){
+        placeholder.innerHTML = [
+            '<div class="alert alert-warning d-flex align-items-center mt-3" role="alert">',
+                '<i class="fa-solid fa-triangle-exclamation bi flex-shrink-0 me-2" role="img" aria-label="Danger:" style="color: #cfac2a;"></i>',
+                '<div>CPF inválido. Verifique se foi digitado corretamente.</div>',
+            '</div>'
+        ].join('');
+    } else {
+        fetch(window.location.href + 'api/aluno/?format=json')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erro ao carregar o arquivo JSON');
+            }
+            return response.json();
+        })
+        .then(data => {
+            const alunos = data;
+            alunos.forEach(aluno => {
+                if(cpf === aluno.cpf.replace(/\D/g, '')){
+                    existente = true;
+                }
+            });
+
+            if(existente){
+                placeholder.innerHTML = [
+                    '<div class="alert alert-danger d-flex align-items-center mt-3" role="alert">',
+                        '<i class="fa-solid fa-triangle-exclamation bi flex-shrink-0 me-3" role="img" aria-label="Danger:" style="color: #b20101;"></i>',
+                        '<div>O CPF digitado já foi cadastrado.</div>',
+                    '</div>'
+                ].join('');
+            }
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+        });
+    }
 }
 
-function verificar_email(email){
-    const placeholder = document.getElementById('contatos_placeholder');
+function verificar_email(){
+    const placeholder = document.getElementById('email_placeholder');
+    const email1 = document.getElementById('email');
+    const email2 = document.getElementById('confirm_email');
+    
+    let invalido = false;
+    let aviso;
 
-    usuario = email.value.substring(0, email.value.indexOf("@"));
-    dominio = email.value.substring(email.value.indexOf("@") + 1, email.value.length);
+    if(email1.value !== ''){
+        usuario = email1.value.substring(0, email.value.indexOf("@"));
+        dominio = email1.value.substring(email.value.indexOf("@") + 1, email.value.length);
 
-    if ((usuario.length >= 1) &&
+        if ((usuario.length >= 1) &&
         (dominio.length >= 3) &&
         (usuario.search("@") == -1) &&
         (dominio.search("@") == -1) &&
@@ -206,13 +246,49 @@ function verificar_email(email){
         (dominio.search(".") != -1) &&
         (dominio.indexOf(".") >= 1) &&
         (dominio.lastIndexOf(".") < dominio.length - 1))
-    {
-        placeholder.innerHTML = '';
-    } else {
+        {
+            invalido = false;
+        } 
+        else {
+            aviso = 'E-mail inválido. Verifique se foi digitado corretamente.';
+            invalido = true;
+        }
+    }
+    
+    if(!invalido && email2.value !== ''){
+        usuario = email2.value.substring(0, email.value.indexOf("@"));
+        dominio = email2.value.substring(email.value.indexOf("@") + 1, email.value.length);
+
+        if ((usuario.length >= 1) &&
+        (dominio.length >= 3) &&
+        (usuario.search("@") == -1) &&
+        (dominio.search("@") == -1) &&
+        (usuario.search(" ") == -1) &&
+        (dominio.search(" ") == -1) &&
+        (dominio.search(".") != -1) &&
+        (dominio.indexOf(".") >= 1) &&
+        (dominio.lastIndexOf(".") < dominio.length - 1))
+        {
+            invalido = false;
+        } 
+        else {
+            aviso = 'E-mail de confirmação inválido. Verifique se foi digitado corretamente.';
+            invalido = true;
+        }
+    }
+
+    if (!invalido && email1.value !== email2.value) {
+        aviso = 'Os e-mails não estão iguais. Verifique se os dois foram digitados corretamente.';
+        invalido = true;
+    }   
+    
+
+    placeholder.innerHTML = '';
+    if(invalido){
         placeholder.innerHTML = [
             '<div class="alert alert-warning d-flex align-items-center mt-3" role="alert">',
                 '<i class="fa-solid fa-triangle-exclamation bi flex-shrink-0 me-2" role="img" aria-label="Danger:" style="color: #cfac2a;"></i>',
-                '<div>E-mail inválido. Verifique se foi digitado corretamente.</div>',
+                `<div>${aviso}</div>`,
             '</div>'
         ].join('');
     }
@@ -366,6 +442,7 @@ function enviar_dados(){
 
     const dados = {
         "nome": document.getElementById('nome').value,
+        "nome_social": document.getElementById('nome_social').value,
         "nascimento": `${nasc[2]}-${nasc[1]}-${nasc[0]}`,
         "cpf": document.getElementById('cpf').value,
         "rg": document.getElementById('rg').value,
@@ -412,6 +489,7 @@ function enviar_dados(){
             throw new Error('Erro ao enviar o formulário');
         } else {
             console.log('dados enviados');
+            window.location.href += '/enviado/'
         }
     })
     .catch(error => {

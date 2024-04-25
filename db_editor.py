@@ -7,6 +7,22 @@ cursor = con.cursor()
 comandos = []
 
 comandos.append('''
+    DROP TABLE auth_group;
+''')
+
+comandos.append('''
+    DROP TABLE auth_group_permissions;
+''')
+
+comandos.append('''
+    DROP TABLE auth_permission;
+''')
+
+comandos.append('''
+    DROP TABLE auth_user;
+''')
+
+comandos.append('''
     DROP TABLE auth_user_groups;
 ''')
 
@@ -16,14 +32,6 @@ comandos.append('''
 
 comandos.append('''
     DROP TABLE core_aluno;
-''')
-
-comandos.append('''
-    DROP TABLE core_contato;
-''')
-
-comandos.append('''
-    DROP TABLE core_endereco;
 ''')
 
 comandos.append('''
