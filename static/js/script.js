@@ -156,7 +156,7 @@ function achar_cep(cep){
 function validar_cpf(cpf){
     const placeholder = document.getElementById('cpf_placeholder');
     let invalido = true;
-    let existente = false;
+    let inscrito = false;
     const invalidos = ['00000000000', '11111111111', '22222222222', '33333333333', '44444444444', '55555555555', '66666666666', '77777777777', '88888888888', '99999999999'];
 
     if(cpf.length === 0){
@@ -206,11 +206,11 @@ function validar_cpf(cpf){
             const alunos = data;
             alunos.forEach(aluno => {
                 if(cpf === aluno.cpf.replace(/\D/g, '')){
-                    existente = true;
+                    inscrito = true;
                 }
             });
 
-            if(existente){
+            if(inscrito){
                 placeholder.innerHTML = [
                     '<div class="alert alert-danger d-flex align-items-center mt-3" role="alert">',
                         '<i class="fa-solid fa-triangle-exclamation bi flex-shrink-0 me-3" role="img" aria-label="Danger:" style="color: #b20101;"></i>',
@@ -385,26 +385,33 @@ function habilitar_horarios(selected){
 }
 
 function verificar_inputs(){
-    var preenchido = false;
-    var inputs = document.getElementsByClassName('required');
-    const placeholder = document.getElementById('alert_placeholder');
+    let vazio = true;
+    let invalido = true;
+    const inputs = document.getElementsByClassName('required');
+    const erros = document.getElementsByClassName('error');
+    const placeholder = document.getElementById('preenchido_placeholder');
 
     for (var i = 0; i < inputs.length - 1; i++) {
-        if (inputs[i].value === '') {
-            console.log(i)
-            preenchido = false;
-            break;
+        if (inputs[i].value !== '') {
+            vazio = false;
         } else {
-            preenchido = true
+            vazio = true;
         }
     }
 
-    if(document.getElementById('termos').checked != true){
-        preenchido = false;
+    if(!vazio && document.getElementById('termos').checked == true){
+        vazio = false;
     }
 
-    if(!preenchido && placeholder.innerHTML.length == 0){
-        document.getElementById('danger_badge').innerHTML = ''
+    erros.forEach(erro => {
+        if(erro.innerHTML !== ''){
+            invalido = false;
+        } else {
+            invalido = true;
+        }
+    });
+
+    if(vazio && placeholder.innerHTML.length == 0){
         placeholder.innerHTML = [
             '<div class="alert alert-danger d-flex align-items-center mt-3" role="alert">',
                 '<i class="fa-solid fa-triangle-exclamation bi flex-shrink-0 me-3" role="img" aria-label="Danger:" style="color: #b20101;"></i>',
@@ -412,7 +419,7 @@ function verificar_inputs(){
             '</div>'
         ].join('');
         console.log('erro dados');
-    } else if(preenchido){
+    } else if(!vazio && !invalido){
         placeholder.innerHTML = '';
         console.log('dados ok');
         enviar_dados();
@@ -422,8 +429,6 @@ function verificar_inputs(){
 }
 
 function enviar_dados(){
-    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-
     let nasc = document.getElementById('nascimento').value.split('/');
     let dt_emissao = document.getElementById('data_emissao').value.split('/')
 
@@ -439,6 +444,8 @@ function enviar_dados(){
             id_turma = turma.id;
         }
     });
+    let numero = document.getElementById('numero').value
+    console.log(numero.toString())
 
     const dados = {
         "nome": document.getElementById('nome').value,
@@ -449,15 +456,14 @@ function enviar_dados(){
         "data_emissao": `${dt_emissao[2]}-${dt_emissao[1]}-${dt_emissao[0]}`,
         "orgao_emissor": document.getElementById('orgao_emissor').value,
         "uf_emissao": document.getElementById('uf_emissao').value,
-        "nome_mae": document.getElementById('nome_mae').value,
-        "nome_pai": document.getElementById('nome_pai').value,
+        "filiacao": document.getElementById('filiacao').value,
         "escolaridade": document.getElementById('escolaridade').value,
         "email": document.getElementById('email').value,
         "telefone": document.getElementById('telefone').value,
         "celular": document.getElementById('celular').value,
         "cep": document.getElementById('cep').value,
         "rua": document.getElementById('rua').value,
-        "numero": document.getElementById('numero').value,
+        "numero": numero.toString(),
         "complemento": document.getElementById('complemento').value,
         "bairro": document.getElementById('bairro').value,
         "cidade": document.getElementById('cidade').value,

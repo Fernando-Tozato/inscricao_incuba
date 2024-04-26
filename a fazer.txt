@@ -1,1 +1,17 @@
-arrumar imagens
+inscrição:
+    trocar formatação
+
+    tirar obrigatoriedade de email e celular
+
+    fundamental 1 e 2 e séries
+
+    termos
+
+sorteio:
+    sortear uma vez por turma
+
+matricula para sorteados:
+    apenas sorteados
+
+matricula para remanescentes:
+    poder sortear pessoas não inscritas também

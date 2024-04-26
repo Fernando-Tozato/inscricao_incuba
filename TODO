@@ -1,0 +1,28 @@
+Projects:
+    Inscrição:
+        Notas:
+
+        Todos:
+            New:
+                ☐ Arrumar CPF.
+                ☐ Invalidar envio.
+                ☐ Mostrar data errada.
+                ☐ Adicionar os termos e condições.
+            
+            Done:
+                ✔ Retirar obrigatoriedade de email e celular. @done(24-04-26 17:35)
+                ✔ Retirar accordion. @done(24-04-26 17:48)
+                ✔ Adicionar escolaridades fundamental 1 e 2 com suas respectivas séries. @done(24-04-26 17:53)
+    
+    Sorteio:
+        Notas:
+            *Sortear uma vez por turma.*
+
+    Matrícula:
+        Sorteados:
+            Notas:
+                *Matrícula permitida apenas para sorteados.*
+        
+        Remanescentes:
+            Notas:
+                *Matrícula permitida para qualquer pessoa, inclusive não inscritos.*
