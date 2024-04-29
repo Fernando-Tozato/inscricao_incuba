@@ -1,12 +1,12 @@
 from rest_framework import serializers
-from .models import Turma, Aluno
+from .models import Turma, Inscrito
 
 class TurmaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Turma
         fields = '__all__'
 
-class AlunoSerializer(serializers.ModelSerializer):
+class InscritoSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Aluno
+        model = Inscrito
         fields = '__all__'

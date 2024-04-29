@@ -13,6 +13,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
     <script src="https://kit.fontawesome.com/b87058db00.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
     <script src="{% static 'js/script.js' %}"></script>
 
     
@@ -44,16 +45,15 @@
 
     <div class="container my-5 px-5">
         <form>
-            <div id="erro_placeholder error"></div>
+            <div id="erro_placeholder"></div>
             
             <div class="p-5 mb-5 border bg-light rounded">
                 <h2>Informações Pessoais</h2>
 
-                <div id="cpf_placeholder error"></div>
                 <div class="row">
                     <div class="col-sm mt-3 form-floating">
                         <input type="text" class="form-control required" id="nome" autocomplete="name">
-                        <label for="nome"> Nome completo *</label>
+                        <label for="nome"> Nome civil completo *</label>
                     </div>
                 </div>
                 <div class="row">
@@ -63,29 +63,32 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-sm mt-3 form-floating">
-                        <input type="text" class="form-control required" id="nascimento" oninput="mascara_data(this)" autocomplete="bday">
+                    <div class="col-md mt-3 form-floating">
+                        <input type="text" class="form-control required" id="nascimento" oninput="mascara_data(this)" onblur="verifica_data_nasc(this.value.split('/'))" autocomplete="bday">
                         <label for="nascimento">Nascimento *</label>
+                        <div class="form-text" id="data_nasc_placeholder"></div>
                     </div>
-                    <div class="col-sm mt-3 form-floating">
-                        <input type="text" class="form-control required" oninput="mascara_cpf(this)" onblur="validar_cpf(this.value.replace(/\D/g, ''))" id="cpf">
+                    <div class="col-md mt-3 form-floating">
+                        <input type="text" class="form-control required" oninput="mascara_cpf(this)" onblur="verifica_cpf(this.value.replace(/\D/g, ''))" id="cpf">
                         <label for="cpf">CPF *</label>
+                        <div class="form-text" id="cpf_placeholder"></div>
                     </div>
-                    <div class="col-sm mt-3 form-floating">
+                    <div class="col-md mt-3 form-floating">
                         <input type="text" class="form-control required" oninput="mascara_rg(this)" id="rg">
                         <label for="rg">RG *</label>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-sm mt-3 form-floating">
-                        <input type="text" class="form-control required" id="data_emissao" oninput="mascara_data(this)">
+                    <div class="col-md mt-3 form-floating">
+                        <input type="text" class="form-control required" id="data_emissao" oninput="mascara_data(this)" onblur="verifica_data_emissao(this.value.split('/'))">
                         <label for="data_emissao">Data de emissão *</label>
+                        <div class="form-text" id="data_emissao_placeholder"></div>
                     </div>
-                    <div class="col-sm mt-3 form-floating">
+                    <div class="col-md mt-3 form-floating">
                         <input type="text" class="form-control required" id="orgao_emissor">
                         <label for="orgao_emissor">Órgão emissor *</label>
                     </div>
-                    <div class="col-sm mt-3 form-floating">
+                    <div class="col-md mt-3 form-floating">
                         <select class="form-select required" id="uf_emissao">
                             <option selected disabled hidden></option>
                             <option value="ac">AC</option>
@@ -128,10 +131,10 @@
                     <div class="col-sm mt-3 form-floating">
                         <select class="form-select required" id="escolaridade">
                             <option selected disabled hidden></option>
-                            <option value="fun_inc">Fundamental I incompleto</option>
-                            <option value="fun_com">Fundamental I completo (terminou o 5º ano)</option>
-                            <option value="fun_inc">Fundamental II incompleto</option>
-                            <option value="fun_com">Fundamental II completo (terminou o 9º ano)</option>
+                            <option value="fun_1_inc">Fundamental I incompleto</option>
+                            <option value="fun_1_com">Fundamental I completo (terminou o 5º ano)</option>
+                            <option value="fun_2_inc">Fundamental II incompleto</option>
+                            <option value="fun_2_com">Fundamental II completo (terminou o 9º ano)</option>
                             <option value="med_inc">Médio incompleto</option>
                             <option value="med_com">Médio completo</option>
                             <option value="gra_inc">Graduação incompleta</option>
@@ -151,21 +154,23 @@
             <div class="p-5 mb-5 border bg-light rounded">
                 <h2>Informações de Contato</h2>
 
-                <div id="email_placeholder error"></div>
                 <div class="row">
                     <div class="col-sm mt-3 form-floating">
-                        <input type="text" class="form-control" id="email" onblur="verificar_email()" autocomplete="email">
+                        <input type="text" class="form-control" id="email" onblur="verifica_email(this.value)" autocomplete="email">
                         <label for="email">E-mail</label>
+                        <div class="form-text" id="email_placeholder"></div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-sm mt-3 form-floating">
-                        <input type="tel" class="form-control" id="telefone" oninput="mascara_tel(this)" autocomplete="tel">
+                        <input type="tel" class="form-control" id="telefone" oninput="mascara_tel(this)" onblur="verifica_ddd_tel(this.value)" autocomplete="tel">
                         <label for="telefone">Telefone</label>
+                        <div class="form-text" id="tel_placeholder"></div>
                     </div>
                     <div class="col-sm mt-3 form-floating">
-                        <input type="tel" class="form-control" id="celular" oninput="mascara_cel(this)" autocomplete="phone">
+                        <input type="tel" class="form-control" id="celular" oninput="mascara_cel(this)" onblur="verifica_ddd_cel(this.value)" autocomplete="phone">
                         <label for="celular">Celular</label>
+                        <div class="form-text" id="cel_placeholder"></div>
                     </div>
                 </div>
             </div>
@@ -175,8 +180,9 @@
 
                 <div class="row">
                     <div class="col-sm-4 mt-3 form-floating">
-                        <input type="text" class="form-control required" oninput="mascara_cep(this)" onblur="achar_cep(this.value.replace(/\D/g, ''))" id="cep" autocomplete="postal-code">
+                        <input type="text" class="form-control required" oninput="mascara_cep(this)" onblur="verifica_cep(this.value.replace(/\D/g, ''))" id="cep" autocomplete="postal-code">
                         <label for="cep">CEP *</label>
+                        <div class="form-text" id="cep_placeholder"></div>
                     </div>
                 </div>
                 <div class="row">

@@ -17,12 +17,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-from core.views import TurmaViewSet, AlunoViewSet, index, enviado
+from core.views import TurmaViewSet, InscritoViewSet, index, enviado
 
 router = DefaultRouter()
 
 router.register(r'turma', TurmaViewSet, basename='turma')
-router.register(r'aluno', AlunoViewSet, basename='aluno')
+router.register(r'inscrito', InscritoViewSet, basename='inscrito')
 
 urlpatterns = [
     path('admin/', admin.site.urls),

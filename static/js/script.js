@@ -1,3 +1,312 @@
+let form_vazio = true;
+let cpf_invalido = true;
+let data_nasc_invalida = true;
+let data_emissao_invalida = true;
+let email_invalido = true;
+let cep_invalido = true;
+let ddd_tel_invalido = true;
+let ddd_cel_invalido = true;
+let idade;
+
+function form_valido(){
+    if(form_vazio || cpf_invalido || data_invalida || email_invalido || cep_invalido || ddd_invalido){
+        return false
+    }
+    return true
+}
+
+function verifica_form(){
+    let vazio = true;
+    const inputs = document.getElementsByClassName('required');
+    const placeholder = document.getElementById('preenchido_placeholder');
+
+    for (var i = 0; i < inputs.length - 1; i++) {
+        if (inputs[i].value !== '') {
+            vazio = false;
+        } else {
+            vazio = true;
+        }
+    }
+
+    if(!vazio && document.getElementById('termos').checked != true){
+        vazio = true;
+    }
+
+    if(vazio && placeholder.innerHTML.length == 0){
+        placeholder.innerHTML = [
+            '<div class="alert alert-danger d-flex align-items-center mt-3" role="alert">',
+                '<i class="fa-solid fa-triangle-exclamation bi flex-shrink-0 me-3" role="img" aria-label="Danger:" style="color: #b20101;"></i>',
+                '<div>Preencha todos os campos marcados como obrigatórios (*) antes de enviar o formulário!</div>',
+            '</div>'
+        ].join('');
+        console.log('vazio');
+        form_vazio = true;
+    } 
+    else {
+        placeholder.innerHTML = '';
+        console.log('dados ok');
+        form_vazio = false;
+    }
+}
+
+function verifica_cpf(cpf){
+    let invalido = true;
+    let inscrito = true;
+
+    const placeholder = document.getElementById('cpf_placeholder');
+    const invalidos = ['00000000000', '11111111111', '22222222222', '33333333333', '44444444444', '55555555555', '66666666666', '77777777777', '88888888888', '99999999999'];
+
+    if(cpf.length === 11){
+        let soma = 0;
+        let resto;
+        for(let i = 0; i < 9; i++){
+            soma += parseInt(cpf[i]) * (10 - i);
+        }
+        if((soma * 10) % 11 < 10) {
+            resto = (soma * 10) % 11;
+        } else {
+            resto = 0;
+        }
+
+        if(resto == cpf[-2]){
+            soma = 0;
+            resto = 0;
+            for(let i = 0; i < 10; i++){
+                soma += parseInt(cpf[i]) * (11 - i);
+            }
+            if((soma * 10) % 11 < 10) {
+                resto = (soma * 10) % 11;
+            } else {
+                resto = 0;
+            }
+
+            if(resto == cpf[-1]){
+                invalido = false;
+            }
+        }
+    }
+
+    if(invalido){
+        placeholder.innerHTML = [
+            '<div class="alert alert-warning d-flex align-items-center mt-3" role="alert">',
+                '<i class="fa-solid fa-triangle-exclamation bi flex-shrink-0 me-2" role="img" aria-label="Danger:" style="color: #cfac2a;"></i>',
+                '<div>CPF inválido! Verifique se foi digitado corretamente.</div>',
+            '</div>'
+        ].join('');
+        cpf_invalido = true;
+    } 
+    else {
+        placeholder.innerHTML = '';
+        cpf_invalido = false;
+
+        fetch(window.location.href + 'api/aluno/?format=json')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erro ao carregar o arquivo JSON');
+            }
+            return response.json();
+        })
+        .then(data => {
+            const alunos = data;
+            alunos.forEach(aluno => {
+                if(cpf.join('') === aluno.cpf.replace(/\D/g, '')){
+                    inscrito = true;
+                }
+            });
+
+            if(inscrito){
+                placeholder.innerHTML = [
+                    '<div class="alert alert-danger d-flex align-items-center mt-3" role="alert">',
+                        '<i class="fa-solid fa-triangle-exclamation bi flex-shrink-0 me-2" role="img" aria-label="Danger:" style="color: #b20101;"></i>',
+                        '<div>O CPF digitado já foi cadastrado.</div>',
+                    '</div>'
+                ].join('');
+                cpf_invalido = true;
+            } else {
+                placeholder.innerHTML = '';
+                cpf_invalido = false;
+            }
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+        });
+    }
+}
+
+function verifica_data_nasc(data){
+    const dia = data[0];
+    const mes = data[1];
+    const ano = data[2];
+    const placeholder = document.getElementById('data_nasc_placeholder');
+
+    let invalido = true;
+    let aviso;
+    
+    idade = moment().diff(moment(data, 'DD/MM/YYYY'), 'years')
+    console.log(idade)
+    
+    if(parseInt(ano) < 1900){
+        aviso = 'Essa data é muito antiga. Verifique se foi digitada corretamente.';
+    } 
+    else if(!moment(data, 'DD/MM/YYYY').isValid()){
+        aviso = 'A data não é válida. Verifique se foi digitada corretamente.';
+    } 
+    else if(idade < 12){
+        aviso = 'A idade mínima para se inscrever é 12 anos.'
+    }
+    else {
+        invalido = false;
+    }
+
+    if(invalido){
+        placeholder.innerHTML = [
+            '<div class="alert alert-warning d-flex align-items-center mt-3" role="alert">',
+                '<i class="fa-solid fa-triangle-exclamation bi flex-shrink-0 me-2" role="img" aria-label="Danger:" style="color: #cfac2a;"></i>',
+                `<div>${aviso}</div>`,
+            '</div>'
+        ].join('');
+        data_nasc_invalida = true;
+    } else {
+        placeholder.innerHTML = '';
+        data_nasc_invalida = false;
+    }
+}
+
+function verifica_data_emissao(data){
+    const dia = data[0];
+    const mes = data[1];
+    const ano = data[2];
+    const placeholder = document.getElementById('data_emissao_placeholder');
+
+    let invalido = true;
+    let aviso;
+
+    if(parseInt(ano) < 1900){
+        aviso = 'Essa data é muito antiga. Verifique se foi digitada corretamente.';
+    } 
+    else if(!moment(data, 'DD/MM/YYYY').isValid()){
+        aviso = 'A data não é válida. Verifique se foi digitada corretamente.';
+    } 
+    else {
+        invalido = false
+    }
+
+    if(invalido){
+        placeholder.innerHTML = [
+            '<div class="alert alert-warning d-flex align-items-center mt-3" role="alert">',
+                '<i class="fa-solid fa-triangle-exclamation bi flex-shrink-0 me-2" role="img" aria-label="Danger:" style="color: #cfac2a;"></i>',
+                `<div>${aviso}</div>`,
+            '</div>'
+        ].join('');
+        data_emissao_invalida = true;
+    } else {
+        placeholder.innerHTML = '';
+        data_emissao_invalida = false;
+    }
+}
+
+function verifica_email(email){
+    const placeholder = document.getElementById('email_placeholder');
+
+    let invalido = true;
+
+    if(email.value !== ''){
+        usuario = email.substring(0, email.indexOf("@"));
+        dominio = email.substring(email.indexOf("@") + 1, email.length);
+
+        if ((usuario.length >= 1) &&
+        (dominio.length >= 3) &&
+        (usuario.search("@") == -1) &&
+        (dominio.search("@") == -1) &&
+        (usuario.search(" ") == -1) &&
+        (dominio.search(" ") == -1) &&
+        (dominio.search(".") != -1) &&
+        (dominio.indexOf(".") >= 1) &&
+        (dominio.lastIndexOf(".") < dominio.length - 1))
+        {
+            invalido = false;
+        } else {
+            invalido = true;
+        }
+    }
+    
+    placeholder.innerHTML = '';
+    if(invalido){
+        placeholder.innerHTML = [
+            '<div class="alert alert-warning d-flex align-items-center mt-3" role="alert">',
+                '<i class="fa-solid fa-triangle-exclamation bi flex-shrink-0 me-2" role="img" aria-label="Danger:" style="color: #cfac2a;"></i>',
+                '<div>E-mail inválido. Verifique se foi digitado corretamente.</div>',
+            '</div>'
+        ].join('');
+        email_invalido = true;
+    } else {
+        email_invalido = false;
+    }
+}
+
+function verifica_cep(cep){
+    const placeholder = document.getElementById('cep_placeholder');
+
+    let invalido = true;
+
+    if(cep.length === 8){
+        fetch('https://viacep.com.br/ws/'+ cep + '/json')
+        .then(response => {
+            if (!response.ok) {
+                placeholder.innerHTML = [
+                    '<div class="alert alert-danger d-flex align-items-center mt-3" role="alert">',
+                        '<i class="fa-solid fa-triangle-exclamation bi flex-shrink-0 me-2" role="img" aria-label="Danger:" style="color: #b20101;"></i>',
+                        '<div>O CEP digitado não é válido. Verifique se foi digitado corretamente.</div>',
+                    '</div>'
+                ].join('');
+                cef_invalido = true;
+            } else {
+                placeholder.innerHTML = '';
+                cef_invalido = false;
+            }
+        })
+        .then(data => {
+            const conteudo = data;
+            
+            document.getElementById('rua').value=(conteudo.logradouro);
+            document.getElementById('bairro').value=(conteudo.bairro);
+            document.getElementById('cidade').value=(conteudo.localidade);
+            document.getElementById('uf').value=(conteudo.uf);
+
+            document.getElementById('rua').disabled=true;
+            document.getElementById('bairro').disabled=true;
+            document.getElementById('cidade').disabled=true;
+            document.getElementById('uf').disabled=true;
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+        });
+    }
+
+    if(invalido){
+        placeholder.innerHTML = [
+            '<div class="alert alert-danger d-flex align-items-center mt-3" role="alert">',
+                '<i class="fa-solid fa-triangle-exclamation bi flex-shrink-0 me-2" role="img" aria-label="Danger:" style="color: #b20101;"></i>',
+                '<div>O CEP digitado não é válido. Verifique se foi digitado corretamente.</div>',
+            '</div>'
+        ].join('');
+        cef_invalido = true;
+    } else {
+        placeholder.innerHTML = '';
+        cef_invalido = false;
+    }
+}
+
+function verifica_ddd_tel(tel){
+
+}
+
+function verifica_ddd_cel(cel){
+
+}
+
+// MÁSCARAS
+
 function mascara_cpf(i){
     const v = i.value;
     
@@ -104,401 +413,4 @@ function mascara_cep(i){
     if(v.length == 6){
         i.value += "-";
     }
-}
-
-function callback(conteudo){
-    const placeholder = document.getElementById('cep_placeholder');
-    if (!("erro" in conteudo)) {
-        document.getElementById('rua').value=(conteudo.logradouro);
-        document.getElementById('bairro').value=(conteudo.bairro);
-        document.getElementById('cidade').value=(conteudo.localidade);
-        document.getElementById('uf').value=(conteudo.uf);
-
-        document.getElementById('rua').disabled=true;
-        document.getElementById('bairro').disabled=true;
-        document.getElementById('cidade').disabled=true;
-        document.getElementById('uf').disabled=true;
-
-        placeholder.innerHTML = '';
-    } else if(placeholder.innerHTML.length == 0){
-        placeholder.innerHTML = [
-            '<div class="alert alert-warning d-flex align-items-center mt-3" role="alert">',
-                '<i class="fa-solid fa-triangle-exclamation bi flex-shrink-0 me-2" role="img" aria-label="Danger:" style="color: #cfac2a;"></i>',
-                '<div>CEP inválido. Verifique se foi digitado corretamente.</</div>',
-            '</div>'
-        ].join('');
-    }
-}
-
-function achar_cep(cep){
-    const placeholder = document.getElementById('cep_placeholder');
-
-    if(cep != ""){
-        const validacep = /^[0-9]{8}$/;
-
-        if(validacep.test(cep)){
-            const script = document.createElement('script');
-
-            script.src = 'https://viacep.com.br/ws/'+ cep + '/json/?callback=callback';
-            
-            document.body.appendChild(script);
-        } else if(placeholder.innerHTML.length == 0){
-            placeholder.innerHTML = [
-                '<div class="alert alert-warning d-flex align-items-center mt-3" role="alert">',
-                    '<i class="fa-solid fa-triangle-exclamation bi flex-shrink-0 me-2" role="img" aria-label="Danger:" style="color: #cfac2a;"></i>',
-                    '<div>CEP inválido. Verifique se foi digitado corretamente.</div>',
-                '</div>'
-            ].join('');
-        }
-    }
-}
-
-function validar_cpf(cpf){
-    const placeholder = document.getElementById('cpf_placeholder');
-    let invalido = true;
-    let inscrito = false;
-    const invalidos = ['00000000000', '11111111111', '22222222222', '33333333333', '44444444444', '55555555555', '66666666666', '77777777777', '88888888888', '99999999999'];
-
-    if(cpf.length === 0){
-        invalido = false;
-    }
-    else if (cpf.length === 11 && !invalidos.includes(cpf)) {
-        let soma = 0;
-        for(let i=0; i<9; i++){
-            soma += parseInt(cpf.charAt(i)) * (10 - i);
-        }
-        let resto = 11 - (soma % 11);
-        if (resto === 10 || resto === 11) {
-            resto = 0;
-        }
-        if (resto === parseInt(cpf.charAt(9))) {
-            soma = 0;
-            for (let i = 0; i < 10; i++) {
-                soma += parseInt(cpf.charAt(i)) * (11 - i);
-            }
-            resto = 11 - (soma % 11);
-            if (resto === 10 || resto === 11) {
-                resto = 0;
-            }
-            if (resto === parseInt(cpf.charAt(10))) {
-                placeholder.innerHTML = ''
-                invalido = false;
-            }
-        }
-    }
-
-    if(invalido){
-        placeholder.innerHTML = [
-            '<div class="alert alert-warning d-flex align-items-center mt-3" role="alert">',
-                '<i class="fa-solid fa-triangle-exclamation bi flex-shrink-0 me-2" role="img" aria-label="Danger:" style="color: #cfac2a;"></i>',
-                '<div>CPF inválido. Verifique se foi digitado corretamente.</div>',
-            '</div>'
-        ].join('');
-    } else {
-        fetch(window.location.href + 'api/aluno/?format=json')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Erro ao carregar o arquivo JSON');
-            }
-            return response.json();
-        })
-        .then(data => {
-            const alunos = data;
-            alunos.forEach(aluno => {
-                if(cpf === aluno.cpf.replace(/\D/g, '')){
-                    inscrito = true;
-                }
-            });
-
-            if(inscrito){
-                placeholder.innerHTML = [
-                    '<div class="alert alert-danger d-flex align-items-center mt-3" role="alert">',
-                        '<i class="fa-solid fa-triangle-exclamation bi flex-shrink-0 me-3" role="img" aria-label="Danger:" style="color: #b20101;"></i>',
-                        '<div>O CPF digitado já foi cadastrado.</div>',
-                    '</div>'
-                ].join('');
-            }
-        })
-        .catch(error => {
-            console.error('Erro:', error);
-        });
-    }
-}
-
-function verificar_email(){
-    const placeholder = document.getElementById('email_placeholder');
-    const email1 = document.getElementById('email');
-    const email2 = document.getElementById('confirm_email');
-    
-    let invalido = false;
-    let aviso;
-
-    if(email1.value !== ''){
-        usuario = email1.value.substring(0, email.value.indexOf("@"));
-        dominio = email1.value.substring(email.value.indexOf("@") + 1, email.value.length);
-
-        if ((usuario.length >= 1) &&
-        (dominio.length >= 3) &&
-        (usuario.search("@") == -1) &&
-        (dominio.search("@") == -1) &&
-        (usuario.search(" ") == -1) &&
-        (dominio.search(" ") == -1) &&
-        (dominio.search(".") != -1) &&
-        (dominio.indexOf(".") >= 1) &&
-        (dominio.lastIndexOf(".") < dominio.length - 1))
-        {
-            invalido = false;
-        } 
-        else {
-            aviso = 'E-mail inválido. Verifique se foi digitado corretamente.';
-            invalido = true;
-        }
-    }
-    
-    if(!invalido && email2.value !== ''){
-        usuario = email2.value.substring(0, email.value.indexOf("@"));
-        dominio = email2.value.substring(email.value.indexOf("@") + 1, email.value.length);
-
-        if ((usuario.length >= 1) &&
-        (dominio.length >= 3) &&
-        (usuario.search("@") == -1) &&
-        (dominio.search("@") == -1) &&
-        (usuario.search(" ") == -1) &&
-        (dominio.search(" ") == -1) &&
-        (dominio.search(".") != -1) &&
-        (dominio.indexOf(".") >= 1) &&
-        (dominio.lastIndexOf(".") < dominio.length - 1))
-        {
-            invalido = false;
-        } 
-        else {
-            aviso = 'E-mail de confirmação inválido. Verifique se foi digitado corretamente.';
-            invalido = true;
-        }
-    }
-
-    if (!invalido && email1.value !== email2.value) {
-        aviso = 'Os e-mails não estão iguais. Verifique se os dois foram digitados corretamente.';
-        invalido = true;
-    }   
-    
-
-    placeholder.innerHTML = '';
-    if(invalido){
-        placeholder.innerHTML = [
-            '<div class="alert alert-warning d-flex align-items-center mt-3" role="alert">',
-                '<i class="fa-solid fa-triangle-exclamation bi flex-shrink-0 me-2" role="img" aria-label="Danger:" style="color: #cfac2a;"></i>',
-                `<div>${aviso}</div>`,
-            '</div>'
-        ].join('');
-    }
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    habilitar_cursos();
-});
-
-let turmas;
-
-function habilitar_cursos() {
-    const select_curso = document.getElementById('curso');
-    let cursos = [];
-
-    fetch(window.location.href + 'api/turma/?format=json')
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Erro ao carregar o arquivo JSON');
-        }
-        return response.json();
-    })
-    .then(data => {
-        turmas = data;
-        turmas.forEach(turma => {
-            if(!cursos.includes(turma.curso)){
-                cursos.push(turma.curso);
-            }
-        });
-
-        cursos.forEach(curso => {
-            let new_opt = document.createElement("option");
-            new_opt.text = curso;
-            new_opt.value = curso;
-            select_curso.appendChild(new_opt);
-        });
-        select_curso.disabled = false;
-    })
-    .catch(error => {
-        console.error('Erro:', error);
-    });
-}
-
-let curso;
-
-function habilitar_dias(selected){
-    const select_dias = document.getElementById('dias');
-    curso = selected.value;
-    let dias = [];
-
-    turmas.forEach(turma =>{
-        if(!dias.includes(turma.dias) && turma.curso === curso){
-            dias.push(turma.dias);
-        }
-    });
-
-    select_dias.innerHTML = '<option selected disabled hidden></option>'
-    document.getElementById('horario').innerHTML = '<option selected disabled hidden></option>'
-
-    dias.forEach(dia => {
-        let new_opt = document.createElement("option");
-        new_opt.text = dia;
-        new_opt.value = dia;
-        new_opt.setAttribute('curso_escolhido', curso);
-        select_dias.appendChild(new_opt);
-    });
-    select_dias.disabled = false;
-}
-
-function habilitar_horarios(selected){
-    const select_horario = document.getElementById('horario');
-    let dias = selected.value;
-    let horarios = [];
-
-    turmas.forEach(turma => {
-        let entrada = turma.horario_entrada.split(':');
-        let saida = turma.horario_saida.split(':');
-        let horario = `${entrada[0]}:${entrada[1]} - ${saida[0]}:${saida[1]}`;
-
-        if(!horarios.includes(horario) && turma.dias === dias && turma.curso === curso){
-            horarios.push(horario);
-        }
-    });
-
-    select_horario.innerHTML = '<option selected disabled hidden></option>'
-
-    horarios.forEach(horario => {
-        let new_opt = document.createElement("option");
-        new_opt.text = horario;
-        new_opt.value = horario;
-        select_horario.appendChild(new_opt);
-    });
-    select_horario.disabled = false;
-}
-
-function verificar_inputs(){
-    let vazio = true;
-    let invalido = true;
-    const inputs = document.getElementsByClassName('required');
-    const erros = document.getElementsByClassName('error');
-    const placeholder = document.getElementById('preenchido_placeholder');
-
-    for (var i = 0; i < inputs.length - 1; i++) {
-        if (inputs[i].value !== '') {
-            vazio = false;
-        } else {
-            vazio = true;
-        }
-    }
-
-    if(!vazio && document.getElementById('termos').checked == true){
-        vazio = false;
-    }
-
-    erros.forEach(erro => {
-        if(erro.innerHTML !== ''){
-            invalido = false;
-        } else {
-            invalido = true;
-        }
-    });
-
-    if(vazio && placeholder.innerHTML.length == 0){
-        placeholder.innerHTML = [
-            '<div class="alert alert-danger d-flex align-items-center mt-3" role="alert">',
-                '<i class="fa-solid fa-triangle-exclamation bi flex-shrink-0 me-3" role="img" aria-label="Danger:" style="color: #b20101;"></i>',
-                '<div>Preencha todos os campos marcados como obrigatórios (*) antes de enviar o formulário!</div>',
-            '</div>'
-        ].join('');
-        console.log('erro dados');
-    } else if(!vazio && !invalido){
-        placeholder.innerHTML = '';
-        console.log('dados ok');
-        enviar_dados();
-    } else {
-        console.log('erro dados');
-    }
-}
-
-function enviar_dados(){
-    let nasc = document.getElementById('nascimento').value.split('/');
-    let dt_emissao = document.getElementById('data_emissao').value.split('/')
-
-    let id_turma;
-    const dias = document.getElementById('dias').value;
-    const horario_escolhido = document.getElementById('horario').value;
-    turmas.forEach(turma => {
-        let entrada = turma.horario_entrada.split(':');
-        let saida = turma.horario_saida.split(':');
-        let horario = `${entrada[0]}:${entrada[1]} - ${saida[0]}:${saida[1]}`;
-
-        if(turma.curso === curso && turma.dias === dias && horario === horario_escolhido){
-            id_turma = turma.id;
-        }
-    });
-    let numero = document.getElementById('numero').value
-    console.log(numero.toString())
-
-    const dados = {
-        "nome": document.getElementById('nome').value,
-        "nome_social": document.getElementById('nome_social').value,
-        "nascimento": `${nasc[2]}-${nasc[1]}-${nasc[0]}`,
-        "cpf": document.getElementById('cpf').value,
-        "rg": document.getElementById('rg').value,
-        "data_emissao": `${dt_emissao[2]}-${dt_emissao[1]}-${dt_emissao[0]}`,
-        "orgao_emissor": document.getElementById('orgao_emissor').value,
-        "uf_emissao": document.getElementById('uf_emissao').value,
-        "filiacao": document.getElementById('filiacao').value,
-        "escolaridade": document.getElementById('escolaridade').value,
-        "email": document.getElementById('email').value,
-        "telefone": document.getElementById('telefone').value,
-        "celular": document.getElementById('celular').value,
-        "cep": document.getElementById('cep').value,
-        "rua": document.getElementById('rua').value,
-        "numero": numero.toString(),
-        "complemento": document.getElementById('complemento').value,
-        "bairro": document.getElementById('bairro').value,
-        "cidade": document.getElementById('cidade').value,
-        "uf": document.getElementById('uf').value,
-        "id_turma": id_turma
-    };
-
-    console.log(dados);
-
-    fetch(window.location.href + 'api/aluno/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(dados)
-    })
-    .then(response => {
-        if (!response.ok) {
-            const placeholder = document.getElementById('erro_placeholder');
-            if(placeholder.innerHTML == ''){
-                placeholder.innerHTML = [
-                    '<div class="alert alert-danger d-flex align-items-center mt-3" role="alert">',
-                        '<i class="fa-solid fa-triangle-exclamation bi flex-shrink-0 me-3" role="img" aria-label="Danger:" style="color: #b20101;"></i>',
-                        '<div>Atenção! Seu formulário de inscrição não pôde ser enviado. Tente novamente mais tarde.</div>',
-                    '</div>'
-                ].join('');
-            }
-            console.log(response);
-            throw new Error('Erro ao enviar o formulário');
-        } else {
-            console.log('dados enviados');
-            window.location.href += '/enviado/'
-        }
-    })
-    .catch(error => {
-        console.error('Erro:', error);
-    });
 }
