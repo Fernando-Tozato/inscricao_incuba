@@ -4,7 +4,9 @@ Projects:
 
         Todos:
             New:
-                ☐ Mostrar erro caso a escolaridade e idade do curso não seja cumprida.
+                ☐ arrumar mascara de nome
+                ☐ criar outras mascaras necessarias
+                ☐ Não mostrar curso caso a idade e escolaridade não sejam cumpridas.
                 ☐ Invalidar envio.
                 ☐ Adicionar os termos e condições.
             
