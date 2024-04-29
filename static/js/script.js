@@ -250,59 +250,88 @@ function verifica_cep(cep){
     let invalido = true;
 
     if(cep.length === 8){
-        fetch('https://viacep.com.br/ws/'+ cep + '/json')
-        .then(response => {
-            if (!response.ok) {
+        invalido = false;
+
+        $.getJSON("https://viacep.com.br/ws/"+ cep +"/json/?callback=?", function(dados) {
+
+            if (!("erro" in dados)) {
+                $("#rua").val(dados.logradouro);
+                $("#bairro").val(dados.bairro);
+                $("#cidade").val(dados.localidade);
+                $("#uf").val(dados.uf);
+                placeholder.innerHTML = '';
+                cep_invalido = false;
+            }
+            else {
                 placeholder.innerHTML = [
-                    '<div class="alert alert-danger d-flex align-items-center mt-3" role="alert">',
-                        '<i class="fa-solid fa-triangle-exclamation bi flex-shrink-0 me-2" role="img" aria-label="Danger:" style="color: #b20101;"></i>',
+                    '<div class="alert alert-warning d-flex align-items-center mt-3" role="alert">',
+                        '<i class="fa-solid fa-triangle-exclamation bi flex-shrink-0 me-2" role="img" aria-label="Danger:" style="color: #cfac2a;"></i>',
                         '<div>O CEP digitado não é válido. Verifique se foi digitado corretamente.</div>',
                     '</div>'
                 ].join('');
-                cef_invalido = true;
-            } else {
-                placeholder.innerHTML = '';
-                cef_invalido = false;
+                cep_invalido = true;
             }
-        })
-        .then(data => {
-            const conteudo = data;
-            
-            document.getElementById('rua').value=(conteudo.logradouro);
-            document.getElementById('bairro').value=(conteudo.bairro);
-            document.getElementById('cidade').value=(conteudo.localidade);
-            document.getElementById('uf').value=(conteudo.uf);
-
-            document.getElementById('rua').disabled=true;
-            document.getElementById('bairro').disabled=true;
-            document.getElementById('cidade').disabled=true;
-            document.getElementById('uf').disabled=true;
-        })
-        .catch(error => {
-            console.error('Erro:', error);
         });
     }
 
     if(invalido){
         placeholder.innerHTML = [
-            '<div class="alert alert-danger d-flex align-items-center mt-3" role="alert">',
-                '<i class="fa-solid fa-triangle-exclamation bi flex-shrink-0 me-2" role="img" aria-label="Danger:" style="color: #b20101;"></i>',
+            '<div class="alert alert-warning d-flex align-items-center mt-3" role="alert">',
+                '<i class="fa-solid fa-triangle-exclamation bi flex-shrink-0 me-2" role="img" aria-label="Danger:" style="color: #cfac2a;"></i>',
                 '<div>O CEP digitado não é válido. Verifique se foi digitado corretamente.</div>',
             '</div>'
         ].join('');
-        cef_invalido = true;
+        cep_invalido = true;
     } else {
         placeholder.innerHTML = '';
-        cef_invalido = false;
+        cep_invalido = false;
     }
 }
 
-function verifica_ddd_tel(tel){
+function verifica_ddd_tel(ddd){
+    const placeholder = document.getElementById('tel_placeholder');
 
+    fetch('https://brasilapi.com.br/api/ddd/v1/' + ddd)
+    .then(response => {
+        if (!response.ok) {
+            placeholder.innerHTML = [
+                '<div class="alert alert-warning d-flex align-items-center mt-3" role="alert">',
+                    '<i class="fa-solid fa-triangle-exclamation bi flex-shrink-0 me-2" role="img" aria-label="Danger:" style="color: #cfac2a;"></i>',
+                    '<div>O DDD inserido não é válido. Verifique se foi digitado corretamente.</div>',
+                '</div>'
+            ].join('');
+            cep_invalido = true;
+        } else {
+            placeholder.innerHTML = '';
+            cep_invalido = false;
+        }
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+    });
 }
 
-function verifica_ddd_cel(cel){
+function verifica_ddd_cel(ddd){
+    const placeholder = document.getElementById('cel_placeholder');
 
+    fetch('https://brasilapi.com.br/api/ddd/v1/' + ddd)
+    .then(response => {
+        if (!response.ok) {
+            placeholder.innerHTML = [
+                '<div class="alert alert-warning d-flex align-items-center mt-3" role="alert">',
+                    '<i class="fa-solid fa-triangle-exclamation bi flex-shrink-0 me-2" role="img" aria-label="Danger:" style="color: #cfac2a;"></i>',
+                    '<div>O DDD inserido não é válido. Verifique se foi digitado corretamente.</div>',
+                '</div>'
+            ].join('');
+            cep_invalido = true;
+        } else {
+            placeholder.innerHTML = '';
+            cep_invalido = false;
+        }
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+    });
 }
 
 // MÁSCARAS
@@ -413,4 +442,14 @@ function mascara_cep(i){
     if(v.length == 6){
         i.value += "-";
     }
+}
+
+function mascara_nome(i){
+    let nome = i.value.trim();
+
+    nome = nome.replace(/[^a-zA-Zà-úÀ-Ú\s]/g, '');
+
+    nome = nome.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+
+    i.value = nome;
 }

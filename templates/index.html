@@ -52,13 +52,13 @@
 
                 <div class="row">
                     <div class="col-sm mt-3 form-floating">
-                        <input type="text" class="form-control required" id="nome" autocomplete="name">
+                        <input type="text" class="form-control required" id="nome" oninput="mascara_nome(this)" autocomplete="name">
                         <label for="nome"> Nome civil completo *</label>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-sm mt-3 form-floating">
-                        <input type="text" class="form-control" id="nome_social" autocomplete="additional-name">
+                        <input type="text" class="form-control" id="nome_social" oninput="mascara_nome(this)" autocomplete="additional-name">
                         <label for="nome_social">Nome social</label>
                     </div>
                 </div>
@@ -163,12 +163,12 @@
                 </div>
                 <div class="row">
                     <div class="col-sm mt-3 form-floating">
-                        <input type="tel" class="form-control" id="telefone" oninput="mascara_tel(this)" onblur="verifica_ddd_tel(this.value)" autocomplete="tel">
+                        <input type="tel" class="form-control" id="telefone" oninput="mascara_tel(this)" onblur="verifica_ddd_tel(this.value.substring(1,3))" autocomplete="tel">
                         <label for="telefone">Telefone</label>
                         <div class="form-text" id="tel_placeholder"></div>
                     </div>
                     <div class="col-sm mt-3 form-floating">
-                        <input type="tel" class="form-control" id="celular" oninput="mascara_cel(this)" onblur="verifica_ddd_cel(this.value)" autocomplete="phone">
+                        <input type="tel" class="form-control" id="celular" oninput="mascara_cel(this)" onblur="verifica_ddd_cel(this.value.substring(1,3))" autocomplete="phone">
                         <label for="celular">Celular</label>
                         <div class="form-text" id="cel_placeholder"></div>
                     </div>
@@ -179,7 +179,7 @@
                 <h2>Informações de endereço</h2>
 
                 <div class="row">
-                    <div class="col-sm-4 mt-3 form-floating">
+                    <div class="col-lg-4 col-md-8 mt-3 form-floating">
                         <input type="text" class="form-control required" oninput="mascara_cep(this)" onblur="verifica_cep(this.value.replace(/\D/g, ''))" id="cep" autocomplete="postal-code">
                         <label for="cep">CEP *</label>
                         <div class="form-text" id="cep_placeholder"></div>
@@ -196,19 +196,19 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-sm mt-3 form-floating">
+                    <div class="col-md mt-3 form-floating">
                         <input type="text" class="form-control" id="complemento">
                         <label for="complemento">Complemento</label>
                     </div>
-                    <div class="col-sm mt-3 form-floating">
+                    <div class="col-md mt-3 form-floating">
                         <input type="text" class="form-control required" id="bairro">
                         <label for="bairro">Bairro *</label>
                     </div>
-                    <div class="col-sm mt-3 form-floating">
+                    <div class="col-md mt-3 form-floating">
                         <input type="text" class="form-control required" id="cidade">
                         <label for="cidade">Cidade *</label>
                     </div>
-                    <div class="col-sm mt-3 form-floating">
+                    <div class="col-md mt-3 form-floating">
                         <select class="form-select required" id="uf">
                             <option selected disabled hidden></option>
                             <option value="AC">AC</option>
