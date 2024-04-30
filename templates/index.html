@@ -18,7 +18,7 @@
 
     
 
-    <nav class="navbar navbar-expand-sm bg-light border-bottom" aria-label="Tenth navbar example">
+    <nav class="navbar navbar-expand-sm bg-light border-bottom" aria-label="Tenth navbar example" id="navbar">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">
                 <img class="bi mx-5" width="150" src="{% static 'img/Incubadora.png' %}" alt="Incubadora de Inovação Social em Robótica e Sustentabilidade">
@@ -69,7 +69,7 @@
                         <div class="form-text" id="data_nasc_placeholder"></div>
                     </div>
                     <div class="col-md mt-3 form-floating">
-                        <input type="text" class="form-control required" oninput="mascara_cpf(this)" onblur="verifica_cpf(this.value.replace(/\D/g, ''))" id="cpf">
+                        <input type="text" class="form-control required" oninput="mascara_cpf(this)" onblur="verifica_cpf(this.value.replace(/\D/g, '').split(''))" id="cpf">
                         <label for="cpf">CPF *</label>
                         <div class="form-text" id="cpf_placeholder"></div>
                     </div>
@@ -286,7 +286,7 @@
                         <label class="form-check-label" for="termos">Marque para aceitar os termos e condições. *</label>
                     </div>
                     <div class="col-xl-2 col-md-4 col-6 mt-3">
-                        <button class="btn btn-primary float-end" type="button" onclick="verificar_inputs()">Enviar formulário</button>
+                        <button class="btn btn-primary float-end" id="btn" type="button" onclick="verifica_form(); enviar_dados()">Enviar formulário</button>
                     </div>
                 </div>
             </div>

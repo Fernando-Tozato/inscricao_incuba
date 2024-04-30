@@ -4,7 +4,6 @@ Projects:
 
         Todos:
             New:
-                ☐ Invalidar envio.
                 ☐ Adicionar os termos e condições.
             
             Done:
@@ -17,6 +16,7 @@ Projects:
                 ✔ Arrumar mascara de nome @done(24-04-30 11:43)
                 ✔ Criar outras mascaras necessárias. @done(24-04-30 12:05)
                 ✔ Não mostrar curso caso a idade e escolaridade não sejam cumpridas. @done(24-04-30 12:52)
+                ✔ Invalidar envio. @done(24-04-30 16:01)
     
     Sorteio:
         Notas:
