@@ -1,0 +1,12 @@
+1   =   Fundamental I incompleto
+2   =   Fundamental I completo (terminou o 5º ano)
+3   =   Fundamental II incompleto
+4   =   Fundamental II completo (terminou o 9º ano)
+5   =   Médio incompleto
+6   =   Médio completo
+7   =   Graduação incompleta
+8   =   Graduação completa
+9   =   Pós-graduação incompleta
+10  =   Pós-graduação completa
+11  =   Mestrado
+12  =   Doutorado

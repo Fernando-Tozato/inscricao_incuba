@@ -7,6 +7,11 @@ let cep_invalido = true;
 let ddd_tel_invalido = true;
 let ddd_cel_invalido = true;
 let idade;
+let escolaridade;
+let turma;
+let curso;
+let dias;
+let horario;
 
 function form_valido(){
     if(form_vazio || cpf_invalido || data_invalida || email_invalido || cep_invalido || ddd_invalido){
@@ -142,9 +147,6 @@ function verifica_data_nasc(data){
     let invalido = true;
     let aviso;
     
-    idade = moment().diff(moment(data, 'DD/MM/YYYY'), 'years')
-    console.log(idade)
-    
     if(parseInt(ano) < 1900){
         aviso = 'Essa data é muito antiga. Verifique se foi digitada corretamente.';
     } 
@@ -152,7 +154,7 @@ function verifica_data_nasc(data){
         aviso = 'A data não é válida. Verifique se foi digitada corretamente.';
     } 
     else if(idade < 12){
-        aviso = 'A idade mínima para se inscrever é 12 anos.'
+        aviso = 'A idade mínima para se inscrever é 12 anos.';
     }
     else {
         invalido = false;
@@ -169,6 +171,11 @@ function verifica_data_nasc(data){
     } else {
         placeholder.innerHTML = '';
         data_nasc_invalida = false;
+        idade = moment().diff(moment(data, 'DD/MM/YYYY'), 'years');
+        if(escolaridade){
+            console.log('1')
+            habilitar_cursos();
+        }
     }
 }
 
@@ -334,6 +341,123 @@ function verifica_ddd_cel(ddd){
     });
 }
 
+function set_escolaridade(v){
+    escolaridade = v;
+    habilitar_cursos();
+}
+
+function set_horario(v){
+    horario = v;
+    console.log(curso, dias, horario)
+}
+
+function habilitar_cursos(){
+    const select_curso = document.getElementById('curso');
+    const placeholder = document.getElementById('curso_placeholder');
+
+    let cursos = [];
+
+    select_curso.innerHTML = '<option selected disabled hidden></option>';
+    document.getElementById('dias').innerHTML = '<option selected disabled hidden></option>';
+    document.getElementById('horario').innerHTML = '<option selected disabled hidden></option>';
+
+    fetch(window.location.href + 'api/turma/?format=json')
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Erro ao carregar o arquivo JSON');
+        }
+        return response.json();
+    })
+    .then(data => {
+        turmas = data;
+        if(escolaridade && idade){
+            turmas.forEach(turma => {
+                if(!cursos.includes(turma.curso) && parseInt(turma.idade) <= idade && parseInt(turma.escolaridade) <= escolaridade){
+                    cursos.push(turma.curso);
+                }
+            });
+        }
+        else {
+            turmas.forEach(turma => {
+                if(!cursos.includes(turma.curso)){
+                    cursos.push(turma.curso);
+                }
+            });
+        }
+
+        if(cursos.length == 0){
+            placeholder.innerHTML = [
+                '<div class="alert alert-warning d-flex align-items-center mt-3" role="alert">',
+                    '<i class="fa-solid fa-triangle-exclamation bi flex-shrink-0 me-2" role="img" aria-label="Danger:" style="color: #cfac2a;"></i>',
+                    '<div>Não temos nenhum curso disponível para a sua idade ou escolaridade.</div>',
+                '</div>'
+            ].join('');
+            select_curso.disabled = true;
+        } else {
+            placeholder.innerHTML = '';
+            cursos.forEach(opt_curso => {
+                let new_opt = document.createElement("option");
+                new_opt.text = opt_curso;
+                new_opt.value = opt_curso;
+                select_curso.appendChild(new_opt);
+            });
+            select_curso.disabled = false;
+        }
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+    });
+}
+
+function habilitar_dias(selected){
+    const select_dias = document.getElementById('dias');
+    let dias = [];
+    curso = selected.value;
+
+    turmas.forEach(turma =>{
+        if(!dias.includes(turma.dias) && turma.curso === curso){
+            dias.push(turma.dias);
+        }
+    });
+
+    select_dias.innerHTML = '<option selected disabled hidden></option>'
+    document.getElementById('horario').innerHTML = '<option selected disabled hidden></option>'
+
+    dias.forEach(dia => {
+        let new_opt = document.createElement("option");
+        new_opt.text = dia;
+        new_opt.value = dia;
+        new_opt.setAttribute('curso_escolhido', curso);
+        select_dias.appendChild(new_opt);
+    });
+}
+
+function habilitar_horarios(selected){
+    const select_horario = document.getElementById('horario');
+    let horarios = [];
+    dias = selected.value;
+
+    turmas.forEach(turma => {
+        let entrada = turma.horario_entrada.split(':');
+        let saida = turma.horario_saida.split(':');
+        let horario = `${entrada[0]}:${entrada[1]} - ${saida[0]}:${saida[1]}`;
+
+        if(!horarios.includes(horario) && turma.dias === dias && turma.curso === curso){
+            horarios.push(horario);
+        }
+    });
+
+    select_horario.innerHTML = '<option selected disabled hidden></option>'
+
+    horarios.forEach(horario => {
+        let new_opt = document.createElement("option");
+        new_opt.text = horario;
+        new_opt.value = horario;
+        select_horario.appendChild(new_opt);
+    });
+    select_horario.disabled = false;
+}
+
 // MÁSCARAS
 
 function mascara_cpf(i){
@@ -444,10 +568,10 @@ function mascara_cep(i){
     }
 }
 
-function mascara_nome(i){
-    let nome = i.value.trim();
+function mascara_palavras(i){
+    let nome = i.value;
 
-    nome = nome.replace(/[^a-zA-Zà-úÀ-Ú\s]/g, '');
+    nome = nome.replace(/[^a-zà-ú'-,. ]+$/i, '');
 
     nome = nome.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 

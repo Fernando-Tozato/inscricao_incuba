@@ -4,9 +4,6 @@ Projects:
 
         Todos:
             New:
-                ☐ arrumar mascara de nome
-                ☐ criar outras mascaras necessarias
-                ☐ Não mostrar curso caso a idade e escolaridade não sejam cumpridas.
                 ☐ Invalidar envio.
                 ☐ Adicionar os termos e condições.
             
@@ -17,6 +14,9 @@ Projects:
                 ✔ Arrumar CPF. @done(24-04-29 13:53)
                 ✔ Verificar idade do inscrito. @done(24-04-29 15:05)
                 ✔ Mostrar data errada. @done(24-04-29 15:05)
+                ✔ Arrumar mascara de nome @done(24-04-30 11:43)
+                ✔ Criar outras mascaras necessárias. @done(24-04-30 12:05)
+                ✔ Não mostrar curso caso a idade e escolaridade não sejam cumpridas. @done(24-04-30 12:52)
     
     Sorteio:
         Notas:
