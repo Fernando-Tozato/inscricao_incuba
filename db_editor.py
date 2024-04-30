@@ -31,7 +31,7 @@ comandos.append('''
 ''')
 
 comandos.append('''
-    DROP TABLE core_aluno;
+    DROP TABLE core_inscrito;
 ''')
 
 comandos.append('''
