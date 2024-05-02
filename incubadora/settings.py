@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'inscricao.apps.InscricaoConfig',
+    'interno.apps.InternoConfig',
     'rest_framework'
 ]
 

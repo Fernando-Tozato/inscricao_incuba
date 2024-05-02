@@ -1,10 +1,11 @@
 from django.db import models
-from inscricao.models import Turma
+from inscricao.models import Turma, Inscrito
 
 class Sorteado(models.Model):
-    nome = models.CharField()
-    cpf = models.CharField()
+    nome = models.CharField(max_length=100)
+    cpf = models.CharField(max_length=14)
     nascimento = models.DateField()
+    id_inscrito = models.OneToOneField(Inscrito, on_delete=models.CASCADE)
 
 class Aluno(models.Model):
     nome = models.CharField(max_length=100)

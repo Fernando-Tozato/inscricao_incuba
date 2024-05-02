@@ -18,15 +18,17 @@ Projects:
                 ✔ Não mostrar curso caso a idade e escolaridade não sejam cumpridas. @done(24-04-30 12:52)
                 ✔ Invalidar envio. @done(24-04-30 16:01)
     
-    Sorteio:
-        Notas:
-            *Sortear uma vez por turma.*
+    Interno:
+        Sorteio:
+            Todos:
+                New:
 
-    Matrícula:
-        Sorteados:
-            Notas:
-                *Matrícula permitida apenas para sorteados.*
-        
-        Remanescentes:
-            Notas:
-                *Matrícula permitida para qualquer pessoa, inclusive não inscritos.*
+                Done:
+
+        Cadastro e login de usuario:
+            Todos:
+                New:
+                    ☐ Criar páginas de Cadastro e Login 
+
+                Done:
+

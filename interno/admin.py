@@ -1,3 +1,5 @@
 from django.contrib import admin
+from .models import Sorteado, Aluno
 
-# Register your models here.
+admin.site.register(Sorteado)
+admin.site.register(Aluno)

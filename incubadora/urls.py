@@ -18,15 +18,18 @@ from django.contrib import admin
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 from inscricao.views import TurmaViewSet, InscritoViewSet, inscricao, enviado
+from interno.views import SorteadoViewSet, AlunoViewSet
 
 router = DefaultRouter()
 
 router.register(r'turma', TurmaViewSet, basename='turma')
 router.register(r'inscrito', InscritoViewSet, basename='inscrito')
+router.register(r'sorteado', SorteadoViewSet, basename='sorteado')
+router.register(r'aluno', AlunoViewSet, basename='aluno')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
     path('inscricao/', inscricao, name='inscricao'),
-    path('enviado/', enviado, name='enviado'),
+    path('inscricao/enviado/', enviado, name='enviado'),
 ]
