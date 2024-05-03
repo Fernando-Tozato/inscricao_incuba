@@ -17,8 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-from inscricao.views import TurmaViewSet, InscritoViewSet, inscricao, enviado
-from interno.views import SorteadoViewSet, AlunoViewSet
+from database.views import TurmaViewSet, InscritoViewSet, SorteadoViewSet, AlunoViewSet
 
 router = DefaultRouter()
 
@@ -30,6 +29,7 @@ router.register(r'aluno', AlunoViewSet, basename='aluno')
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
-    path('inscricao/', inscricao, name='inscricao'),
-    path('inscricao/enviado/', enviado, name='enviado'),
+    path('accounts/', include('allauth.urls')),
+    path('externo/', include('externo.urls')),
+    path('interno/', include('interno.urls')),
 ]

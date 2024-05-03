@@ -7,6 +7,14 @@ cursor = con.cursor()
 comandos = []
 
 comandos.append('''
+    DROP TABLE account_emailaddress;
+''')
+
+comandos.append('''
+    DROP TABLE account_emailconfirmation;
+''')
+
+comandos.append('''
     DROP TABLE auth_group;
 ''')
 
@@ -31,14 +39,6 @@ comandos.append('''
 ''')
 
 comandos.append('''
-    DROP TABLE core_inscrito;
-''')
-
-comandos.append('''
-    DROP TABLE core_turma;
-''')
-
-comandos.append('''
     DROP TABLE django_admin_log;
 ''')
 
@@ -52,6 +52,22 @@ comandos.append('''
 
 comandos.append('''
     DROP TABLE django_session;
+''')
+
+comandos.append('''
+    DROP TABLE inscricao_inscrito;
+''')
+
+comandos.append('''
+    DROP TABLE inscricao_turma;
+''')
+
+comandos.append('''
+    DROP TABLE interno_aluno;
+''')
+
+comandos.append('''
+    DROP TABLE interno_sorteado;
 ''')
 
 for comando in comandos:
