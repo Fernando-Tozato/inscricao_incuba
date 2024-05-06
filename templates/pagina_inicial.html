@@ -40,7 +40,14 @@
 
     <div class="container my-5 px-5" style="height: 49.5vh;">
         <div class="p-5 mb-5 border bg-body-secondary text-body-secondary rounded">
-            
+            <form action="{% url 'pagina_inicial' %}" method="post">
+                {% csrf_token %}
+                <label for="cpf" class="form-label">Digite o CPF:</label>
+                <div class="input-group mb-3">
+                    <i class="fa-solid fa-magnifying-glass input-group-text" id="basic-addon3"></i>
+                    <input type="text" class="form-control" id="cpf" aria-describedby="basic-addon3">
+                </div>
+            </form>
         </div>
     </div>
 

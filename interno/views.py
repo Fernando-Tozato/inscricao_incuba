@@ -1,5 +1,9 @@
+import sqlite3
 from django.shortcuts import render
-from forms import Busca_CPF
+from database.models import Inscrito
+
+conn = sqlite3.Connection('db.sqlite3')
+cursor = conn.cursor()
 
 def matricula_novo(request):
     return render(request, 'matricula_novo.html')
@@ -15,6 +19,9 @@ def cadastro(request):
 
 def pagina_inicial(request):
     if request.method == 'POST':
-        form = Busca_CPF(request.POST)
-        if 
-    return render(request, 'pagina_inicial.html', {'form': form})
+        parte_do_cpf = request.POST.get('cpf', '')
+        resultados = Inscrito.objects.filter(cpf__contains=parte_do_cpf)
+
+        return render(request, 'pagina_inicial.html', {'resultados': resultados})
+
+    return render(request, 'pagina_inicial.html')
