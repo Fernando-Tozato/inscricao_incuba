@@ -1,0 +1,321 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matrícula</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+</head>
+<body class="bg-body-tertiary">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
+    <script src="https://kit.fontawesome.com/b87058db00.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="{% static 'js/inscricao.js' %}"></script>
+    <script src="{% static 'js/matricula.js' %}"></script>
+
+    <nav class="navbar navbar-expand-sm bg-body-secondary text-body-secondary border-bottom" aria-label="Tenth navbar example" id="navbar">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'pagina_inicial' %}">
+                <img class="bi mx-5" width="150" src="{% static 'img/Incubadora.png' %}" alt="Incubadora de Inovação Social em Robótica e Sustentabilidade">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsExample08" aria-controls="navbarsExample08" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+    
+            <div class="collapse navbar-collapse" id="navbarsExample08">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'pagina_inicial' %}">Página inicial</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="">Turmas</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-5 px-5">
+        <form>
+            <div id="erro_placeholder"></div>
+            
+            <div class="p-5 mb-5 border bg-body-secondary text-body-secondary rounded">
+                <h2>Informações Pessoais</h2>
+
+                <div class="row">
+                    <div class="col-sm mt-3 form-floating">
+                        <input type="text" class="form-control required" id="nome" oninput="mascara_palavras(this)" maxlength="100" autocomplete="name">
+                        <label for="nome"> Nome civil completo *</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm mt-3 form-floating">
+                        <input type="text" class="form-control" id="nome_social" oninput="mascara_palavras(this)" maxlength="100" autocomplete="additional-name">
+                        <label for="nome_social">Nome social</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md mt-3 form-floating">
+                        <input type="text" class="form-control required" id="nascimento" oninput="mascara_data(this)" onblur="verifica_data_nasc(this.value.split('/'))" autocomplete="bday">
+                        <label for="nascimento">Nascimento *</label>
+                        <div class="form-text" id="data_nasc_placeholder"></div>
+                    </div>
+                    <div class="col-md mt-3 form-floating">
+                        <input type="text" class="form-control required" oninput="mascara_cpf(this)" onblur="verifica_cpf(this.value.replace(/\D/g, '').split(''))" id="cpf">
+                        <label for="cpf">CPF *</label>
+                        <div class="form-text" id="cpf_placeholder"></div>
+                    </div>
+                    <div class="col-md mt-3 form-floating">
+                        <input type="text" class="form-control required" oninput="mascara_rg(this)" id="rg">
+                        <label for="rg">RG *</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md mt-3 form-floating">
+                        <input type="text" class="form-control required" id="data_emissao" oninput="mascara_data(this)" onblur="verifica_data_emissao(this.value.split('/'))">
+                        <label for="data_emissao">Data de emissão *</label>
+                        <div class="form-text" id="data_emissao_placeholder"></div>
+                    </div>
+                    <div class="col-md mt-3 form-floating">
+                        <input type="text" class="form-control required" id="orgao_emissor" oninput="mascara_palavras(this)">
+                        <label for="orgao_emissor">Órgão emissor *</label>
+                    </div>
+                    <div class="col-md mt-3 form-floating">
+                        <select class="form-select required" id="uf_emissao">
+                            <option selected disabled hidden></option>
+                            <option value="ac">AC</option>
+                            <option value="al">AL</option>
+                            <option value="ap">AP</option>
+                            <option value="am">AM</option>
+                            <option value="ba">BA</option>
+                            <option value="ce">CE</option>
+                            <option value="df">DF</option>
+                            <option value="es">ES</option>
+                            <option value="go">GO</option>
+                            <option value="ma">MA</option>
+                            <option value="mt">MT</option>
+                            <option value="ms">MS</option>
+                            <option value="mg">MG</option>
+                            <option value="pa">PA</option>
+                            <option value="pb">PB</option>
+                            <option value="pr">PR</option>
+                            <option value="pe">PE</option>
+                            <option value="pi">PI</option>
+                            <option value="rj">RJ</option>
+                            <option value="rn">RN</option>
+                            <option value="rs">RS</option>
+                            <option value="ro">RO</option>
+                            <option value="rr">RR</option>
+                            <option value="sc">SC</option>
+                            <option value="sp">SP</option>
+                            <option value="se">SE</option>
+                            <option value="to">TO</option>
+                        </select>
+                        <label for="uf_emissao">UF de emissão *</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm mt-3 form-floating">
+                        <input type="text" class="form-control required" id="filiacao" oninput="mascara_palavras(this)">
+                        <label for="filiacao">Filiação *</label>
+                        <div class="form-text">Nome de apenas uma pessoa.</div>
+                    </div>
+                    <div class="col-sm mt-3 form-floating">
+                        <select class="form-select required" id="escolaridade" onchange="set_escolaridade(this.value)">
+                            <option selected disabled hidden></option>
+                            <option value="1">Fundamental I incompleto</option>
+                            <option value="2">Fundamental I completo (terminou o 5º ano)</option>
+                            <option value="3">Fundamental II incompleto</option>
+                            <option value="4">Fundamental II completo (terminou o 9º ano)</option>
+                            <option value="5">Médio incompleto</option>
+                            <option value="6">Médio completo</option>
+                            <option value="7">Graduação incompleta</option>
+                            <option value="8">Graduação completa</option>
+                            <option value="9">Pós-graduação incompleta</option>
+                            <option value="10">Pós-graduação completa</option>
+                            <option value="11">Mestrado</option>
+                            <option value="12">Doutorado</option>
+                        </select>
+                        <label for="escolaridade">Escolaridade *</label>
+                    </div>
+                </div>
+
+                <span class="mt-4 badge text-bg-danger" id="danger_badge">Os itens marcados com * são obrigatórios!</span>
+            </div>
+
+            <div class="p-5 mb-5 border bg-body-secondary text-body-secondary rounded">
+                <h2>Informações de Contato</h2>
+
+                <div class="row">
+                    <div class="col-sm mt-3 form-floating">
+                        <input type="text" class="form-control" id="email" oninput="this.value = this.value.replace(/[^a-z0-9.@_-]+$/i, '')" onblur="verifica_email(this.value)" autocomplete="email">
+                        <label for="email">E-mail</label>
+                        <div class="form-text" id="email_placeholder"></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm mt-3 form-floating">
+                        <input type="tel" class="form-control" id="telefone" oninput="mascara_tel(this)" onblur="verifica_ddd_tel(this.value.substring(1,3))" autocomplete="tel">
+                        <label for="telefone">Telefone</label>
+                        <div class="form-text" id="tel_placeholder"></div>
+                    </div>
+                    <div class="col-sm mt-3 form-floating">
+                        <input type="tel" class="form-control" id="celular" oninput="mascara_cel(this)" onblur="verifica_ddd_cel(this.value.substring(1,3))" autocomplete="phone">
+                        <label for="celular">Celular</label>
+                        <div class="form-text" id="cel_placeholder"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-5 mb-5 border bg-body-secondary text-body-secondary rounded">
+                <h2>Informações de endereço</h2>
+
+                <div class="row">
+                    <div class="col-lg-4 col-md-8 mt-3 form-floating">
+                        <input type="text" class="form-control required" oninput="mascara_cep(this)" onblur="verifica_cep(this.value.replace(/\D/g, ''))" id="cep" autocomplete="postal-code">
+                        <label for="cep">CEP *</label>
+                        <div class="form-text" id="cep_placeholder"></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-9 mt-3 form-floating">
+                        <input type="text" class="form-control required" id="rua">
+                        <label for="rua">Logradouro *</label>
+                    </div>
+                    <div class="col-sm-3 mt-3 form-floating">
+                        <input type="text" class="form-control required" id="numero" oninput="this.value = this.value.replace(/[^0-9]+$/, '')">
+                        <label for="numero">Número *</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md mt-3 form-floating">
+                        <input type="text" class="form-control" id="complemento">
+                        <label for="complemento">Complemento</label>
+                    </div>
+                    <div class="col-md mt-3 form-floating">
+                        <input type="text" class="form-control required" id="bairro">
+                        <label for="bairro">Bairro *</label>
+                    </div>
+                    <div class="col-md mt-3 form-floating">
+                        <input type="text" class="form-control required" id="cidade">
+                        <label for="cidade">Cidade *</label>
+                    </div>
+                    <div class="col-md mt-3 form-floating">
+                        <select class="form-select required" id="uf">
+                            <option selected disabled hidden></option>
+                            <option value="AC">AC</option>
+                            <option value="AL">AL</option>
+                            <option value="AP">AP</option>
+                            <option value="AM">AM</option>
+                            <option value="BA">BA</option>
+                            <option value="CE">CE</option>
+                            <option value="DF">DF</option>
+                            <option value="ES">ES</option>
+                            <option value="GO">GO</option>
+                            <option value="MA">MA</option>
+                            <option value="MT">MT</option>
+                            <option value="MS">MS</option>
+                            <option value="MG">MG</option>
+                            <option value="PA">PA</option>
+                            <option value="PB">PB</option>
+                            <option value="PR">PR</option>
+                            <option value="PE">PE</option>
+                            <option value="PI">PI</option>
+                            <option value="RJ">RJ</option>
+                            <option value="RN">RN</option>
+                            <option value="RS">RS</option>
+                            <option value="RO">RO</option>
+                            <option value="RR">RR</option>
+                            <option value="SC">SC</option>
+                            <option value="SP">SP</option>
+                            <option value="SE">SE</option>
+                            <option value="TO">TO</option>
+                        </select>
+                        <label for="uf">Estado *</label>
+                    </div>
+                </div>
+
+                <span class="mt-4 badge text-bg-danger" id="danger_badge">Os itens marcados com * são obrigatórios!</span>
+            </div>
+
+            <div class="p-5 border bg-body-secondary text-body-secondary rounded">
+                <h2>Informações do Curso</h2>
+
+                <div class="row">
+                    <div class="col-sm mt-3 form-floating">
+                        <select class="form-select required" id="curso" disabled onchange="habilitar_dias(this)">
+                            <option selected disabled hidden></option>
+                        </select>
+                        <label for="curso">Curso *</label>
+                        <div class="form-text" id="curso_placeholder"></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm mt-3 form-floating">
+                        <select class="form-select required" id="dias" disabled onchange="habilitar_horarios(this)">
+                            <option selected disabled hidden></option>
+                        </select>
+                        <label for="dias">Dias *</label>
+                    </div>
+                    <div class="col-sm mt-3 form-floating">
+                        <select class="form-select required" id="horario" disabled onchange="set_horario(this.value)">
+                            <option selected disabled hidden></option>
+                        </select>
+                        <label for="horario">Horário *</label>
+                    </div>
+                </div>
+
+                <span class="mt-4 badge text-bg-danger" id="danger_badge">Os itens marcados com * são obrigatórios!</span>
+            </div>
+            
+            
+            <div id="preenchido_placeholder"></div>
+            
+            <div class="container align-items-center my-3">
+                <div class="row">
+                    <div class="col-xl-10 col-md-8 col-6 mt-3 form-check">
+                        <input class="form-check-input required" type="checkbox" id="termos">
+                        <label class="form-check-label" for="termos">Confirme que todas as informações estão certas. *</label>
+                    </div>
+                    <div class="col-xl-2 col-md-4 col-6 mt-3">
+                        <button class="btn btn-primary float-end" id="btn" type="button" onclick="verifica_form(); enviar_dados()">Enviar formulário</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <footer class="border-top bg-body-secondary text-body-secondary px-5 py-2">
+        <div class="row">
+            <div class="col-sm-4">
+                <figure class="figure start-0 translate-middle-x">
+                    <img class="figure-img" width="200" src="{% static 'img/Marica.png' %}" alt="Prefeitura de Maricá">
+                    <figcaption class="figure-caption text-center"><i>ORGANIZAÇÃO</i></figcaption>
+                </figure>
+            </div>
+            <div class="col-sm-4">
+                <figure class="figure start-0 translate-middle-x">
+                    <img class="figure-img" width="200" src="{% static 'img/ICTIM.png' %}" alt="Instituto de Ciência Tecnologia e Inovação de Maricá">
+                    <figcaption class="figure-caption text-center"><i>REALIZAÇÃO</i></figcaption>
+                </figure>
+            </div>
+            <div class="col-sm-4">
+                <figure class="figure start-0 translate-middle-x">
+                    <img class="figure-img" width="200" src="{% static 'img/Inac.png' %}" alt="Instituto Nova Ágora de Cidadania">
+                    <figcaption class="figure-caption text-center"><i>REALIZAÇÃO</i></figcaption>
+                </figure>
+            </div>
+        </div>
+    </footer>
+
+    <style>
+        .figure{
+            margin-left: 50%;
+        }
+    </style>
+</body>
+</html>

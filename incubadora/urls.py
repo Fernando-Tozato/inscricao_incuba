@@ -30,6 +30,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
     path('accounts/', include('allauth.urls')),
-    path('externo/', include('externo.urls')),
-    path('interno/', include('interno.urls')),
+    path('externo/', include('externo.urls'), name='externo'),
+    path('interno/', include('interno.urls'), name='interno'),
 ]
