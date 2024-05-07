@@ -14,7 +14,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
     <script src="https://kit.fontawesome.com/b87058db00.js" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
-    <script src="{% static 'js/login.js' %}"></script>
+    <script src="{% static 'js/inicial.js' %}"></script>
 
     <nav class="navbar navbar-expand-sm bg-body-secondary text-body-secondary border-bottom" aria-label="Tenth navbar example" id="navbar">
         <div class="container-fluid">
@@ -45,7 +45,7 @@
                 <label for="cpf" class="form-label">Digite o CPF:</label>
                 <div class="input-group mb-3">
                     <i class="fa-solid fa-magnifying-glass input-group-text" id="basic-addon3"></i>
-                    <input type="text" class="form-control" id="cpf" aria-describedby="basic-addon3">
+                    <input type="text" class="form-control" id="cpf" aria-describedby="basic-addon3" oninput="mascara(); enviar(); exibir()">
                 </div>
             </form>
         </div>
