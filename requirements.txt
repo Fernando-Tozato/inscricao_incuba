@@ -4,3 +4,4 @@ django
 Pillow
 django_rest_framework
 django-allauth
+pandas
