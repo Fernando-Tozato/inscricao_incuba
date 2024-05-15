@@ -20,7 +20,6 @@ function enviar() {
     var formulario = document.getElementById("meuFormulario");
     var formData = new FormData(formulario);
 
-    // Faça a solicitação AJAX para enviar o formulário
     var xhr = new XMLHttpRequest();
     xhr.open("POST", formulario.action);
     xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
@@ -40,4 +39,10 @@ function enviar() {
 
 function exibir(){
 
+}
+
+function principal(){
+    mascara();
+    enviar();
+    exibir();
 }
