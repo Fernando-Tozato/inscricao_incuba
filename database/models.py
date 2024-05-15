@@ -57,6 +57,6 @@ class Aluno(models.Model):
 
 class Sorteado(models.Model):
     nome = models.CharField(max_length=100)
-    cpf = models.CharField(max_length=14)
+    cpf = models.CharField(max_length=14, unique=True)
     nascimento = models.DateField()
     id_inscrito = models.OneToOneField(Inscrito, on_delete=models.CASCADE)

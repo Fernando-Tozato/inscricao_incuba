@@ -38,20 +38,21 @@
         </div>
     </nav>
 
-    <div class="container my-5 px-5" style="height: 49.5vh;">
-        <div class="p-5 mb-5 border bg-body-secondary text-body-secondary rounded">
-            <form action="{% url 'pagina_inicial' %}" method="post">
-                {% csrf_token %}
-                <label for="cpf" class="form-label">Digite o CPF:</label>
-                <div class="input-group mb-3">
-                    <i class="fa-solid fa-magnifying-glass input-group-text" id="basic-addon3"></i>
-                    <input type="text" class="form-control" id="cpf" aria-describedby="basic-addon3" oninput="principal()">
-                </div>
-            </form>
+    <div class="container my-5 px-5">
+        <div class="p-4 mb-5 border bg-body-secondary text-body-secondary rounded">
+            <label for="cpf" class="form-label">Digite o CPF:</label>
+            <div class="input-group mb-3">
+                <i class="fa-solid fa-magnifying-glass input-group-text" id="basic-addon3"></i>
+                <input type="text" class="form-control" id="cpf" aria-describedby="basic-addon3" oninput="principal()">
+            </div>
+        </div>
+        <div class="p-4 mb-5 border bg-body-secondary text-body-secondary rounded">
+            <ul class="list-group" id="resultado_pesquisa">
+            </ul>
         </div>
     </div>
 
-    <footer class="border-top bg-body-secondary text-body-secondary px-5 py-2">
+    <footer class="border-top bg-body-secondary text-body-secondary px-5 py-2 fixed-bottom">
         <div class="row">
             <div class="col-sm-4">
                 <figure class="figure start-0 translate-middle-x">

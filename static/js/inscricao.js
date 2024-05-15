@@ -1,5 +1,3 @@
-const url = window.location.href
-
 let form_vazio = true;
 let cpf_invalido = true;
 let data_nasc_invalida = true;
@@ -106,7 +104,7 @@ function verifica_cpf(cpf){
         placeholder.innerHTML = '';
         cpf_invalido = false;
 
-        fetch(window.location.href + 'api/inscrito/?format=json')
+        fetch(window.location.protocol + '//' + window.location.host + '/api/inscrito/?format=json')
         .then(response => {
             if (!response.ok) {
                 throw new Error('Erro ao carregar o arquivo JSON');
@@ -381,8 +379,8 @@ function habilitar_cursos(){
     select_curso.innerHTML = '<option selected disabled hidden></option>';
     document.getElementById('dias').innerHTML = '<option selected disabled hidden></option>';
     document.getElementById('horario').innerHTML = '<option selected disabled hidden></option>';
-
-    fetch(window.location.href + 'api/turma/?format=json')
+    
+    fetch(window.location.protocol + '//' + window.location.host + '/api/turma/?format=json')
     .then(response => {
         if (!response.ok) {
             throw new Error('Erro ao carregar o arquivo JSON');
@@ -525,8 +523,8 @@ function enviar_dados(){
         };
 
         console.log(dados);
-
-        fetch(window.location.href + 'api/inscrito/', {
+        
+        fetch(window.location.protocol + '//' + window.location.host + '/api/inscrito/?format=json', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -546,7 +544,7 @@ function enviar_dados(){
                 console.log(response);
             } else {
                 console.log('dados enviados');
-                window.location.href = url + 'enviado/'
+                window.location.href = window.location.protocol + '//' + window.location.host + '/externo/enviado/'
             }
         })
         .catch(error => {
