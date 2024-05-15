@@ -1,21 +1,19 @@
 function mascara(){
-    const cpf = document.getElementById('cpf');
-    const value = cpf.value;
-
-    if(isNaN(value[value.length-1])){
-        cpf.value = value.substring(0, value.length-1);
+    const v = i.value;
+    
+    if(isNaN(v[v.length-1])){
+        i.value = v.substring(0, v.length-1);
         return;
     }
     
-    cpf.setAttribute("maxlength", "14");
-    if (value.length == 3 || value.length == 7){
-        cpf.value += ".";
+    i.setAttribute("maxlength", "14");
+    if (v.length == 3 || v.length == 7){
+        i.value += ".";
     }
     
-    if (value.length == 11){
-        cpf.value += "-";
+    if (v.length == 11){
+        i.value += "-";
     }
-    console.log();
 }
 
 function enviar() {
@@ -28,8 +26,10 @@ function enviar() {
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
             if (xhr.status === 200) {
+                // Processar resposta de sucesso aqui
                 console.log("Formulário enviado com sucesso!");
             } else {
+                // Processar resposta de erro aqui
                 console.error("Erro ao enviar formulário!");
             }
         }
