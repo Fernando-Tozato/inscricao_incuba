@@ -40,14 +40,16 @@
 
     <div class="container my-5 px-5">
         <div class="p-4 mb-5 border bg-body-secondary text-body-secondary rounded">
-            <label for="cpf" class="form-label">Digite o CPF:</label>
+            <label for="busca" class="form-label">Digite o nome ou CPF:</label>
             <div class="input-group mb-3">
                 <i class="fa-solid fa-magnifying-glass input-group-text" id="basic-addon3"></i>
-                <input type="text" class="form-control" id="cpf" aria-describedby="basic-addon3" oninput="principal()">
+                <input type="text" class="form-control" id="busca" aria-describedby="basic-addon3" oninput="buscar(this)">
             </div>
+            <div class="form-text">Caso tenha nome social, busque pelo nome social e não pelo civil. Se a busca for efetuada por CPF, não digite os pontos e traço.</div>
         </div>
         <div class="p-4 mb-5 border bg-body-secondary text-body-secondary rounded">
-            <ul class="list-group" id="resultado_pesquisa">
+            <ul class="justify-content-center list-group" id="resultado_pesquisa">
+                <h3>Faça uma busca para começar a mostrar resultados.</h3>
             </ul>
         </div>
     </div>

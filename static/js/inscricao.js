@@ -56,7 +56,7 @@ function verifica_form(){
 
 function verifica_cpf(cpf){
     let invalido = true;
-    let inscrito = true;
+    let isInscrito = true;
 
     const placeholder = document.getElementById('cpf_placeholder');
     const invalidos = ['00000000000', '11111111111', '22222222222', '33333333333', '44444444444', '55555555555', '66666666666', '77777777777', '88888888888', '99999999999'];
@@ -114,19 +114,19 @@ function verifica_cpf(cpf){
         .then(data => {
             const inscritos = data;
             inscritos.forEach(inscrito => {
+                console.log(cpf.join(''), inscrito.cpf.replace(/\D/g, ''))
                 if(cpf.join('') === inscrito.cpf.replace(/\D/g, '')){
-                    console.log(cpf.join(''), inscrito.cpf.replace(/\D/g, ''))
-                    inscrito = true;
+                    isInscrito = true;
                 } else {
-                    inscrito = false;
+                    isInscrito = false;
                 }
             });
 
             if(inscritos.length === 0){
-                inscrito = false;
+                isInscrito = false;
             }
 
-            if(inscrito){
+            if(isInscrito){
                 placeholder.innerHTML = [
                     '<div class="alert alert-danger d-flex align-items-center mt-3" role="alert">',
                         '<i class="fa-solid fa-triangle-exclamation bi flex-shrink-0 me-2" role="img" aria-label="Danger:" style="color: #b20101;"></i>',
@@ -500,7 +500,9 @@ function enviar_dados(){
 
         const dados = {
             "nome": document.getElementById('nome').value,
+            "nome_pesquisa": mascara_pesquisa(document.getElementById('nome').value),
             "nome_social": document.getElementById('nome_social').value,
+            "nome_social_pesquisa": mascara_pesquisa(document.getElementById('nome_social').value),
             "nascimento": `${nasc[2]}-${nasc[1]}-${nasc[0]}`,
             "cpf": document.getElementById('cpf').value,
             "rg": document.getElementById('rg').value,
@@ -692,4 +694,19 @@ function mascara_palavras(i){
     nome = nome.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 
     i.value = nome;
+}
+
+function mascara_pesquisa(value){
+    value = value.replace(/[ÀÁÂÃÄÅ]/gi,'A');
+    value = value.replace(/[ÈÉÊË]/gi,'E');
+    value = value.replace(/[ÌÍÎÏ]/gi,'I');
+    value = value.replace(/[ÒÓÔÕ]/gi,'O');
+    value = value.replace(/[ÙÚÛÜ]/gi,'U');
+    value = value.replace(/[Ç]/gi,'C');
+    value = value.replace(/[Ñ]/gi,'N');
+    value = value.replace(/[ÝŸ]/gi,'Y');
+    value = value.toUpperCase();
+    value = value.replace(/[^A-Z ]/g,'');
+
+    return value;
 }

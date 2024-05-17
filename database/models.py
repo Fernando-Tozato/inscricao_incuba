@@ -11,7 +11,9 @@ class Turma(models.Model):
 
 class Inscrito(models.Model):
     nome = models.CharField(max_length=100)
+    nome_pesquisa = models.CharField(max_length=100)
     nome_social = models.CharField(max_length=100, null=True, default=None, blank=True)
+    nome_social_pesquisa = models.CharField(max_length=100, null=True, default=None, blank=True)
     nascimento = models.DateField()
     cpf = models.CharField(max_length=14, unique=True)
     rg = models.CharField(max_length=14, null=True, default=None, blank=True)

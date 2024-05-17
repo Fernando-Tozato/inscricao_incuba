@@ -39,6 +39,22 @@ comandos.append('''
 ''')
 
 comandos.append('''
+    DROP TABLE database_inscrito;
+''')
+
+comandos.append('''
+    DROP TABLE database_turma;
+''')
+
+comandos.append('''
+    DROP TABLE database_aluno;
+''')
+
+comandos.append('''
+    DROP TABLE database_sorteado;
+''')
+
+comandos.append('''
     DROP TABLE django_admin_log;
 ''')
 
@@ -54,21 +70,7 @@ comandos.append('''
     DROP TABLE django_session;
 ''')
 
-comandos.append('''
-    DROP TABLE inscricao_inscrito;
-''')
 
-comandos.append('''
-    DROP TABLE inscricao_turma;
-''')
-
-comandos.append('''
-    DROP TABLE interno_aluno;
-''')
-
-comandos.append('''
-    DROP TABLE interno_sorteado;
-''')
 
 for comando in comandos:
     cursor.execute(comando)
