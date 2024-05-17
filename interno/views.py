@@ -18,6 +18,15 @@ def cadastro(request):
 def pagina_inicial(request):
     return render(request, 'pagina_inicial.html')
 
+def turma(request):
+    return render(request, 'turma.html')
+
+def turma_novo(request):
+    return render(request, 'turma_novo.html')
+
+def turma_editar(request):
+    return render(request, 'turma_editar.html')
+
 def pesquisa_cpf(request):
     data = {}
     trecho_cpf = request.GET.get('cpf', '')
