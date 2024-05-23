@@ -1,8 +1,11 @@
 from django.shortcuts import render
-from django.views.decorators.csrf import csrf_protect
-from database.models import Inscrito
+import json
+from datetime import datetime
 from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_protect
+from django.core.exceptions import ValidationError
 from django.db.models import Q
+from database.models import Inscrito, Turma
 
 def matricula_novo(request):
     return render(request, 'matricula_novo.html')
@@ -20,16 +23,13 @@ def pagina_inicial(request):
     return render(request, 'pagina_inicial.html')
 
 def turma(request):
-    return render(request, 'turma.html')
+    return render(request, 'turma.html', {'turmas': Turma.objects.all()})
 
 def turma_novo(request):
     return render(request, 'turma_novo.html')
 
 def turma_editar(request):
     return render(request, 'turma_editar.html')
-
-def turma_criar(request):
-    pass
 
 @csrf_protect
 def pesquisa_cpf(request):
@@ -73,3 +73,42 @@ def pesquisa_nome(request):
         }
         data.update({str(i): d})
     return JsonResponse(data)
+
+@csrf_protect
+def turma_criar(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            
+            curso = data['curso']
+            dias = data['dias']
+            entrada = datetime.strptime(data['entrada'], '%H:%M')
+            saida = datetime.strptime(data['saida'], '%H:%M')
+            horario = data['horario']
+            vagas = data['vagas']
+            escolaridade = data['escolaridade']
+            idade = data['idade']
+            professor = data['professor']
+            
+            turma = Turma(
+                curso = curso,
+                dias = dias,
+                horario_entrada = entrada,
+                horario_saida = saida,
+                horario = horario,
+                vagas = vagas,
+                escolaridade = escolaridade,
+                idade = idade,
+                professor = professor
+            )
+            
+            try:
+                turma.full_clean()
+                turma.save()
+                return JsonResponse({'success': 'Sucesso no envio'}, status=200)
+            except ValidationError as e:
+                return JsonResponse({'error': e.message_dict}, status=400)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Dados JSON inválidos'}, status=400)
+    else:
+        return JsonResponse({'error': 'Método não permitido.'}, status=405)

@@ -1,23 +1,20 @@
 let form_vazio = true;
 let url_envio = '/interno/turma/criar/'
+let csrftoken;
 
 function verifica_form(){
     let vazio = true;
     const inputs = document.getElementsByClassName('required');
     const placeholder = document.getElementById('preenchido_placeholder');
 
-    for (var i = 0; i < inputs.length - 1; i++) {
+    for (var i = 0; i < inputs.length; i++) {
         if (inputs[i].value !== '') {
             vazio = false;
         } else {
             vazio = true;
-        }
+        }   
     }
-
-    if(!vazio && document.getElementById('termos').checked != true){
-        vazio = true;
-    }
-
+        
     if(vazio && placeholder.innerHTML.length == 0){
         placeholder.innerHTML = [
             '<div class="alert alert-danger d-flex align-items-center mt-3" role="alert">',
@@ -34,14 +31,16 @@ function verifica_form(){
 }
 
 function enviar_dados(){
-    const placeholder = document.getElementById('erro_placeholder');
+    const placeholder = document.getElementById('cima_placeholder');
 
     if(!form_vazio){
         const dados = {
             "curso": document.getElementById('curso').value,
+            "professor": document.getElementById('professor').value,
             "dias": document.getElementById('dias').value,
             "entrada": document.getElementById('entrada').value,
             "saida": document.getElementById('saida').value,
+            "horario": `${document.getElementById('entrada').value} - ${document.getElementById('saida').value}`,
             "vagas": parseInt(document.getElementById('vagas').value),
             "idade": parseInt(document.getElementById('idade').value),
             "escolaridade": parseInt(document.getElementById('escolaridade').value )
@@ -68,7 +67,7 @@ function enviar_dados(){
                     document.getElementById('navbar').scrollIntoView({behavior: 'instant', block: 'start'})
                 }
             } else {
-                window.location.pathname = url_enviado
+                sucesso();
             }
         })
         .catch(error => {
@@ -79,7 +78,7 @@ function enviar_dados(){
         placeholder.innerHTML = [
             '<div class="alert alert-danger d-flex align-items-center mt-3" role="alert">',
                 '<i class="fa-solid fa-triangle-exclamation bi flex-shrink-0 me-3" role="img" aria-label="Danger:" style="color: #b20101;"></i>',
-                '<div>Atenção! Seu formulário de inscrição não foi enviado. Corrija os erros antes do envio.</div>',
+                '<div>Atenção! A turma não foi criada. Corrija os erros antes do envio.</div>',
             '</div>'
         ].join('');
 
@@ -87,27 +86,49 @@ function enviar_dados(){
     }
 }
 
-function mascara_hora(i){
-    const v = i.value;
+function mascara_hora(input){
+    const hora = input.value;
 
-    if(isNaN(v[v.length-1])){
-        i.value = v.substring(0, v.length-1);
+    if(isNaN(hora[hora.length-1])){
+        input.value = hora.substring(0, hora.length-1);
         return;
     }
 
-    i.setAttribute("maxlength", "5");
-    if (v.length == 2){
-        i.value += ":";
-    }
-
-    if(v.contains(':')){
-        h = v.split(':')[0];
-        m = v.split(':')[1];
-
-        if(h<0){
-            i.value = '00:00';
-        } else if(h==24){
-            i.value = '00:00';
-        }
+    input.setAttribute("maxlength", "5");
+    if (hora.length == 2){
+        input.value += ":";
     }
 }
+
+function verifica_horas(input){
+    const hora = input.value;
+
+    if(hora.includes(':')){
+        h = hora.split(':')[0];
+        m = hora.split(':')[1];
+
+        if(h>=24){
+            h = '00';
+        }
+        if(m>=60){
+            h = String(Number(h) + 1);
+            m = String(Number(m) - 60);
+        }
+        input.value = `${h}:${m}`
+    }
+}
+
+function sucesso(){
+    const placeholder = document.getElementById('cima_placeholder');
+
+    placeholder.innerHTML = [
+        '<div class="alert alert-success d-flex align-items-center mt-3" role="alert">',
+            '<i class="fa-solid fa-circle-check bi flex-shrink-0 me-3" role="img" aria-label="Success:" style="color: #248449;"></i>',
+            '<div>Sucesso! A turma já está no banco de dados.</div>',
+        '</div>'
+    ].join('');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    csrftoken = document.getElementById('token').children[0].value;
+});

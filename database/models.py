@@ -5,9 +5,11 @@ class Turma(models.Model):
     dias = models.CharField(max_length=20)
     horario_entrada = models.TimeField()
     horario_saida = models.TimeField()
+    horario = models.CharField(max_length=13, default=f'{horario_entrada} - {horario_saida}')
     vagas = models.IntegerField()
     escolaridade = models.IntegerField()
     idade = models.IntegerField()
+    professor = models.CharField(max_length=100)
 
 class Inscrito(models.Model):
     nome = models.CharField(max_length=100)
