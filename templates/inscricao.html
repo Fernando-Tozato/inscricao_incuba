@@ -16,7 +16,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
     <script src="{% static 'js/inscricao.js' %}"></script>
 
-    
+    <div class="d-none" id="token" url_envio="{% url 'validar_inscricao' %}" url_cpf="{% url 'verificar_cpf' %}"  url_turmas="{% url 'busca_turmas' %}">{% csrf_token %}</div>
 
     <nav class="navbar navbar-expand-sm bg-body-secondary text-body-secondary border-bottom" aria-label="Tenth navbar example" id="navbar">
         <div class="container-fluid">
@@ -74,22 +74,22 @@
                         <div class="form-text" id="cpf_placeholder"></div>
                     </div>
                     <div class="col-md mt-3 form-floating">
-                        <input type="text" class="form-control required" oninput="mascara_rg(this)" id="rg">
-                        <label for="rg">RG *</label>
+                        <input type="text" class="form-control" oninput="mascara_rg(this)" id="rg">
+                        <label for="rg">RG</label>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md mt-3 form-floating">
-                        <input type="text" class="form-control required" id="data_emissao" oninput="mascara_data(this)" onblur="verifica_data_emissao(this.value.split('/'))">
-                        <label for="data_emissao">Data de emissão *</label>
+                        <input type="text" class="form-control" id="data_emissao" oninput="mascara_data(this)" onblur="verifica_data_emissao(this.value.split('/'))">
+                        <label for="data_emissao">Data de emissão</label>
                         <div class="form-text" id="data_emissao_placeholder"></div>
                     </div>
                     <div class="col-md mt-3 form-floating">
-                        <input type="text" class="form-control required" id="orgao_emissor" oninput="mascara_palavras(this)">
-                        <label for="orgao_emissor">Órgão emissor *</label>
+                        <input type="text" class="form-control" id="orgao_emissor" oninput="mascara_palavras(this)">
+                        <label for="orgao_emissor">Órgão emissor</label>
                     </div>
                     <div class="col-md mt-3 form-floating">
-                        <select class="form-select required" id="uf_emissao">
+                        <select class="form-select" id="uf_emissao">
                             <option selected disabled hidden></option>
                             <option value="ac">AC</option>
                             <option value="al">AL</option>
@@ -119,7 +119,7 @@
                             <option value="se">SE</option>
                             <option value="to">TO</option>
                         </select>
-                        <label for="uf_emissao">UF de emissão *</label>
+                        <label for="uf_emissao">UF de emissão</label>
                     </div>
                 </div>
                 <div class="row">

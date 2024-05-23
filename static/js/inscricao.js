@@ -6,12 +6,16 @@ let email_invalido = false;
 let cep_invalido = true;
 let ddd_tel_invalido = false;
 let ddd_cel_invalido = false;
+let nascimento;
 let idade;
 let escolaridade;
-let turmas;
 let curso;
 let dias;
 let horario;
+let csrftoken;
+let url_envio;
+let url_cpf;
+let url_turmas;
 
 function form_valido(){
     if(form_vazio || cpf_invalido || data_nasc_invalida || data_emissao_invalida || email_invalido || cep_invalido || ddd_tel_invalido || ddd_cel_invalido){
@@ -104,7 +108,16 @@ function verifica_cpf(cpf){
         placeholder.innerHTML = '';
         cpf_invalido = false;
 
-        fetch(window.location.protocol + '//' + window.location.host + '/api/inscrito/?format=json')
+        dados = {"cpf": cpf.join('')}
+
+        fetch(window.location.protocol + '//' + window.location.host + url_cpf, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken,
+            },
+            body: JSON.stringify(dados)
+        })
         .then(response => {
             if (!response.ok) {
                 throw new Error('Erro ao carregar o arquivo JSON');
@@ -112,19 +125,7 @@ function verifica_cpf(cpf){
             return response.json();
         })
         .then(data => {
-            const inscritos = data;
-            inscritos.forEach(inscrito => {
-                console.log(cpf.join(''), inscrito.cpf.replace(/\D/g, ''))
-                if(cpf.join('') === inscrito.cpf.replace(/\D/g, '')){
-                    isInscrito = true;
-                } else {
-                    isInscrito = false;
-                }
-            });
-
-            if(inscritos.length === 0){
-                isInscrito = false;
-            }
+            isInscrito = data.response
 
             if(isInscrito){
                 placeholder.innerHTML = [
@@ -146,8 +147,6 @@ function verifica_cpf(cpf){
 }
 
 function verifica_data_nasc(data){
-    const dia = data[0];
-    const mes = data[1];
     const ano = data[2];
     const placeholder = document.getElementById('data_nasc_placeholder');
 
@@ -187,8 +186,6 @@ function verifica_data_nasc(data){
 }
 
 function verifica_data_emissao(data){
-    const dia = data[0];
-    const mes = data[1];
     const ano = data[2];
     const placeholder = document.getElementById('data_emissao_placeholder');
 
@@ -361,7 +358,7 @@ function verifica_ddd_cel(ddd){
 }
 
 function set_escolaridade(v){
-    escolaridade = v;
+    escolaridade = parseInt(v);
     habilitar_cursos();
 }
 
@@ -380,7 +377,19 @@ function habilitar_cursos(){
     document.getElementById('dias').innerHTML = '<option selected disabled hidden></option>';
     document.getElementById('horario').innerHTML = '<option selected disabled hidden></option>';
     
-    fetch(window.location.protocol + '//' + window.location.host + '/api/turma/?format=json')
+    const dados = {
+        "escolaridade": escolaridade,
+        "idade": idade 
+    }
+
+    fetch(window.location.protocol + '//' + window.location.host + url_turmas, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken,
+        },
+        body: JSON.stringify(dados)
+    })
     .then(response => {
         if (!response.ok) {
             throw new Error('Erro ao carregar o arquivo JSON');
@@ -388,31 +397,8 @@ function habilitar_cursos(){
         return response.json();
     })
     .then(data => {
-        turmas = data;
-        if(escolaridade && idade){
-            turmas.forEach(turma => {
-                if(!cursos.includes(turma.curso) && parseInt(turma.idade) <= idade && parseInt(turma.escolaridade) <= escolaridade){
-                    cursos.push(turma.curso);
-                }
-            });
-        }
-        else {
-            turmas.forEach(turma => {
-                if(!cursos.includes(turma.curso)){
-                    cursos.push(turma.curso);
-                }
-            });
-        }
-
-        if(cursos.length == 0){
-            placeholder.innerHTML = [
-                '<div class="alert alert-warning d-flex align-items-center mt-3" role="alert">',
-                    '<i class="fa-solid fa-triangle-exclamation bi flex-shrink-0 me-2" role="img" aria-label="Danger:" style="color: #cfac2a;"></i>',
-                    '<div>Não temos nenhum curso disponível para a sua idade ou escolaridade.</div>',
-                '</div>'
-            ].join('');
-            select_curso.disabled = true;
-        } else {
+        if(data.cursos){
+            cursos = data.cursos;
             placeholder.innerHTML = '';
             cursos.forEach(opt_curso => {
                 let new_opt = document.createElement("option");
@@ -421,7 +407,17 @@ function habilitar_cursos(){
                 select_curso.appendChild(new_opt);
             });
             select_curso.disabled = false;
+        } else {
+            placeholder.innerHTML = [
+                '<div class="alert alert-warning d-flex align-items-center mt-3" role="alert">',
+                    '<i class="fa-solid fa-triangle-exclamation bi flex-shrink-0 me-2" role="img" aria-label="Danger:" style="color: #cfac2a;"></i>',
+                    '<div>Não temos nenhum curso disponível para a sua idade ou escolaridade.</div>',
+                '</div>'
+            ].join('');
+            select_curso.disabled = true;
         }
+
+        console.log(data)
     })
     .catch(error => {
         console.error('Erro:', error);
@@ -510,7 +506,7 @@ function enviar_dados(){
             "orgao_emissor": document.getElementById('orgao_emissor').value,
             "uf_emissao": document.getElementById('uf_emissao').value,
             "filiacao": document.getElementById('filiacao').value,
-            "escolaridade": document.getElementById('escolaridade').value,
+            "escolaridade": parseInt(document.getElementById('escolaridade').value),
             "email": document.getElementById('email').value,
             "telefone": document.getElementById('telefone').value,
             "celular": document.getElementById('celular').value,
@@ -526,10 +522,11 @@ function enviar_dados(){
 
         console.log(dados);
         
-        fetch(window.location.protocol + '//' + window.location.host + '/api/inscrito/?format=json', {
+        fetch(window.location.protocol + '//' + window.location.host + url_envio, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken,
             },
             body: JSON.stringify(dados)
         })
@@ -544,9 +541,6 @@ function enviar_dados(){
                     ].join('');
                 }
                 console.log(response);
-            } else {
-                console.log('dados enviados');
-                window.location.href = window.location.protocol + '//' + window.location.host + '/externo/enviado/'
             }
         })
         .catch(error => {
@@ -710,3 +704,10 @@ function mascara_pesquisa(value){
 
     return value;
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    csrftoken = document.getElementById('token').children[0].value;
+    url_envio = document.getElementById('token').getAttribute('url_envio');
+    url_cpf = document.getElementById('token').getAttribute('url_cpf');
+    url_turmas = document.getElementById('token').getAttribute('url_turmas');
+});

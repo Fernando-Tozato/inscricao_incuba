@@ -61,7 +61,7 @@ function buscar(busca){
         fetch(`/interno/pesquisa_nome?nome=${value}`)
         .then(response => {
             if (!response.ok) {
-                throw new Error('Erro ao buscar CPF');
+                throw new Error('Erro ao buscar nome');
             }
             return response.json();
         })
@@ -69,7 +69,7 @@ function buscar(busca){
             exibir_resultado(data);
         })
         .catch(error => {
-            document.getElementById('resultado_pesquisa').innerHTML = 'CPF não encontrado.';
+            document.getElementById('resultado_pesquisa').innerHTML = 'Nome não encontrado.';
             console.error(error);
         });
     } else {
