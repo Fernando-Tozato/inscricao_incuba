@@ -39,82 +39,84 @@
         </div>
     </nav>
 
-    <div class="container my-5 px-5" style="height: 49.5vh;">
+    <div class="container my-5 px-5">
         <div class="p-5 mb-5 border bg-body-secondary text-body-secondary rounded">
             <h1>Turmas:</h1>
 
-            <br>
+            <div class="border-top p-3"></div>
 
-            <ul class="justify-content-center list-group">
-                {% for turma in turmas %}
-                    <li class="list-group-item">
-                        <a href="#" style="text-decoration: none;" class="text-body-secondary">
-                            <h1>{{ turma.curso }}</h1>
-                            <div class="row">
-                                <div class="col-md">
-                                    <h4>{{ turma.professor }}</h4>
+            {% if turmas %}
+                <ul class="justify-content-center list-group">
+                    {% for turma in turmas %}
+                        <li class="list-group-item">
+                            <a href="#" style="text-decoration: none;" class="text-body-secondary">
+                                <h1>{{ turma.curso }}</h1>
+                                <div class="row">
+                                    <div class="col-md">
+                                        <h4>{{ turma.professor }}</h4>
+                                    </div>
+                                    <div class="col-md">
+                                        <h4>{{ turma.dias }}</h4>
+                                    </div>
+                                    <div class="col-md">
+                                        <h4>{{ turma.horario }}</h4>
+                                    </div>
+                                    <div class="col-md">
+                                        <h4>Vagas: {{ turma.vagas }}</h4>
+                                    </div>
                                 </div>
-                                <div class="col-md">
-                                    <h4>{{ turma.dias }}</h4>
+                                <div class="row">
+                                    <div class="col-md">
+                                        {% if turma.escolaridade == 1 %}
+                                            <h4>Escolaridade: Fundamental I incompleto</h4>
+                                        {% endif %}
+                                        {% if turma.escolaridade == 2 %}
+                                            <h4>Escolaridade: Fundamental I completo (terminou o 5º ano)</h4>
+                                        {% endif %}
+                                        {% if turma.escolaridade == 3 %}
+                                            <h4>Escolaridade: Fundamental II incompleto</h4>
+                                        {% endif %}
+                                        {% if turma.escolaridade == 4 %}
+                                            <h4>Escolaridade: Fundamental II completo (terminou o 9º ano)</h4>
+                                        {% endif %}
+                                        {% if turma.escolaridade == 5 %}
+                                            <h4>Escolaridade: Médio incompleto</h4>
+                                        {% endif %}
+                                        {% if turma.escolaridade == 6 %}
+                                            <h4>Escolaridade: Médio completo</h4>
+                                        {% endif %}
+                                        {% if turma.escolaridade == 7 %}
+                                            <h4>Escolaridade: Graduação incompleta</h4>
+                                        {% endif %}
+                                        {% if turma.escolaridade == 8 %}
+                                            <h4>Escolaridade: Graduação completa</h4>
+                                        {% endif %}
+                                        {% if turma.escolaridade == 9 %}
+                                            <h4>Escolaridade: Pós-graduação incompleta</h4>
+                                        {% endif %}
+                                        {% if turma.escolaridade == 10 %}
+                                            <h4>Escolaridade: Pós-graduação completa</h4>
+                                        {% endif %}
+                                        {% if turma.escolaridade == 11 %}
+                                            <h4>Escolaridade: Mestrado</h4>
+                                        {% endif %}
+                                        {% if turma.escolaridade == 12 %}
+                                            <h4>Escolaridade: Doutorado</h4>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md">
+                                        <h4>Idade: {{ turma.idade }}</h4>
+                                    </div>
                                 </div>
-                                <div class="col-md">
-                                    <h4>{{ turma.horario }}</h4>
-                                </div>
-                                <div class="col-md">
-                                    <h4>Vagas: {{ turma.vagas }}</h4>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md">
-                                    {% if turma.escolaridade == 1 %}
-                                        <h4>Escolaridade: Fundamental I incompleto</h4>
-                                    {% endif %}
-                                    {% if turma.escolaridade == 2 %}
-                                        <h4>Escolaridade: Fundamental I completo (terminou o 5º ano)</h4>
-                                    {% endif %}
-                                    {% if turma.escolaridade == 3 %}
-                                        <h4>Escolaridade: Fundamental II incompleto</h4>
-                                    {% endif %}
-                                    {% if turma.escolaridade == 4 %}
-                                        <h4>Escolaridade: Fundamental II completo (terminou o 9º ano)</h4>
-                                    {% endif %}
-                                    {% if turma.escolaridade == 5 %}
-                                        <h4>Escolaridade: Médio incompleto</h4>
-                                    {% endif %}
-                                    {% if turma.escolaridade == 6 %}
-                                        <h4>Escolaridade: Médio completo</h4>
-                                    {% endif %}
-                                    {% if turma.escolaridade == 7 %}
-                                        <h4>Escolaridade: Graduação incompleta</h4>
-                                    {% endif %}
-                                    {% if turma.escolaridade == 8 %}
-                                        <h4>Escolaridade: Graduação completa</h4>
-                                    {% endif %}
-                                    {% if turma.escolaridade == 9 %}
-                                        <h4>Escolaridade: Pós-graduação incompleta</h4>
-                                    {% endif %}
-                                    {% if turma.escolaridade == 10 %}
-                                        <h4>Escolaridade: Pós-graduação completa</h4>
-                                    {% endif %}
-                                    {% if turma.escolaridade == 11 %}
-                                        <h4>Escolaridade: Mestrado</h4>
-                                    {% endif %}
-                                    {% if turma.escolaridade == 12 %}
-                                        <h4>Escolaridade: Doutorado</h4>
-                                    {% endif %}
-                                </div>
-                                <div class="col-md">
-                                    <h4>Idade: {{ turma.idade }}</h4>
-                                </div>
-                            </div>
-                        </a>
-                    </li>
-                {% endfor %}
-            </ul>
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
         </div>
     </div>
 
-    <footer class="border-top bg-body-secondary text-body-secondary px-5 py-2 fixed-bottom">
+    <footer class="border-top bg-body-secondary text-body-secondary px-5 py-2">
         <div class="row">
             <div class="col-sm-4">
                 <figure class="figure start-0 translate-middle-x">
