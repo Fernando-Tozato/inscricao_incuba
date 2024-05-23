@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Criação de turmas</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 </head>
 <body class="bg-body-tertiary">
@@ -38,63 +38,71 @@
         </div>
     </nav>
 
-    <div class="container my-5 px-5" style="height: 49.5vh;">
-        <div class="p-5 mb-5 border bg-body-secondary text-body-secondary rounded">
-            <h1>Criação de Turmas:</h1>
+    <div class="container my-5 px-5">
+        <form>
+            <div class="p-5 mb-5 border bg-body-secondary text-body-secondary rounded">
+                <h1>Criação de Turmas:</h1>
 
-            <div class="row">
-                <div class="col-sm mt-3 form-floating">
-                    <input type="text" class="form-control required" id="curso">
-                    <label for="curso">Curso</label>
+                <div class="row">
+                    <div class="col-sm mt-3 form-floating">
+                        <input type="text" class="form-control required" id="curso">
+                        <label for="curso">Curso</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm mt-3 form-floating">
+                        <input type="text" class="form-control required" id="dias">
+                        <label for="curso">Dias da semana</label>
+                    </div>
+                    <div class="col-sm-1"></div>
+                    <div class="col-sm mt-3 form-floating">
+                        <input type="text" class="form-control required" id="entrada" oninput="mascara_hora(this)">
+                        <label for="curso">Horário de entrada</label>
+                    </div>
+                    <div class="col-sm-1"></div>
+                    <div class="col-sm mt-3 form-floating">
+                        <input type="text" class="form-control required" id="saida" oninput="mascara_hora(this)">
+                        <label for="curso">Horário de saída</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm mt-3 form-floating">
+                        <input type="number" min="0" class="form-control required" id="vagas"  oninput="this.value = this.value.replace(/[^0-9]+$/, '')">
+                        <label for="curso">Vagas</label>
+                    </div>
+                    <div class="col-sm-1"></div>
+                    <div class="col-sm mt-3 form-floating">
+                        <input type="number" min="0" class="form-control required" id="idade"  oninput="this.value = this.value.replace(/[^0-9]+$/, '')">
+                        <label for="curso">Idade mínima</label>
+                    </div>
+                    <div class="col-sm-1"></div>
+                    <div class="col-sm mt-3 form-floating">
+                        <select class="form-select required" id="escolaridade" onchange="set_escolaridade(this.value)">
+                            <option selected disabled hidden></option>
+                            <option value="1">Fundamental I incompleto</option>
+                            <option value="2">Fundamental I completo (terminou o 5º ano)</option>
+                            <option value="3">Fundamental II incompleto</option>
+                            <option value="4">Fundamental II completo (terminou o 9º ano)</option>
+                            <option value="5">Médio incompleto</option>
+                            <option value="6">Médio completo</option>
+                            <option value="7">Graduação incompleta</option>
+                            <option value="8">Graduação completa</option>
+                            <option value="9">Pós-graduação incompleta</option>
+                            <option value="10">Pós-graduação completa</option>
+                            <option value="11">Mestrado</option>
+                            <option value="12">Doutorado</option>
+                        </select>
+                        <label for="escolaridade">Escolaridade mínima</label>
+                    </div>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-sm mt-3 form-floating">
-                    <input type="text" class="form-control required" id="curso">
-                    <label for="curso">Dias da semana</label>
-                </div>
-                <div class="col-sm-1"></div>
-                <div class="col-sm mt-3 form-floating">
-                    <input type="text" class="form-control required" id="curso" oninput="mascara_hora(this)">
-                    <label for="curso">Horário de entrada</label>
-                </div>
-                <div class="col-sm-1"></div>
-                <div class="col-sm mt-3 form-floating">
-                    <input type="text" class="form-control required" id="curso" oninput="mascara_hora(this)">
-                    <label for="curso">Horário de saída</label>
-                </div>
+
+            <div id="preenchido_placeholder"></div>
+
+            <div class="container align-items-center float-end">
+                <button class="btn btn-primary float-end" id="btn" type="button" onclick="verifica_form(); enviar_dados();">Enviar formulário</button>
             </div>
-            <div class="row">
-                <div class="col-sm mt-3 form-floating">
-                    <input type="text" class="form-control required" id="curso">
-                    <label for="curso">Vagas</label>
-                </div>
-                <div class="col-sm-1"></div>
-                <div class="col-sm mt-3 form-floating">
-                    <input type="text" class="form-control required" id="curso">
-                    <label for="curso">Idade mínima</label>
-                </div>
-                <div class="col-sm-1"></div>
-                <div class="col-sm mt-3 form-floating">
-                    <select class="form-select required" id="escolaridade" onchange="set_escolaridade(this.value)">
-                        <option selected disabled hidden></option>
-                        <option value="1">Fundamental I incompleto</option>
-                        <option value="2">Fundamental I completo (terminou o 5º ano)</option>
-                        <option value="3">Fundamental II incompleto</option>
-                        <option value="4">Fundamental II completo (terminou o 9º ano)</option>
-                        <option value="5">Médio incompleto</option>
-                        <option value="6">Médio completo</option>
-                        <option value="7">Graduação incompleta</option>
-                        <option value="8">Graduação completa</option>
-                        <option value="9">Pós-graduação incompleta</option>
-                        <option value="10">Pós-graduação completa</option>
-                        <option value="11">Mestrado</option>
-                        <option value="12">Doutorado</option>
-                    </select>
-                    <label for="escolaridade">Escolaridade mínima</label>
-                </div>
-            </div>
-        </div>
+        </form>
     </div>
 
     <footer class="border-top bg-body-secondary text-body-secondary px-5 py-2 fixed-bottom">

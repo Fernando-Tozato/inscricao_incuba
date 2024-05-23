@@ -1,7 +1,6 @@
 from django.shortcuts import render
 import json
 from django.http import JsonResponse
-from django.core.serializers import serialize
 from django.views.decorators.csrf import csrf_protect
 from django.core.exceptions import ValidationError
 from django.db.models import Q
@@ -9,6 +8,9 @@ from database.models import Inscrito, Turma
 
 def inscricao(request):
     return render(request, 'inscricao.html')
+
+def enviado(request):
+    return render(request, 'enviado.html')
 
 @csrf_protect
 def validar_inscricao(request):
@@ -23,7 +25,7 @@ def validar_inscricao(request):
             nascimento = data['nascimento']
             cpf = data['cpf']
             rg = data['rg']
-            data_emissao = data['data_emissao']
+            data_emissao = data['data_emissao'] if data['data_emissao'] != '' else None
             orgao_emissor = data['orgao_emissor']
             uf_emissao = data['uf_emissao']
             filiacao = data['filiacao']
@@ -38,7 +40,7 @@ def validar_inscricao(request):
             bairro = data['bairro']
             cidade = data['cidade']
             uf = data['uf']
-            id_turma = data['id_turma']
+            id_turma = Turma.objects.filter(pk=data['id_turma'])[0]
             
             inscrito = Inscrito(
                 nome = nome,
@@ -69,7 +71,7 @@ def validar_inscricao(request):
             try:
                 inscrito.full_clean()
                 inscrito.save()
-                return render(request, 'enviado.html')
+                return JsonResponse({'success': 'Sucesso no envio'}, status=200)
             except ValidationError as e:
                 return JsonResponse({'error': e.message_dict}, status=400)
         except json.JSONDecodeError:
@@ -84,7 +86,8 @@ def verificar_cpf(request):
             data = json.loads(request.body)
             cpf = data['cpf']
             inscrito = Inscrito.objects.filter(cpf=cpf)
-            if inscrito:
+            
+            if len(inscrito) == 0:
                 return JsonResponse({'response': False}, status=200)
             else:
                 return JsonResponse({'response': True}, status=200)
@@ -102,10 +105,12 @@ def busca_cursos(request):
             idade = data['idade']
             
             turmas = Turma.objects.filter(Q(escolaridade__lte=escolaridade) & Q(idade__lte=idade))
+            
             cursos = []
             for turma in turmas:
                 if turma.curso not in cursos:
                     cursos.append(turma.curso)
+            
             if len(turmas) != 0:
                 return JsonResponse({'cursos': cursos}, status=200)
             else:
@@ -115,8 +120,54 @@ def busca_cursos(request):
     else:
         return JsonResponse({'error': 'Método não permitido.'}, status=405)
 
+@csrf_protect
 def busca_dias(request):
-    pass
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            curso = data['curso']
+            
+            turmas = Turma.objects.filter(curso=curso)
+            
+            dias = []
+            for turma in turmas:
+                if turma.dias not in dias:
+                    dias.append(turma.dias)
+                    
+            if len(turmas) != 0:
+                return JsonResponse({'dias': dias}, status=200)
+            else:
+                return JsonResponse({'error': 'Nenhuma turma encontrada.'}, status=200)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Dados JSON inválidos'}, status=400)
+    else:
+        return JsonResponse({'error': 'Método não permitido.'}, status=405)
 
+@csrf_protect
 def busca_horarios(request):
-    pass
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            curso = data['curso']
+            dias = data['dias']
+            
+            turmas = Turma.objects.filter(Q(curso=curso) & Q(dias=dias))
+            
+            horarios = []
+            ids = []
+            for turma in turmas:
+                entrada = turma.horario_entrada.strftime('%H:%M')
+                saida = turma.horario_saida.strftime('%H:%M')
+                final = f'{entrada} - {saida}'
+                if final not in horarios:
+                    horarios.append(final)
+                    ids.append(turma.pk)
+                    
+            if len(turmas) != 0:
+                return JsonResponse({'horarios': horarios, 'ids': ids}, status=200)
+            else:
+                return JsonResponse({'error': 'Nenhuma turma encontrada.'}, status=200)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Dados JSON inválidos'}, status=400)
+    else:
+        return JsonResponse({'error': 'Método não permitido.'}, status=405)

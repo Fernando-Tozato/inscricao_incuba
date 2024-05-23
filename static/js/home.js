@@ -1,36 +1,10 @@
-function enviar() {
-    const cpf = document.getElementById('busca');
-    const resultado_placeholder = document.getElementById('resultado_pesquisa');
-
-    if(resultado_placeholder.innerHTML.length > 0){
-        resultado_placeholder.innerHTML = '';
-    }
-
-    resultado_placeholder.innerHTML = [
-        '<div class="spinner-border justify-content-center align-content-center" role="status">',
-            '<span class="visually-hidden">Loading...</span>',
-        '</div>'
-    ].join('');
-
-    fetch(`/interno/pesquisa_cpf?cpf=${cpf.value}`)
-    .then(data => {
-        exibir_resultado(data);
-    })
-    .catch(error => {
-        document.getElementById('resultado_pesquisa').innerHTML = 'CPF não encontrado.';
-        console.error(error);
-    });
-}
-
-function principal(){
-    mascara();
-    enviar();
-}
+let url_cpf = '/interno/pagina_inicial/pesquisa_cpf/?cpf=';
+let url_nome = '/interno/pagina_inicial/pesquisa_nome/?nome=';
+let csrftoken;
 
 function buscar(busca){
     const resultado_placeholder = document.getElementById('resultado_pesquisa');
     value = busca.value;
-    console.log(value.length)
     if(value.length === 0){
         resultado_placeholder.innerHTML = '<h3>Faça uma busca para começar a mostrar resultados.</h3>';
         return;
@@ -58,7 +32,12 @@ function buscar(busca){
         value = value.toUpperCase();
         value = value.replace(/[^A-Z ]/g,'');
         
-        fetch(`/interno/pesquisa_nome?nome=${value}`)
+        fetch(url_nome + value, {
+            method: 'GET',
+            headers: {
+                'X-CSRFToken': csrftoken
+            }
+        })
         .then(response => {
             if (!response.ok) {
                 throw new Error('Erro ao buscar nome');
@@ -87,7 +66,12 @@ function buscar(busca){
             busca.value += "-";
         }
 
-        fetch(`/interno/pesquisa_cpf?cpf=${value}`)
+        fetch(url_cpf + value, {
+            method: 'GET',
+            headers: {
+                'X-CSRFToken': csrftoken
+            }
+        })
         .then(response => {
             if (!response.ok) {
                 throw new Error('Erro ao buscar CPF');
@@ -107,7 +91,6 @@ function buscar(busca){
 function exibir_resultado(data){
     const resultado_placeholder = document.getElementById('resultado_pesquisa');
     resultado_placeholder.innerHTML = '';
-    console.log(data);
     if(data.hasOwnProperty('0')){
         for(const chave in data){
             const resultado = data[chave];
@@ -136,3 +119,7 @@ function exibir_resultado(data){
         resultado_placeholder.innerHTML = data.error;
     }
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    csrftoken = document.getElementById('token').children[0].value;
+});

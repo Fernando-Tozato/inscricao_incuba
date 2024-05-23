@@ -16,6 +16,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
     <script src="{% static 'js/home.js' %}"></script>
 
+    <div class="d-none" id="token" url_envio="{% url 'validar_inscricao' %}" url_cpf="{% url 'verificar_cpf' %}">{% csrf_token %}</div>
+
     <nav class="navbar navbar-expand-sm bg-body-secondary text-body-secondary border-bottom" aria-label="Tenth navbar example" id="navbar">
         <div class="container-fluid">
             <a class="navbar-brand" href="{% url 'pagina_inicial' %}">

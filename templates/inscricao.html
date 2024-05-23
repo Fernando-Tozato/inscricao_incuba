@@ -16,7 +16,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
     <script src="{% static 'js/inscricao.js' %}"></script>
 
-    <div class="d-none" id="token" url_envio="{% url 'validar_inscricao' %}" url_cpf="{% url 'verificar_cpf' %}"  url_turmas="{% url 'busca_turmas' %}">{% csrf_token %}</div>
+    <div class="d-none" id="token">{% csrf_token %}</div>
 
     <nav class="navbar navbar-expand-sm bg-body-secondary text-body-secondary border-bottom" aria-label="Tenth navbar example" id="navbar">
         <div class="container-fluid">
@@ -80,7 +80,7 @@
                 </div>
                 <div class="row">
                     <div class="col-md mt-3 form-floating">
-                        <input type="text" class="form-control" id="data_emissao" oninput="mascara_data(this)" onblur="verifica_data_emissao(this.value.split('/'))">
+                        <input type="text" class="form-control" id="data_emissao" oninput="mascara_data(this)" onblur="if(this.value.length > 0){verifica_data_emissao(this.value.split('/'))}">
                         <label for="data_emissao">Data de emissão</label>
                         <div class="form-text" id="data_emissao_placeholder"></div>
                     </div>
@@ -266,7 +266,7 @@
                         <label for="dias">Dias *</label>
                     </div>
                     <div class="col-sm mt-3 form-floating">
-                        <select class="form-select required" id="horario" disabled onchange="set_horario(this.value)">
+                        <select class="form-select required" id="horario" disabled onchange="set_horario(this)">
                             <option selected disabled hidden></option>
                         </select>
                         <label for="horario">Horário *</label>
@@ -275,7 +275,6 @@
 
                 <span class="mt-4 badge text-bg-danger" id="danger_badge">Os itens marcados com * são obrigatórios!</span>
             </div>
-            
             
             <div id="preenchido_placeholder"></div>
             

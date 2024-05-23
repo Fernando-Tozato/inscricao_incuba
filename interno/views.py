@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.views.decorators.csrf import csrf_protect
 from database.models import Inscrito
 from django.http import JsonResponse
 from django.db.models import Q
@@ -27,6 +28,10 @@ def turma_novo(request):
 def turma_editar(request):
     return render(request, 'turma_editar.html')
 
+def turma_criar(request):
+    pass
+
+@csrf_protect
 def pesquisa_cpf(request):
     data = {}
     trecho_cpf = request.GET.get('cpf', '')
@@ -46,6 +51,7 @@ def pesquisa_cpf(request):
         data.update({str(i): d})
     return JsonResponse(data)
 
+@csrf_protect
 def pesquisa_nome(request):
     data = {}
     trecho_nome = request.GET.get('nome', '')

@@ -1,7 +1,7 @@
 let form_vazio = true;
 let cpf_invalido = true;
 let data_nasc_invalida = true;
-let data_emissao_invalida = true;
+let data_emissao_invalida = false;
 let email_invalido = false;
 let cep_invalido = true;
 let ddd_tel_invalido = false;
@@ -12,10 +12,14 @@ let escolaridade;
 let curso;
 let dias;
 let horario;
+let id_turma;
 let csrftoken;
-let url_envio;
-let url_cpf;
-let url_turmas;
+let url_envio = '/externo/validar/';
+let url_cpf = '/externo/verificar_cpf/';
+let url_cursos = '/externo/busca_cursos/';
+let url_dias = '/externo/busca_dias/';
+let url_horarios = '/externo/busca_horarios/';
+let url_enviado = '/externo/enviado/';
 
 function form_valido(){
     if(form_vazio || cpf_invalido || data_nasc_invalida || data_emissao_invalida || email_invalido || cep_invalido || ddd_tel_invalido || ddd_cel_invalido){
@@ -48,12 +52,10 @@ function verifica_form(){
                 '<div>Preencha todos os campos marcados como obrigatórios (*) antes de enviar o formulário!</div>',
             '</div>'
         ].join('');
-        console.log('vazio');
         form_vazio = true;
     } 
     else {
         placeholder.innerHTML = '';
-        console.log('dados ok');
         form_vazio = false;
     }
 }
@@ -108,9 +110,9 @@ function verifica_cpf(cpf){
         placeholder.innerHTML = '';
         cpf_invalido = false;
 
-        dados = {"cpf": cpf.join('')}
+        dados = {"cpf": document.getElementById('cpf').value}
 
-        fetch(window.location.protocol + '//' + window.location.host + url_cpf, {
+        fetch(url_cpf, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -179,7 +181,6 @@ function verifica_data_nasc(data){
         data_nasc_invalida = false;
         idade = moment().diff(moment(data, 'DD/MM/YYYY'), 'years');
         if(escolaridade){
-            console.log('1')
             habilitar_cursos();
         }
     }
@@ -359,30 +360,36 @@ function verifica_ddd_cel(ddd){
 
 function set_escolaridade(v){
     escolaridade = parseInt(v);
-    habilitar_cursos();
+    if(idade){
+        habilitar_cursos();
+    }
 }
 
-function set_horario(v){
-    horario = v;
-    console.log(curso, dias, horario)
+function set_horario(selected){
+    horario = selected.value;
+    id_turma = selected.options[selected.selectedIndex].id;
 }
 
 function habilitar_cursos(){
     const select_curso = document.getElementById('curso');
+    const select_dias = document.getElementById('dias');
+    const select_horario = document.getElementById('horario');
     const placeholder = document.getElementById('curso_placeholder');
 
-    let cursos = [];
 
     select_curso.innerHTML = '<option selected disabled hidden></option>';
-    document.getElementById('dias').innerHTML = '<option selected disabled hidden></option>';
-    document.getElementById('horario').innerHTML = '<option selected disabled hidden></option>';
+    select_dias.innerHTML = '<option selected disabled hidden></option>';
+    select_horario.innerHTML = '<option selected disabled hidden></option>';
+    select_curso.disabled = true;
+    select_dias.disabled = true;
+    select_horario.disabled = true;
     
     const dados = {
         "escolaridade": escolaridade,
         "idade": idade 
     }
 
-    fetch(window.location.protocol + '//' + window.location.host + url_turmas, {
+    fetch(url_cursos, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -398,7 +405,7 @@ function habilitar_cursos(){
     })
     .then(data => {
         if(data.cursos){
-            cursos = data.cursos;
+            const cursos = data.cursos;
             placeholder.innerHTML = '';
             cursos.forEach(opt_curso => {
                 let new_opt = document.createElement("option");
@@ -416,8 +423,6 @@ function habilitar_cursos(){
             ].join('');
             select_curso.disabled = true;
         }
-
-        console.log(data)
     })
     .catch(error => {
         console.error('Erro:', error);
@@ -426,26 +431,43 @@ function habilitar_cursos(){
 
 function habilitar_dias(selected){
     const select_dias = document.getElementById('dias');
-    let dias = [];
+    const select_horario = document.getElementById('horario');
     curso = selected.value;
 
-    turmas.forEach(turma =>{
-        if(!dias.includes(turma.dias) && turma.curso === curso){
-            dias.push(turma.dias);
-        }
-    });
-
     select_dias.innerHTML = '<option selected disabled hidden></option>'
-    document.getElementById('horario').innerHTML = '<option selected disabled hidden></option>'
+    select_horario.innerHTML = '<option selected disabled hidden></option>'
+    select_dias.disabled = true;
+    select_horario.disabled = false;
 
-    dias.forEach(dia => {
-        let new_opt = document.createElement("option");
-        new_opt.text = dia;
-        new_opt.value = dia;
-        new_opt.setAttribute('curso_escolhido', curso);
-        select_dias.appendChild(new_opt);
+    const dados = {'curso': curso}
+
+    fetch(url_dias, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken,
+        },
+        body: JSON.stringify(dados)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Erro ao carregar o arquivo JSON');
+        }
+        return response.json();
+    })
+    .then(data => {
+        const dias = data.dias;
+        dias.forEach(dia => {
+            let new_opt = document.createElement("option");
+            new_opt.text = dia;
+            new_opt.value = dia;
+            select_dias.appendChild(new_opt);
+        });
+        select_dias.disabled = false;
+    })
+    .catch(error => {
+        console.error('Erro:', error);
     });
-    select_dias.disabled = false;
 }
 
 function habilitar_horarios(selected){
@@ -453,17 +475,44 @@ function habilitar_horarios(selected){
     let horarios = [];
     dias = selected.value;
 
-    turmas.forEach(turma => {
-        let entrada = turma.horario_entrada.split(':');
-        let saida = turma.horario_saida.split(':');
-        let horario = `${entrada[0]}:${entrada[1]} - ${saida[0]}:${saida[1]}`;
-
-        if(!horarios.includes(horario) && turma.dias === dias && turma.curso === curso){
-            horarios.push(horario);
-        }
-    });
-
     select_horario.innerHTML = '<option selected disabled hidden></option>'
+    select_horario.disabled = false;
+
+    const dados = {
+        'curso': curso,
+        'dias': dias
+    }
+
+    fetch(url_horarios, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken,
+        },
+        body: JSON.stringify(dados)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Erro ao carregar o arquivo JSON');
+        }
+        return response.json();
+    })
+    .then(data => {
+        const horarios = data.horarios;
+        const ids = data.ids;
+
+        for(let i = 0; i<ids.length; i++) {
+            let new_opt = document.createElement("option");
+            new_opt.text = horarios[i];
+            new_opt.value = horarios[i];
+            new_opt.id = ids[i];
+            select_horario.appendChild(new_opt);
+        }
+        select_horario.disabled = false;
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+    });
 
     horarios.forEach(horario => {
         let new_opt = document.createElement("option");
@@ -478,31 +527,25 @@ function enviar_dados(){
     const placeholder = document.getElementById('erro_placeholder');
 
     if(form_valido()){
-        const nasc = document.getElementById('nascimento').value.split('/');
-        const dt_emissao = document.getElementById('data_emissao').value.split('/')
+        let nasc = document.getElementById('nascimento').value.split('/');
+        nasc = `${nasc[2]}-${nasc[1]}-${nasc[0]}`
 
-        let id_turma;
-        const dias = document.getElementById('dias').value;
-        const horario_escolhido = document.getElementById('horario').value;
-        turmas.forEach(turma => {
-            let entrada = turma.horario_entrada.split(':');
-            let saida = turma.horario_saida.split(':');
-            let horario = `${entrada[0]}:${entrada[1]} - ${saida[0]}:${saida[1]}`;
-
-            if(turma.curso === curso && turma.dias === dias && horario === horario_escolhido){
-                id_turma = turma.id;
-            }
-        });
+        let dt_emissao = "";
+        if(document.getElementById('data_emissao').value.length > 0){
+            dt_emissao = document.getElementById('data_emissao').value.split('/')
+            dt_emissao = `${dt_emissao[2]}-${dt_emissao[1]}-${dt_emissao[0]}`
+        }
+        
 
         const dados = {
             "nome": document.getElementById('nome').value,
             "nome_pesquisa": mascara_pesquisa(document.getElementById('nome').value),
             "nome_social": document.getElementById('nome_social').value,
             "nome_social_pesquisa": mascara_pesquisa(document.getElementById('nome_social').value),
-            "nascimento": `${nasc[2]}-${nasc[1]}-${nasc[0]}`,
+            "nascimento": nasc,
             "cpf": document.getElementById('cpf').value,
             "rg": document.getElementById('rg').value,
-            "data_emissao": `${dt_emissao[2]}-${dt_emissao[1]}-${dt_emissao[0]}`,
+            "data_emissao": dt_emissao,
             "orgao_emissor": document.getElementById('orgao_emissor').value,
             "uf_emissao": document.getElementById('uf_emissao').value,
             "filiacao": document.getElementById('filiacao').value,
@@ -519,10 +562,8 @@ function enviar_dados(){
             "uf": document.getElementById('uf').value,
             "id_turma": id_turma
         };
-
-        console.log(dados);
         
-        fetch(window.location.protocol + '//' + window.location.host + url_envio, {
+        fetch(url_envio, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -539,8 +580,11 @@ function enviar_dados(){
                             '<div>Atenção! Seu formulário de inscrição não foi enviado. Tente enviar novamente mais tarde.</div>',
                         '</div>'
                     ].join('');
+
+                    document.getElementById('navbar').scrollIntoView({behavior: 'instant', block: 'start'})
                 }
-                console.log(response);
+            } else {
+                window.location.pathname = url_enviado
             }
         })
         .catch(error => {
@@ -707,7 +751,4 @@ function mascara_pesquisa(value){
 
 document.addEventListener('DOMContentLoaded', function() {
     csrftoken = document.getElementById('token').children[0].value;
-    url_envio = document.getElementById('token').getAttribute('url_envio');
-    url_cpf = document.getElementById('token').getAttribute('url_cpf');
-    url_turmas = document.getElementById('token').getAttribute('url_turmas');
 });
