@@ -114,6 +114,8 @@ function exibir_resultado(data){
                 '</a>'
             ].join('');
             resultado_placeholder.appendChild(li);
+
+            muda_footer();
         }
     } else {
         resultado_placeholder.innerHTML = data.error;
@@ -122,4 +124,19 @@ function exibir_resultado(data){
 
 document.addEventListener('DOMContentLoaded', function() {
     csrftoken = document.getElementById('token').children[0].value;
+    muda_footer();
 });
+
+function muda_footer() {
+    console.log(1)
+    const viewportHeight = window.innerHeight;
+    const pageHeight = document.documentElement.pageHeight;
+    const footer = document.getElementById('footer');
+
+    console.log(viewportHeight, pageHeight)
+    if (pageHeight >= viewportHeight) {
+        footer.classList.add('fixed-bottom');
+    } else {
+        footer.classList.remove('fixed-bottom');
+    }
+}
