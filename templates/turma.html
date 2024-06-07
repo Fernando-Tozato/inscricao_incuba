@@ -42,6 +42,7 @@
     <div class="container my-5 px-5">
         <div class="p-5 mb-5 border bg-body-secondary text-body-secondary rounded">
             <h1>Turmas:</h1>
+            
 
             <div class="border-top p-3"></div>
 
@@ -49,7 +50,7 @@
                 <ul class="justify-content-center list-group">
                     {% for turma in turmas %}
                         <li class="list-group-item">
-                            <a href="#" style="text-decoration: none;" class="text-body-secondary">
+                            <a href="{% url 'turma_editar' turma.id %}" style="text-decoration: none;" class="text-body-secondary">
                                 <h1>{{ turma.curso }}</h1>
                                 <div class="row">
                                     <div class="col-md">

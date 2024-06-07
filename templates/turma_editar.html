@@ -17,6 +17,8 @@
     <script src="{% static 'js/altura.js' %}"></script>
     <script src="{% static 'js/turma_editar.js' %}"></script>
 
+    <div class="d-none" id="token">{% csrf_token %}</div>
+
     <nav class="navbar navbar-expand-sm bg-body-secondary text-body-secondary border-bottom" aria-label="Tenth navbar example" id="navbar">
         <div class="container-fluid">
             <a class="navbar-brand" href="{% url 'pagina_inicial' %}">
@@ -32,70 +34,85 @@
                         <a class="nav-link" href="{% url 'pagina_inicial' %}">Página inicial</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="">Turmas</a>
+                        <a class="nav-link" href="{% url 'turma' %}">Turmas</a>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <div class="container my-5 px-5" style="height: 49.5vh;">
-        <div class="p-5 mb-5 border bg-body-secondary text-body-secondary rounded">
-            <h1>Criação de Turmas:</h1>
+    <div class="container my-5 px-5">
+        <form>
+            <div id="cima_placeholder"></div>
 
-            <div class="row">
-                <div class="col-sm mt-3 form-floating">
-                    <input type="text" class="form-control required" id="curso">
-                    <label for="curso">Curso</label>
+            <div class="p-5 mb-5 border bg-body-secondary text-body-secondary rounded">
+                <h1>Edição de Turmas:</h1>
+                <input type="text" id="id" value="{{ turma.id }}" hidden>
+
+                <div class="row">
+                    <div class="col-sm mt-3 form-floating">
+                        <input type="text" class="form-control required" id="curso" value="{{ turma.curso }}">
+                        <label for="curso">Curso</label>
+                    </div>
+                    <div class="col-sm mt-3 form-floating">
+                        <input type="text" class="form-control required" id="professor" value="{{ turma.professor }}">
+                        <label for="curso">Professor(a)</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm mt-3 form-floating">
+                        <input type="text" class="form-control required" id="dias" value="{{ turma.dias }}">
+                        <label for="dias">Dias da semana</label>
+                    </div>
+                    <div class="col-sm-1"></div>
+                    <div class="col-sm mt-3 form-floating">
+                        <input type="text" class="form-control required" id="entrada" value="{{ turma.horario_entrada }}" oninput="mascara_hora(this)">
+                        <label for="entrada">Horário de entrada</label>
+                    </div>
+                    <div class="col-sm-1"></div>
+                    <div class="col-sm mt-3 form-floating">
+                        <input type="text" class="form-control required" id="saida" value="{{ turma.horario_saida }}" oninput="mascara_hora(this)">
+                        <label for="saida">Horário de saída</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm mt-3 form-floating">
+                        <input type="text" class="form-control required" id="vagas" value="{{ turma.vagas }}">
+                        <label for="vagas">Vagas</label>
+                    </div>
+                    <div class="col-sm-1"></div>
+                    <div class="col-sm mt-3 form-floating">
+                        <input type="text" class="form-control required" id="idade" value="{{ turma.idade }}">
+                        <label for="idade">Idade mínima</label>
+                    </div>
+                    <div class="col-sm-1"></div>
+                    <div class="col-sm mt-3 form-floating">
+                        <select class="form-select required" id="escolaridade" onchange="set_escolaridade(this.value)">
+                            <option selected disabled hidden></option>
+                            <option value="1" {% if turma.escolaridade == 1 %}selected{% endif %}>Fundamental I incompleto</option>
+                            <option value="2" {% if turma.escolaridade == 2 %}selected{% endif %}>Fundamental I completo (terminou o 5º ano)</option>
+                            <option value="3" {% if turma.escolaridade == 3 %}selected{% endif %}>Fundamental II incompleto</option>
+                            <option value="4" {% if turma.escolaridade == 4 %}selected{% endif %}>Fundamental II completo (terminou o 9º ano)</option>
+                            <option value="5" {% if turma.escolaridade == 5 %}selected{% endif %}>Médio incompleto</option>
+                            <option value="6" {% if turma.escolaridade == 6 %}selected{% endif %}>Médio completo</option>
+                            <option value="7" {% if turma.escolaridade == 7 %}selected{% endif %}>Graduação incompleta</option>
+                            <option value="8" {% if turma.escolaridade == 8 %}selected{% endif %}>Graduação completa</option>
+                            <option value="9" {% if turma.escolaridade == 9 %}selected{% endif %}>Pós-graduação incompleta</option>
+                            <option value="10" {% if turma.escolaridade == 10 %}selected{% endif %}>Pós-graduação completa</option>
+                            <option value="11" {% if turma.escolaridade == 11 %}selected{% endif %}>Mestrado</option>
+                            <option value="12" {% if turma.escolaridade == 12 %}selected{% endif %}>Doutorado</option>
+                        </select>
+                        <label for="escolaridade">Escolaridade mínima</label>
+                    </div>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-sm mt-3 form-floating">
-                    <input type="text" class="form-control required" id="curso">
-                    <label for="curso">Dias da semana</label>
-                </div>
-                <div class="col-sm-1"></div>
-                <div class="col-sm mt-3 form-floating">
-                    <input type="text" class="form-control required" id="curso" oninput="mascara_hora(this)">
-                    <label for="curso">Horário de entrada</label>
-                </div>
-                <div class="col-sm-1"></div>
-                <div class="col-sm mt-3 form-floating">
-                    <input type="text" class="form-control required" id="curso" oninput="mascara_hora(this)">
-                    <label for="curso">Horário de saída</label>
-                </div>
+
+            <div id="preenchido_placeholder"></div>
+
+            <div class="container align-items-center float-end">
+                <button class="btn btn-primary float-end" id="btn" type="button" onclick="verifica_form(); enviar_dados();">Enviar formulário</button>
             </div>
-            <div class="row">
-                <div class="col-sm mt-3 form-floating">
-                    <input type="text" class="form-control required" id="curso">
-                    <label for="curso">Vagas</label>
-                </div>
-                <div class="col-sm-1"></div>
-                <div class="col-sm mt-3 form-floating">
-                    <input type="text" class="form-control required" id="curso">
-                    <label for="curso">Idade mínima</label>
-                </div>
-                <div class="col-sm-1"></div>
-                <div class="col-sm mt-3 form-floating">
-                    <select class="form-select required" id="escolaridade" onchange="set_escolaridade(this.value)">
-                        <option selected disabled hidden></option>
-                        <option value="1">Fundamental I incompleto</option>
-                        <option value="2">Fundamental I completo (terminou o 5º ano)</option>
-                        <option value="3">Fundamental II incompleto</option>
-                        <option value="4">Fundamental II completo (terminou o 9º ano)</option>
-                        <option value="5">Médio incompleto</option>
-                        <option value="6">Médio completo</option>
-                        <option value="7">Graduação incompleta</option>
-                        <option value="8">Graduação completa</option>
-                        <option value="9">Pós-graduação incompleta</option>
-                        <option value="10">Pós-graduação completa</option>
-                        <option value="11">Mestrado</option>
-                        <option value="12">Doutorado</option>
-                    </select>
-                    <label for="escolaridade">Escolaridade mínima</label>
-                </div>
-            </div>
-        </div>
+        </form>
     </div>
 
     <footer class="border-top bg-body-secondary text-body-secondary px-5 py-2" id="footer">

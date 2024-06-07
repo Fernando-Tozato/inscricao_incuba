@@ -11,6 +11,7 @@ urlpatterns = [
     path('pagina_inicial/pesquisa_nome/', pesquisa_nome, name='pesquisa_nome'),
     path('turma/', turma, name='turma'),
     path('turma/novo/', turma_novo, name='turma_novo'),
-    path('turma/editar/', turma_editar, name='turma_editar'),
+    path('turma/editar/<int:turma_id>/', turma_editar, name='turma_editar'),
     path('turma/criar/', turma_criar, name='turma_criar'),
+    path('turma/view_editar/', turma_view_editar, name='turma_view_editar'),
 ]

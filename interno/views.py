@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 import json
 from datetime import datetime
 from django.http import JsonResponse
@@ -28,8 +28,9 @@ def turma(request):
 def turma_novo(request):
     return render(request, 'turma_novo.html')
 
-def turma_editar(request):
-    return render(request, 'turma_editar.html')
+def turma_editar(request, turma_id):
+    turma = get_object_or_404(Turma, id=turma_id)
+    return render(request, 'turma_editar.html', {'turma':turma})
 
 @csrf_protect
 def pesquisa_cpf(request):
@@ -112,3 +113,7 @@ def turma_criar(request):
             return JsonResponse({'error': 'Dados JSON inválidos'}, status=400)
     else:
         return JsonResponse({'error': 'Método não permitido.'}, status=405)
+
+@csrf_protect
+def turma_view_editar(request):
+    pass
