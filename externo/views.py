@@ -10,7 +10,7 @@ def inscricao(request):
     return render(request, 'inscricao.html')
 
 def enviado(request):
-    return render(request, 'enviado.html')
+    return render(request, 'enviado_ext.html')
 
 @csrf_protect
 def validar_inscricao(request):

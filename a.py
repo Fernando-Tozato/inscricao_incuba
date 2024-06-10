@@ -1,28 +1,17 @@
-lst = [
-    'nome',
-    'nome_pesquisa',
-    'nome_social',
-    'nome_social_pesquisa',
-    'nascimento',
-    'cpf',
-    'rg',
-    'data_emissao',
-    'orgao_emissor',
-    'uf_emissao',
-    'filiacao',
-    'escolaridade',
-    'email',
-    'telefone',
-    'celular',
-    'cep',
-    'rua',
-    'numero',
-    'complemento',
-    'bairro',
-    'cidade',
-    'uf',
-    'id_turma'
-]
+import sqlite3
 
-for a in lst:
-    print(f'{a} = {a},')
+con = sqlite3.Connection('db.sqlite3')
+cursor = con.cursor()
+
+comandos = []
+comandos.append('''
+    DROP TABLE sqlite_sequence;
+''')
+
+
+
+for comando in comandos:
+    cursor.execute(comando)
+
+cursor.close()
+con.close()

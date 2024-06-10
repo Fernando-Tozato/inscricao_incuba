@@ -5,11 +5,13 @@ class Turma(models.Model):
     dias = models.CharField(max_length=20)
     horario_entrada = models.TimeField()
     horario_saida = models.TimeField()
-    horario = models.CharField(max_length=13, default=f'{horario_entrada} - {horario_saida}')
     vagas = models.IntegerField()
     escolaridade = models.IntegerField()
     idade = models.IntegerField()
     professor = models.CharField(max_length=100)
+    
+    def horario(self):
+        return f'{self.horario_entrada.strftime('%H:%M')} - {self.horario_saida.strftime('%H:%M')}'
 
 class Inscrito(models.Model):
     nome = models.CharField(max_length=100)
@@ -38,7 +40,9 @@ class Inscrito(models.Model):
 
 class Aluno(models.Model):
     nome = models.CharField(max_length=100)
+    nome_pesquisa = models.CharField(max_length=100)
     nome_social = models.CharField(max_length=100, null=True, default=None, blank=True)
+    nome_social_pesquisa = models.CharField(max_length=100, null=True, default=None, blank=True)
     nascimento = models.DateField()
     cpf = models.CharField(max_length=14, unique=True)
     rg = models.CharField(max_length=14, null=True, default=None, blank=True)

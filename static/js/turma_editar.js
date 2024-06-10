@@ -1,5 +1,5 @@
 let form_vazio = true;
-let url_envio = '/interno/turma/editar/'
+let url_envio = '/interno/turma/view_editar/'
 let csrftoken;
 
 function verifica_form(){
@@ -41,7 +41,6 @@ function enviar_dados(){
             "dias": document.getElementById('dias').value,
             "entrada": document.getElementById('entrada').value,
             "saida": document.getElementById('saida').value,
-            "horario": `${document.getElementById('entrada').value} - ${document.getElementById('saida').value}`,
             "vagas": parseInt(document.getElementById('vagas').value),
             "idade": parseInt(document.getElementById('idade').value),
             "escolaridade": parseInt(document.getElementById('escolaridade').value )
@@ -125,7 +124,7 @@ function sucesso(){
     placeholder.innerHTML = [
         '<div class="alert alert-success d-flex align-items-center mt-3" role="alert">',
             '<i class="fa-solid fa-circle-check bi flex-shrink-0 me-3" role="img" aria-label="Success:" style="color: #248449;"></i>',
-            '<div>Sucesso! A turma já está no banco de dados.</div>',
+            '<div>Sucesso! A turma já foi alterada.</div>',
         '</div>'
     ].join('');
 }

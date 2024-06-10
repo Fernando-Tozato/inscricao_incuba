@@ -1,20 +1,9 @@
-let url_cpf = '/interno/pagina_inicial/pesquisa_cpf/?cpf=';
-let url_nome = '/interno/pagina_inicial/pesquisa_nome/?nome=';
+let url_cpf = '/interno/pagina_inicial/?parametro=cpf&valor=';
+let url_nome = '/interno/pagina_inicial/?parametro=nome&valor=';
 let csrftoken;
 
 function buscar(busca){
-    const resultado_placeholder = document.getElementById('resultado_pesquisa');
     value = busca.value;
-    if(value.length === 0){
-        resultado_placeholder.innerHTML = '<h3>Faça uma busca para começar a mostrar resultados.</h3>';
-        return;
-    }
-
-    resultado_placeholder.innerHTML = [
-        '<div class="spinner-border justify-content-center align-content-center" role="status">',
-            '<span class="visually-hidden">Loading...</span>',
-        '</div>'
-    ].join('');
 
     if(isNaN(value)){
         nome = value.replace(/[^a-zà-ú'-,. ]+$/i, '');
@@ -31,26 +20,8 @@ function buscar(busca){
         value = value.replace(/[ÝŸ]/gi,'Y');
         value = value.toUpperCase();
         value = value.replace(/[^A-Z ]/g,'');
-        
-        fetch(url_nome + value, {
-            method: 'GET',
-            headers: {
-                'X-CSRFToken': csrftoken
-            }
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Erro ao buscar nome');
-            }
-            return response.json();
-        })
-        .then(data => {
-            exibir_resultado(data);
-        })
-        .catch(error => {
-            document.getElementById('resultado_pesquisa').innerHTML = 'Nome não encontrado.';
-            console.error(error);
-        });
+    
+        window.location.href = url_nome + encodeURIComponent(value);
     } else {
         if(isNaN(value[value.length-1])){
             busca.value = value.substring(0, value.length-1);
@@ -66,25 +37,7 @@ function buscar(busca){
             busca.value += "-";
         }
 
-        fetch(url_cpf + value, {
-            method: 'GET',
-            headers: {
-                'X-CSRFToken': csrftoken
-            }
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Erro ao buscar CPF');
-            }
-            return response.json();
-        })
-        .then(data => {
-            exibir_resultado(data);
-        })
-        .catch(error => {
-            document.getElementById('resultado_pesquisa').innerHTML = 'CPF não encontrado.';
-            console.error(error);
-        });
+        window.location.href = url_cpf + encodeURIComponent(value);
     }
 }
 
@@ -98,7 +51,7 @@ function exibir_resultado(data){
             const li = document.createElement('li');
             li.className = 'list-group-item';
             li.innerHTML = [
-                '<a href="#" style="text-decoration: none;" class="text-body-secondary">',
+                '<a href="" style="text-decoration: none;" class="text-body-secondary">',
                     `<h1>${resultado.nome_social.length == 0 ? resultado.nome : resultado.nome_social}</h1>`,
                     '<div class="row">',
                         '<div class="col-md">',
@@ -124,19 +77,7 @@ function exibir_resultado(data){
 
 document.addEventListener('DOMContentLoaded', function() {
     csrftoken = document.getElementById('token').children[0].value;
-    muda_footer();
+    input = document.getElementById('busca');
+    input.focus();
+    input.setSelectionRange(input.value.length, input.value.length);
 });
-
-function muda_footer() {
-    console.log(1)
-    const viewportHeight = window.innerHeight;
-    const pageHeight = document.documentElement.pageHeight;
-    const footer = document.getElementById('footer');
-
-    console.log(viewportHeight, pageHeight)
-    if (pageHeight >= viewportHeight) {
-        footer.classList.add('fixed-bottom');
-    } else {
-        footer.classList.remove('fixed-bottom');
-    }
-}

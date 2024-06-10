@@ -40,7 +40,6 @@ function enviar_dados(){
             "dias": document.getElementById('dias').value,
             "entrada": document.getElementById('entrada').value,
             "saida": document.getElementById('saida').value,
-            "horario": `${document.getElementById('entrada').value} - ${document.getElementById('saida').value}`,
             "vagas": parseInt(document.getElementById('vagas').value),
             "idade": parseInt(document.getElementById('idade').value),
             "escolaridade": parseInt(document.getElementById('escolaridade').value )
