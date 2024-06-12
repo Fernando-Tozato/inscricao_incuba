@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-import json
+import json, random, hashlib, string
 from datetime import datetime
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_protect
@@ -95,7 +95,6 @@ def matricula_criar(request):
             )
             
             try:
-                aluno.full_clean()
                 aluno.save()
                 return JsonResponse({'success': 'Sucesso no envio'}, status=200)
             except ValidationError as e:
@@ -205,4 +204,16 @@ def turma_view_editar(request):
         return JsonResponse({'Sucesso': 'Sucesso na atualização'}, status=200)
     else:
         return JsonResponse({'error': 'Método não permitido'}, status=400)
-    
+
+def sorteio(request):
+    return render(request, 'sorteio.html')
+
+def sortear(request):
+    server_seed = ''.join(random.choice(string.ascii_letters + string.digits) for i in range(64))
+    turmas = list(Turma.objects.all())
+    for turma in turmas:
+        inscritos = list(Inscrito.objects.filter(id_turma=turma))
+        for nonce in range(turma.vagas):
+            
+            
+    return render(request, 'resultado.html', {'sorteados': sorteados, 'inscritos': inscritos, 'turmas': turmas})

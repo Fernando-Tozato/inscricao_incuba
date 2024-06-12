@@ -1,4 +1,5 @@
 from django.db import models
+import random, hashlib, string
 
 class Turma(models.Model):
     curso = models.CharField(max_length=100)
@@ -37,6 +38,10 @@ class Inscrito(models.Model):
     cidade = models.CharField(max_length=100)
     uf = models.CharField(max_length=2)
     id_turma = models.ForeignKey(Turma, on_delete=models.CASCADE)
+    
+    def hash(self):
+        letters_and_digits = string.ascii_letters + string.digits
+        return ''.join(random.choice(letters_and_digits) for i in range(64))
 
 class Aluno(models.Model):
     nome = models.CharField(max_length=100)
@@ -66,5 +71,5 @@ class Aluno(models.Model):
 class Sorteado(models.Model):
     nome = models.CharField(max_length=100)
     cpf = models.CharField(max_length=14, unique=True)
-    nascimento = models.DateField()
     id_inscrito = models.OneToOneField(Inscrito, on_delete=models.CASCADE)
+    id_turma = models.ForeignKey(Turma, on_delete=models.CASCADE)

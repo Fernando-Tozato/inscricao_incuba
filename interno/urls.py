@@ -15,4 +15,6 @@ urlpatterns = [
     path('turma/editar/<int:turma_id>/', turma_editar, name='turma_editar'),
     path('turma/criar/', turma_criar, name='turma_criar'),
     path('turma/view_editar/', turma_view_editar, name='turma_view_editar'),
+    path('sorteio/', sorteio, name='sorteio'),
+    path('sorteio/sortear/', sortear, name='sortear'),
 ]
