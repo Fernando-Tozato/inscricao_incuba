@@ -1,19 +1,26 @@
-from django.shortcuts import render, get_object_or_404
-import json, random, pandas
-from datetime import datetime
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_protect
 from django.core.exceptions import ValidationError
 from django.db.models import Q
+from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.forms import PasswordResetForm
+from django.contrib.auth.tokens import default_token_generator
+from django.contrib.auth.models import User
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes
+from django.contrib.sites.shortcuts import get_current_site
+
+from .forms import *
 from database.models import Inscrito, Turma, Aluno
 
+import json, random
+from datetime import datetime
 
-def login(request):
-    return render(request, 'interno/login.html')
-
-def cadastro(request):
-    return render(request, 'interno/cadastro.html')
-
+@login_required
 def pagina_inicial(request):
     parametro = request.GET.get('parametro', '')
     valor = request.GET.get('valor', '')
@@ -39,6 +46,7 @@ def matricula_existente(request, inscrito_id):
     turma = inscrito.id_turma
     return render(request, 'interno/matricula_existente.html', {'inscrito': inscrito, 'turma': turma})
 
+@csrf_protect
 def matricula_criar(request):
     if request.method == 'POST':
         try:
@@ -129,15 +137,19 @@ def verificar_cpf(request):
     else:
         return JsonResponse({'error': 'Método não permitido.'}, status=405)
 
+@login_required
 def enviado(request):
     return render(request, 'interno/enviado_int.html')
 
+@login_required
 def turma(request):
     return render(request, 'interno/turma.html', {'turmas': Turma.objects.all()})
 
+@login_required
 def turma_novo(request):
     return render(request, 'interno/turma_novo.html')
 
+@login_required
 def turma_editar(request, turma_id):
     turma = get_object_or_404(Turma, id=turma_id)
     return render(request, 'interno/turma_editar.html', {'turma': turma})
@@ -213,6 +225,11 @@ def turma_view_editar(request):
     else:
         return JsonResponse({'error': 'Método não permitido'}, status=400)
 
+def grupo_necessario(user):
+    return user.groups.filter(name='Coord_Ped').exists()
+
+@user_passes_test(grupo_necessario)
+@login_required
 def controle(request):
     return render(request, 'interno/controle.html')
 
@@ -235,4 +252,82 @@ def sortear(request):
         
         sorteados = sorteados_pcd + sorteados_gerais
         
-        
+def login_view(request):
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user)
+                return redirect('pagina_inicial')
+    else:
+        form = LoginForm()
+    return render(request, 'interno/login.html', {'form': form})
+
+@login_required
+def logout_view(request):
+    logout(request)
+    return redirect('pagina_inicial')
+
+def register_view(request):
+    if request.method == 'POST':
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('login')
+    else:
+        form = RegisterForm()
+    return render(request, 'interno/register.html', {'form': form})
+
+def reset_password_view(request):
+    if request.method == 'POST':
+        form = CustomPasswordResetForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            users = User.objects.filter(email=email)
+            if users.exists():
+                for user in users:
+                    subject = "Password Reset Requested"
+                    email_template_name = "interno/password_reset_email.txt"
+                    c = {
+                        "email": user.email,
+                        'domain': get_current_site(request).domain,
+                        'site_name': 'Website',
+                        "uid": urlsafe_base64_encode(force_bytes(user.pk)),
+                        "user": user,
+                        'token': default_token_generator.make_token(user),
+                        'protocol': 'http',
+                    }
+                    email = render_to_string(email_template_name, c)
+                    send_mail(subject, email, 'admin@yourwebsite.com', [user.email], fail_silently=False)
+                return redirect("reset_password_sent")
+    else:
+        form = CustomPasswordResetForm()
+    return render(request, 'interno/password_reset.html', {'form': form})
+
+def reset_password_sent_view(request):
+    return render(request, 'interno/password_reset_sent.html')
+
+def reset_password_confirm_view(request, uidb64, token):
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+
+    if user is not None and default_token_generator.check_token(user, token):
+        if request.method == 'POST':
+            form = CustomSetPasswordForm(user, request.POST)
+            if form.is_valid():
+                form.save()
+                return redirect('reset_password_complete')
+        else:
+            form = CustomSetPasswordForm(user)
+        return render(request, 'interno/password_reset_confirm.html', {'form': form})
+    else:
+        return render(request, 'interno/password_reset_invalid.html')
+
+def reset_password_complete_view(request):
+    return render(request, 'interno/password_reset_complete.html')
