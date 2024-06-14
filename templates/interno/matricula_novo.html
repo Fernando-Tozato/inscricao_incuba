@@ -1,11 +1,11 @@
 {% load static %}
 
 <!DOCTYPE html>
-<html lang="pt_br">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Inscrição incubadora</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matrícula</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="{% static 'css/posicao_footer.css' %}">
 </head>
@@ -15,13 +15,13 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
     <script src="https://kit.fontawesome.com/b87058db00.js" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
-    <script src="{% static 'js/inscricao.js' %}"></script>
+    <script src="{% static 'js/matricula.js' %}"></script>
 
     <div class="d-none" id="token">{% csrf_token %}</div>
 
     <nav class="navbar navbar-expand-sm bg-body-secondary text-body-secondary border-bottom" aria-label="Tenth navbar example" id="navbar">
         <div class="container-fluid">
-            <a class="navbar-brand" href="{% url 'home' %}">
+            <a class="navbar-brand" href="{% url 'pagina_inicial' %}">
                 <img class="bi mx-5" width="150" src="{% static 'img/Incubadora.png' %}" alt="Incubadora de Inovação Social em Robótica e Sustentabilidade">
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsExample08" aria-controls="navbarsExample08" aria-expanded="false" aria-label="Toggle navigation">
@@ -31,18 +31,19 @@
             <div class="collapse navbar-collapse" id="navbarsExample08">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'home' %}">Página inicial</a>
+                        <a class="nav-link" href="{% url 'pagina_inicial' %}">Página inicial</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'editais' %}">Editais</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'resultado' %}">Resultado</a>
+                        <a class="nav-link" href="{% url 'turma' %}">Turmas</a>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
+
+    <div class="container mt-5 px-5">
+        <button class="float-start border-0 bg-body-tertiary btn btn-lg" onclick="window.location.href = '{% url 'pagina_inicial' %}'"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
+    </div>
 
     <div class="container my-5 px-5">
         <form>
@@ -75,22 +76,22 @@
                         <div class="form-text" id="cpf_placeholder"></div>
                     </div>
                     <div class="col-md mt-3 form-floating">
-                        <input type="text" class="form-control" oninput="mascara_rg(this)" id="rg">
-                        <label for="rg">RG</label>
+                        <input type="text" class="form-control required" oninput="mascara_rg(this)" id="rg">
+                        <label for="rg">RG *</label>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md mt-3 form-floating">
-                        <input type="text" class="form-control" id="data_emissao" oninput="mascara_data(this)" onblur="if(this.value.length > 0){verifica_data_emissao(this.value.split('/'))}">
-                        <label for="data_emissao">Data de emissão</label>
+                        <input type="text" class="form-control required" id="data_emissao" oninput="mascara_data(this)" onblur="verifica_data_emissao(this.value.split('/'))">
+                        <label for="data_emissao">Data de emissão *</label>
                         <div class="form-text" id="data_emissao_placeholder"></div>
                     </div>
                     <div class="col-md mt-3 form-floating">
-                        <input type="text" class="form-control" id="orgao_emissor" oninput="mascara_palavras(this)">
-                        <label for="orgao_emissor">Órgão emissor</label>
+                        <input type="text" class="form-control required" id="orgao_emissor" oninput="mascara_palavras(this)">
+                        <label for="orgao_emissor">Órgão emissor *</label>
                     </div>
                     <div class="col-md mt-3 form-floating">
-                        <select class="form-select" id="uf_emissao">
+                        <select class="form-select required" id="uf_emissao">
                             <option selected disabled hidden></option>
                             <option value="ac">AC</option>
                             <option value="al">AL</option>
@@ -120,7 +121,7 @@
                             <option value="se">SE</option>
                             <option value="to">TO</option>
                         </select>
-                        <label for="uf_emissao">UF de emissão</label>
+                        <label for="uf_emissao">UF de emissão *</label>
                     </div>
                 </div>
                 <div class="row">
@@ -141,16 +142,6 @@
                             <option value="7">Pós-graduação completa</option>
                         </select>
                         <label for="escolaridade">Escolaridade *</label>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-sm mt-3 form-check form-switch">
-                        <input class="form-check-input" type="checkbox" role="switch" id="pcd">
-                        <label class="form-check-label" for="pcd">É PcD?</label>
-                    </div>
-                    <div class="col-sm mt-3 form-check form-switch">
-                        <input class="form-check-input" type="checkbox" role="switch" id="ps">
-                        <label class="form-check-label" for="ps">Participa de Programa Social?</label>
                     </div>
                 </div>
 
@@ -272,7 +263,7 @@
                         <label for="dias">Dias *</label>
                     </div>
                     <div class="col-sm mt-3 form-floating">
-                        <select class="form-select required" id="horario" disabled onchange="set_horario(this)">
+                        <select class="form-select required" id="horario" disabled onchange="set_horario(this.value)">
                             <option selected disabled hidden></option>
                         </select>
                         <label for="horario">Horário *</label>
@@ -282,13 +273,14 @@
                 <span class="mt-4 badge text-bg-danger" id="danger_badge">Os itens marcados com * são obrigatórios!</span>
             </div>
             
+            
             <div id="preenchido_placeholder"></div>
             
             <div class="container align-items-center my-3">
                 <div class="row">
                     <div class="col-xl-10 col-md-8 col-6 mt-3 form-check">
                         <input class="form-check-input required" type="checkbox" id="termos">
-                        <label class="form-check-label" for="termos">Marque para aceitar os termos e condições. *</label>
+                        <label class="form-check-label" for="termos">Confirme que todas as informações estão certas. *</label>
                     </div>
                     <div class="col-xl-2 col-md-4 col-6 mt-3">
                         <button class="btn btn-primary float-end" id="btn" type="button" onclick="verifica_form(); enviar_dados()">Enviar formulário</button>
