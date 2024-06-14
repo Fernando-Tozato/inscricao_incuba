@@ -5,7 +5,6 @@ from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
@@ -287,22 +286,25 @@ def reset_password_view(request):
         if form.is_valid():
             email = form.cleaned_data['email']
             users = User.objects.filter(email=email)
+            print(users)
             if users.exists():
                 for user in users:
                     subject = "Password Reset Requested"
-                    email_template_name = "interno/password_reset_email.txt"
+                    email_template_name = "interno/password_reset_email.html"
                     c = {
                         "email": user.email,
                         'domain': get_current_site(request).domain,
-                        'site_name': 'Website',
+                        'site_name': 'Incubadora de Robótica',
                         "uid": urlsafe_base64_encode(force_bytes(user.pk)),
                         "user": user,
                         'token': default_token_generator.make_token(user),
                         'protocol': 'http',
                     }
                     email = render_to_string(email_template_name, c)
-                    send_mail(subject, email, 'admin@yourwebsite.com', [user.email], fail_silently=False)
-                return redirect("reset_password_sent")
+                    print('ok')
+                    send_mail(subject, email, 'incuba.robotica.auto@gmail.com', [user.email], fail_silently=False)
+                    print('ok')
+                return redirect("interno/reset_password_sent")
     else:
         form = CustomPasswordResetForm()
     return render(request, 'interno/password_reset.html', {'form': form})

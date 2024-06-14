@@ -14,12 +14,12 @@ let dias;
 let horario;
 let id_turma;
 let csrftoken;
-let url_envio = '/externo/validar/';
-let url_cpf = '/externo/verificar_cpf/';
-let url_cursos = '/externo/busca_cursos/';
-let url_dias = '/externo/busca_dias/';
-let url_horarios = '/externo/busca_horarios/';
-let url_enviado = '/externo/enviado/';
+let url_envio = '/inscricao/validar/';
+let url_cpf = '/inscricao/verificar_cpf/';
+let url_cursos = '/inscricao/busca_cursos/';
+let url_dias = '/inscricao/busca_dias/';
+let url_horarios = '/inscricao/busca_horarios/';
+let url_enviado = '/inscricao/enviado/';
 
 function form_valido(){
     if(form_vazio || cpf_invalido || data_nasc_invalida || data_emissao_invalida || email_invalido || cep_invalido || ddd_tel_invalido || ddd_cel_invalido){

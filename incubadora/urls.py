@@ -28,7 +28,6 @@ router.register(r'aluno', AlunoViewSet, basename='aluno')
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
-    path('accounts/', include('allauth.urls')),
     path('', include('externo.urls'), name='externo'),
     path('interno/', include('interno.urls'), name='interno'),
 ]

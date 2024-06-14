@@ -29,6 +29,17 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+LOGIN_URL = 'login'  # Nome da URL definida para a view de login
+LOGIN_REDIRECT_URL = 'pagina_inicial'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'incuba.robotica.auto@gmail.com'  # Substitua pelo seu email
+EMAIL_HOST_PASSWORD = 'Inac@0024'  # Substitua pela senha do seu email
+DEFAULT_FROM_EMAIL = 'incuba.robotica.auto@gmail.com'  # Substitua pelo seu email
+
 
 # Application definition
 
@@ -43,8 +54,6 @@ INSTALLED_APPS = [
     'interno',
     'database',
     'rest_framework',
-    'allauth',
-    'allauth.account',
 ]
 
 SITE_ID = 1
@@ -57,7 +66,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    "allauth.account.middleware.AccountMiddleware",
 ]
 
 ROOT_URLCONF = 'incubadora.urls'
@@ -82,7 +90,6 @@ WSGI_APPLICATION = 'incubadora.wsgi.application'
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
-    'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
 
