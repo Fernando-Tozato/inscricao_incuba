@@ -17,19 +17,18 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-from database.views import TurmaViewSet, InscritoViewSet, SorteadoViewSet, AlunoViewSet
+from database.views import TurmaViewSet, InscritoViewSet, AlunoViewSet
 
 router = DefaultRouter()
 
 router.register(r'turma', TurmaViewSet, basename='turma')
 router.register(r'inscrito', InscritoViewSet, basename='inscrito')
-router.register(r'sorteado', SorteadoViewSet, basename='sorteado')
 router.register(r'aluno', AlunoViewSet, basename='aluno')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
     path('accounts/', include('allauth.urls')),
-    path('externo/', include('externo.urls'), name='externo'),
+    path('', include('externo.urls'), name='externo'),
     path('interno/', include('interno.urls'), name='interno'),
 ]

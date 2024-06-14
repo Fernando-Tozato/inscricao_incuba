@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import viewsets
-from .models import Inscrito, Turma, Sorteado, Aluno
-from .serializers import InscritoSerializer, TurmaSerializer, SorteadoSerializer, AlunoSerializer
+from .models import Inscrito, Turma, Aluno
+from .serializers import InscritoSerializer, TurmaSerializer, AlunoSerializer
 
 class InscritoViewSet(viewsets.ModelViewSet):
     queryset = Inscrito.objects.all()
@@ -10,10 +10,6 @@ class InscritoViewSet(viewsets.ModelViewSet):
 class TurmaViewSet(viewsets.ModelViewSet):
     queryset = Turma.objects.all()
     serializer_class = TurmaSerializer
-
-class SorteadoViewSet(viewsets.ModelViewSet):
-    queryset = Sorteado.objects.all()
-    serializer_class = SorteadoSerializer
 
 class AlunoViewSet(viewsets.ModelViewSet):
     queryset = Aluno.objects.all()

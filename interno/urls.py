@@ -8,6 +8,8 @@ urlpatterns = [
     path('matricula/novo/', matricula_novo, name='matricula_novo'),
     path('matricula/existente/<int:inscrito_id>/', matricula_existente, name='matricula_existente'),
     path('matricula/criar/', matricula_criar, name='matricula_criar'),
+    path('matricula/sorteados/', matricula_sorteados, name='matricula_sorteados'),
+    path('matricula/geral/', matricula_geral, name='matricula_geral'),
     path('verificar_cpf/', verificar_cpf, name='verificar_cpf'),
     path('enviado/', enviado, name='enviado'),
     path('turma/', turma, name='turma'),
@@ -15,6 +17,7 @@ urlpatterns = [
     path('turma/editar/<int:turma_id>/', turma_editar, name='turma_editar'),
     path('turma/criar/', turma_criar, name='turma_criar'),
     path('turma/view_editar/', turma_view_editar, name='turma_view_editar'),
-    path('sorteio/', sorteio, name='sorteio'),
+    path('controle/', controle, name='controle'),
     path('sorteio/sortear/', sortear, name='sortear'),
+    
 ]

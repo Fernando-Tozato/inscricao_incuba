@@ -1,5 +1,4 @@
 from django.db import models
-import random, hashlib, string
 
 class Turma(models.Model):
     curso = models.CharField(max_length=100)
@@ -12,7 +11,13 @@ class Turma(models.Model):
     professor = models.CharField(max_length=100)
     
     def horario(self):
-        return f'{self.horario_entrada.strftime('%H:%M')} - {self.horario_saida.strftime('%H:%M')}'
+        return f'{self.horario_entrada.strftime("%H:%M")} - {self.horario_saida.strftime("%H:%M")}'
+    
+    def cotas(self):
+        return (self.vagas * 30) // 100
+    
+    def ampla_conc(self):
+        return self.vagas - self.cotas()
 
 class Inscrito(models.Model):
     nome = models.CharField(max_length=100)
@@ -37,11 +42,10 @@ class Inscrito(models.Model):
     bairro = models.CharField(max_length=100)
     cidade = models.CharField(max_length=100)
     uf = models.CharField(max_length=2)
+    pcd = models.BooleanField(default=False)
+    ps = models.BooleanField(default=False)
+    ja_sorteado = models.BooleanField(default=False)
     id_turma = models.ForeignKey(Turma, on_delete=models.CASCADE)
-    
-    def hash(self):
-        letters_and_digits = string.ascii_letters + string.digits
-        return ''.join(random.choice(letters_and_digits) for i in range(64))
 
 class Aluno(models.Model):
     nome = models.CharField(max_length=100)
@@ -66,10 +70,15 @@ class Aluno(models.Model):
     bairro = models.CharField(max_length=100)
     cidade = models.CharField(max_length=100)
     uf = models.CharField(max_length=2)
-    id_turma = models.ForeignKey(Turma, on_delete=models.CASCADE)
+    pcd = models.BooleanField(default=False)
+    ps = models.BooleanField(default=False)
+    id_turma = models.ForeignKey(Turma, on_delete=models.CASCADE, related_name='inscrito_turma')
 
-class Sorteado(models.Model):
+class Sorteado (models.Model):
     nome = models.CharField(max_length=100)
+    nome_pesquisa = models.CharField(max_length=100)
+    nome_social = models.CharField(max_length=100, null=True, default=None, blank=True)
+    nome_social_pesquisa = models.CharField(max_length=100, null=True, default=None, blank=True)
     cpf = models.CharField(max_length=14, unique=True)
-    id_inscrito = models.OneToOneField(Inscrito, on_delete=models.CASCADE)
-    id_turma = models.ForeignKey(Turma, on_delete=models.CASCADE)
+    id_turma = models.ForeignKey(Turma, on_delete=models.CASCADE, related_name='sorteado_turma')
+    id_inscrito = models.ForeignKey(Turma, on_delete=models.CASCADE, related_name='sorteado_inscrito')

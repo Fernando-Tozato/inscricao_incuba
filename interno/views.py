@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-import json, random, hashlib, string
+import json, random, pandas
 from datetime import datetime
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_protect
@@ -9,10 +9,10 @@ from database.models import Inscrito, Turma, Aluno
 
 
 def login(request):
-    return render(request, 'login.html')
+    return render(request, 'interno/login.html')
 
 def cadastro(request):
-    return render(request, 'cadastro.html')
+    return render(request, 'interno/cadastro.html')
 
 def pagina_inicial(request):
     parametro = request.GET.get('parametro', '')
@@ -27,17 +27,17 @@ def pagina_inicial(request):
             inscritos = Inscrito.objects.filter(cpf__contains=valor)
             if len(valor) in [3, 7]: valor += '.'
             elif len(valor) == 11: valor += '-'
-        return render(request, 'pagina_inicial.html', {'inscritos': inscritos, 'busca': valor})
+        return render(request, 'interno/pagina_inicial.html', {'inscritos': inscritos, 'busca': valor})
     else:
-        return render(request, 'pagina_inicial.html')
+        return render(request, 'interno/pagina_inicial.html')
 
 def matricula_novo(request):
-    return render(request, 'matricula_novo.html')
+    return render(request, 'interno/matricula_novo.html')
 
 def matricula_existente(request, inscrito_id):
     inscrito = get_object_or_404(Inscrito, id=inscrito_id)
     turma = inscrito.id_turma
-    return render(request, 'matricula_existente.html', {'inscrito': inscrito, 'turma': turma})
+    return render(request, 'interno/matricula_existente.html', {'inscrito': inscrito, 'turma': turma})
 
 def matricula_criar(request):
     if request.method == 'POST':
@@ -105,6 +105,14 @@ def matricula_criar(request):
         return JsonResponse({'error': 'Método não permitido.'}, status=405)
 
 @csrf_protect
+def matricula_sorteados(request):
+    pass
+
+@csrf_protect
+def matricula_geral(request):
+    pass
+
+@csrf_protect
 def verificar_cpf(request):
     if request.method == 'POST':
         try:
@@ -122,17 +130,17 @@ def verificar_cpf(request):
         return JsonResponse({'error': 'Método não permitido.'}, status=405)
 
 def enviado(request):
-    return render(request, 'enviado_int.html')
+    return render(request, 'interno/enviado_int.html')
 
 def turma(request):
-    return render(request, 'turma.html', {'turmas': Turma.objects.all()})
+    return render(request, 'interno/turma.html', {'turmas': Turma.objects.all()})
 
 def turma_novo(request):
-    return render(request, 'turma_novo.html')
+    return render(request, 'interno/turma_novo.html')
 
 def turma_editar(request, turma_id):
     turma = get_object_or_404(Turma, id=turma_id)
-    return render(request, 'turma_editar.html', {'turma': turma})
+    return render(request, 'interno/turma_editar.html', {'turma': turma})
 
 @csrf_protect
 def turma_criar(request):
@@ -205,15 +213,26 @@ def turma_view_editar(request):
     else:
         return JsonResponse({'error': 'Método não permitido'}, status=400)
 
-def sorteio(request):
-    return render(request, 'sorteio.html')
+def controle(request):
+    return render(request, 'interno/controle.html')
 
+@csrf_protect
 def sortear(request):
-    server_seed = ''.join(random.choice(string.ascii_letters + string.digits) for i in range(64))
-    turmas = list(Turma.objects.all())
-    for turma in turmas:
-        inscritos = list(Inscrito.objects.filter(id_turma=turma))
-        for nonce in range(turma.vagas):
-            
-            
-    return render(request, 'resultado.html', {'sorteados': sorteados, 'inscritos': inscritos, 'turmas': turmas})
+    for turma in Turma.objects.all():
+        vagas_cotas = turma.cotas()
+        inscritos_pcd = list(Inscrito.objects.filter(Q(id_turma = turma) & Q(Q(pcd=True) | Q(ps=True))))
+        sorteados_pcd = random.sample(inscritos_pcd, vagas_cotas)
+        
+        for sorteado in sorteados_pcd:
+            sorteado.ja_sorteado = True
+        
+        vagas_gerais = turma.ampla_conc()
+        inscritos_gerais = list(Inscrito.objects.filter(Q(id_turma = turma) & Q(ja_sorteado=False)))
+        sorteados_gerais = random.sample(inscritos_gerais, vagas_gerais)
+        
+        for sorteado in sorteados_gerais:
+            sorteado.ja_sorteado = True
+        
+        sorteados = sorteados_pcd + sorteados_gerais
+        
+        

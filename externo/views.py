@@ -6,6 +6,9 @@ from django.core.exceptions import ValidationError
 from django.db.models import Q
 from database.models import Inscrito, Turma
 
+def home(request):
+    return render(request, 'home.html')
+
 def inscricao(request):
     return render(request, 'inscricao.html')
 
@@ -171,3 +174,39 @@ def busca_horarios(request):
             return JsonResponse({'error': 'Dados JSON inválidos'}, status=400)
     else:
         return JsonResponse({'error': 'Método não permitido.'}, status=405)
+
+def editais(request):
+    return render(request, 'editais.html')
+
+def resultado(request):
+    return render(request, 'resultado.html')
+
+def design(request):
+    return render(request, 'cursos/design.html')
+
+def educacao(request):
+    return render(request, 'cursos/educacao.html')
+
+def excel(request):
+    return render(request, 'cursos/excel.html')
+
+def gestao(request):
+    return render(request, 'cursos/gestao.html')
+
+def info_basica(request):
+    return render(request, 'cursos/info_basica.html')
+
+def info_melhor_idade(request):
+    return render(request, 'cursos/info_melhor_idade.html')
+
+def marketing_digital(request):
+    return render(request, 'cursos/marketing_digital.html')
+
+def marketing_emp(request):
+    return render(request, 'cursos/marketing_emp.html')
+
+def montagem(request):
+    return render(request, 'cursos/montagem.html')
+
+def robotica(request):
+    return render(request, 'cursos/robotica.html')

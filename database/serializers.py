@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Inscrito, Turma, Sorteado, Aluno
+from .models import Inscrito, Turma, Aluno
 
 class InscritoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -9,11 +9,6 @@ class InscritoSerializer(serializers.ModelSerializer):
 class TurmaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Turma
-        fields = '__all__'
-
-class SorteadoSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Sorteado
         fields = '__all__'
 
 class AlunoSerializer(serializers.ModelSerializer):
