@@ -22,7 +22,7 @@
 
     <nav class="navbar navbar-expand-sm bg-body-secondary text-body-secondary border-bottom" aria-label="Tenth navbar example" id="navbar">
         <div class="container-fluid">
-            <a class="navbar-brand" href="{% url 'pagina_inicial' %}">
+            <a class="navbar-brand" href="{% url 'busca_de_inscrito' %}">
                 <img class="bi mx-5" width="150" src="{% static 'img/Incubadora.png' %}" alt="Incubadora de Inovação Social em Robótica e Sustentabilidade">
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsExample08" aria-controls="navbarsExample08" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,10 +32,13 @@
             <div class="collapse navbar-collapse" id="navbarsExample08">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'pagina_inicial' %}">Página inicial</a>
+                        <a class="nav-link" href="{% url 'busca_de_inscrito' %}">Matrículas</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'turma' %}">Turmas</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'controle' %}">Controle</a>
                     </li>
                 </ul>
             </div>
@@ -43,7 +46,7 @@
     </nav>
 
     <div class="container mt-5 px-5">
-        <a href="{% url 'pagina_inicial' %}" class="btn btn-lg float-start border-0 ng-body-tertiary"><i class="fa-solid fa-arrow-left"></i> Voltar</a>
+        <a href="{% url 'busca_de_inscrito' %}" class="btn btn-lg float-start border-0 ng-body-tertiary"><i class="fa-solid fa-arrow-left"></i> Voltar</a>
     </div>
 
     <div class="container my-5 px-5">

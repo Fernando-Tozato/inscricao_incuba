@@ -7,7 +7,7 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.models import User
-from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
@@ -19,8 +19,11 @@ from database.models import Inscrito, Turma, Aluno
 import json, random
 from datetime import datetime
 
+def grupo_necessario(user):
+    return user.groups.filter(Q(name='Coord_Ped') | Q(name='Admin')).exists()
+
 @login_required
-def pagina_inicial(request):
+def busca_de_inscrito(request):
     parametro = request.GET.get('parametro', '')
     valor = request.GET.get('valor', '')
         
@@ -29,13 +32,16 @@ def pagina_inicial(request):
             resultados_nome_social = Inscrito.objects.filter(nome_social_pesquisa__contains=valor)
             resultados_nome = Inscrito.objects.filter(nome_pesquisa__contains=valor).filter(Q(nome_social='') | Q(nome_social__isnull=True))
             inscritos = resultados_nome_social | resultados_nome
-        else:
+            valor = valor.capitalize()
+        elif parametro == 'cpf':
             inscritos = Inscrito.objects.filter(cpf__contains=valor)
             if len(valor) in [3, 7]: valor += '.'
             elif len(valor) == 11: valor += '-'
-        return render(request, 'interno/pagina_inicial.html', {'inscritos': inscritos, 'busca': valor})
+        else:
+            return JsonResponse({'error': 'Parâmetro não suportado.'}, status=405)
+        return render(request, 'interno/busca_de_inscrito.html', {'inscritos': inscritos, 'busca': valor})
     else:
-        return render(request, 'interno/pagina_inicial.html')
+        return render(request, 'interno/busca_de_inscrito.html')
 
 def matricula_novo(request):
     return render(request, 'interno/matricula_novo.html')
@@ -140,14 +146,17 @@ def verificar_cpf(request):
 def enviado(request):
     return render(request, 'interno/enviado_int.html')
 
+@user_passes_test(grupo_necessario)
 @login_required
 def turma(request):
     return render(request, 'interno/turma.html', {'turmas': Turma.objects.all()})
 
+@user_passes_test(grupo_necessario)
 @login_required
 def turma_novo(request):
     return render(request, 'interno/turma_novo.html')
 
+@user_passes_test(grupo_necessario)
 @login_required
 def turma_editar(request, turma_id):
     turma = get_object_or_404(Turma, id=turma_id)
@@ -224,9 +233,6 @@ def turma_view_editar(request):
     else:
         return JsonResponse({'error': 'Método não permitido'}, status=400)
 
-def grupo_necessario(user):
-    return user.groups.filter(name='Coord_Ped').exists()
-
 @user_passes_test(grupo_necessario)
 @login_required
 def controle(request):
@@ -260,7 +266,7 @@ def login_view(request):
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
-                return redirect('pagina_inicial')
+                return redirect('busca_de_inscrito')
     else:
         form = LoginForm()
     return render(request, 'interno/login.html', {'form': form})
@@ -268,7 +274,7 @@ def login_view(request):
 @login_required
 def logout_view(request):
     logout(request)
-    return redirect('pagina_inicial')
+    return redirect('busca_de_inscrito')
 
 def register_view(request):
     if request.method == 'POST':
@@ -286,10 +292,9 @@ def reset_password_view(request):
         if form.is_valid():
             email = form.cleaned_data['email']
             users = User.objects.filter(email=email)
-            print(users)
             if users.exists():
                 for user in users:
-                    subject = "Password Reset Requested"
+                    subject = "Alteração de Senha"
                     email_template_name = "interno/password_reset_email.html"
                     c = {
                         "email": user.email,
@@ -300,11 +305,11 @@ def reset_password_view(request):
                         'token': default_token_generator.make_token(user),
                         'protocol': 'http',
                     }
-                    email = render_to_string(email_template_name, c)
-                    print('ok')
-                    send_mail(subject, email, 'incuba.robotica.auto@gmail.com', [user.email], fail_silently=False)
-                    print('ok')
-                return redirect("interno/reset_password_sent")
+                    email_content = render_to_string(email_template_name, c)
+                    email_message = EmailMultiAlternatives(subject, '', 'incuba.robotica.auto@gmail.com', [user.email])
+                    email_message.attach_alternative(email_content, "text/html")
+                    email_message.send()
+                return redirect('reset_password_sent')
     else:
         form = CustomPasswordResetForm()
     return render(request, 'interno/password_reset.html', {'form': form})
@@ -320,10 +325,14 @@ def reset_password_confirm_view(request, uidb64, token):
         user = None
 
     if user is not None and default_token_generator.check_token(user, token):
+        print('ok')
         if request.method == 'POST':
+            print('ok')
             form = CustomSetPasswordForm(user, request.POST)
+            print('ok')
             if form.is_valid():
                 form.save()
+                print('ok')
                 return redirect('reset_password_complete')
         else:
             form = CustomSetPasswordForm(user)

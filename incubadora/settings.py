@@ -12,7 +12,10 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 import os
+from django_ses import SESBackend
 from telnetlib import AUTHENTICATION
+
+import django_ses
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -30,16 +33,17 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 LOGIN_URL = 'login'  # Nome da URL definida para a view de login
-LOGIN_REDIRECT_URL = 'pagina_inicial'
+LOGIN_REDIRECT_URL = 'busca_de_inscrito'
+
+# settings.py
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST = 'email-smtp.sa-east-1.amazonaws.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'incuba.robotica.auto@gmail.com'  # Substitua pelo seu email
-EMAIL_HOST_PASSWORD = 'Inac@0024'  # Substitua pela senha do seu email
-DEFAULT_FROM_EMAIL = 'incuba.robotica.auto@gmail.com'  # Substitua pelo seu email
-
+EMAIL_HOST_USER = 'AKIASFIRRPGYAIR4XDHJ'      # Must create SMTP Credentials
+EMAIL_HOST_PASSWORD = 'BDx8UXz9si/lcUH0f5N/NGvXIXgR0M8sdeQFfiHA99wL'  # Must create SMTP Credentials
+DEFAULT_FROM_EMAIL = 'incuba.robotica.auto@gmail.com' # If don't need, comment out!!
 
 # Application definition
 
@@ -54,6 +58,7 @@ INSTALLED_APPS = [
     'interno',
     'database',
     'rest_framework',
+    'django_smtp_ssl'
 ]
 
 SITE_ID = 1

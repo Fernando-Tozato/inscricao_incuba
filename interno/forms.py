@@ -9,11 +9,11 @@ class LoginForm(forms.Form):
 class RegisterForm(UserCreationForm):
     class Meta:
         model = User
-        fields = ['username', 'password1', 'password2']
+        fields = ['username', 'email', 'password1', 'password2']
 
 class CustomPasswordResetForm(PasswordResetForm):
     email = forms.EmailField()
 
 class CustomSetPasswordForm(SetPasswordForm):
-    new_password1 = forms.CharField(widget=forms.PasswordInput)
-    new_password2 = forms.CharField(widget=forms.PasswordInput)
+    senha = forms.CharField(widget=forms.PasswordInput)
+    confirmacao_senha = forms.CharField(widget=forms.PasswordInput)
