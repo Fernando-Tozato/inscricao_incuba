@@ -17,13 +17,14 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-from database.views import TurmaViewSet, InscritoViewSet, AlunoViewSet
+from database.views import *
 
 router = DefaultRouter()
 
 router.register(r'turma', TurmaViewSet, basename='turma')
 router.register(r'inscrito', InscritoViewSet, basename='inscrito')
 router.register(r'aluno', AlunoViewSet, basename='aluno')
+router.register(r'controle', ControleViewSet, basename='controle')
 
 urlpatterns = [
     path('admin/', admin.site.urls),

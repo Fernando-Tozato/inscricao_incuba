@@ -1,3 +1,4 @@
+from concurrent.futures import thread
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_protect
@@ -12,15 +13,25 @@ from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.contrib.sites.shortcuts import get_current_site
+from django.utils import timezone
 
 from .forms import *
-from database.models import Inscrito, Turma, Aluno
+from database.models import *
+from .tasks import *
 
-import json, random
+import json, threading
 from datetime import datetime
 
 def grupo_necessario(user):
     return user.groups.filter(Q(name='Coord_Ped') | Q(name='Admin')).exists()
+
+def loop():
+    while True:
+        controle = Controle.objects.first()
+        agora = timezone.now()
+        if agora >= controle.sorteio_data: # type: ignore
+            sortear()
+            break
 
 @login_required
 def busca_de_inscrito(request):
@@ -42,6 +53,12 @@ def busca_de_inscrito(request):
         return render(request, 'interno/busca_de_inscrito.html', {'inscritos': inscritos, 'busca': valor})
     else:
         return render(request, 'interno/busca_de_inscrito.html')
+
+def abrir_inscricoes(request):
+    pass
+
+def fechar_inscricoes(request):
+    pass
 
 def matricula_novo(request):
     return render(request, 'interno/matricula_novo.html')
@@ -236,26 +253,41 @@ def turma_view_editar(request):
 @user_passes_test(grupo_necessario)
 @login_required
 def controle(request):
-    return render(request, 'interno/controle.html')
+    controle = Controle.objects.first()
 
-@csrf_protect
-def sortear(request):
-    for turma in Turma.objects.all():
-        vagas_cotas = turma.cotas()
-        inscritos_pcd = list(Inscrito.objects.filter(Q(id_turma = turma) & Q(Q(pcd=True) | Q(ps=True))))
-        sorteados_pcd = random.sample(inscritos_pcd, vagas_cotas)
+    if request.method == 'POST':
+        inscricao_inicio = request.POST.get('inscricao_inicio')
+        inscricao_fim = request.POST.get('inscricao_fim')
+        sorteio_data = request.POST.get('sorteio_data')
+        matricula_sorteados = request.POST.get('matricula_sorteados')
+        matricula_geral = request.POST.get('matricula_geral')
+        matricula_fim = request.POST.get('matricula_fim')
+
+        if controle:
+            controle.inscricao_inicio = inscricao_inicio
+            controle.inscricao_fim = inscricao_fim
+            controle.sorteio_data = sorteio_data
+            controle.matricula_sorteados = matricula_sorteados
+            controle.matricula_geral = matricula_geral
+            controle.matricula_fim = matricula_fim
+            controle.save()
+        else:
+            Controle.objects.create(
+                inscricao_inicio=inscricao_inicio,
+                inscricao_fim=inscricao_fim,
+                sorteio_data=sorteio_data,
+                matricula_sorteados=matricula_sorteados,
+                matricula_geral=matricula_geral,
+                matricula_fim=matricula_fim
+            )
         
-        for sorteado in sorteados_pcd:
-            sorteado.ja_sorteado = True
+        thread = threading.Thread(target=loop)
+        thread.daemon = True
+        thread.start()
         
-        vagas_gerais = turma.ampla_conc()
-        inscritos_gerais = list(Inscrito.objects.filter(Q(id_turma = turma) & Q(ja_sorteado=False)))
-        sorteados_gerais = random.sample(inscritos_gerais, vagas_gerais)
-        
-        for sorteado in sorteados_gerais:
-            sorteado.ja_sorteado = True
-        
-        sorteados = sorteados_pcd + sorteados_gerais
+        return redirect('controle')
+    
+    return render(request, 'interno/controle.html', {'controle': controle})
         
 def login_view(request):
     if request.method == 'POST':

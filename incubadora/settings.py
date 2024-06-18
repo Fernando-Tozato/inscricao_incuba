@@ -12,10 +12,6 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 import os
-from django_ses import SESBackend
-from telnetlib import AUTHENTICATION
-
-import django_ses
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -43,7 +39,7 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'AKIASFIRRPGYAIR4XDHJ'      # Must create SMTP Credentials
 EMAIL_HOST_PASSWORD = 'BDx8UXz9si/lcUH0f5N/NGvXIXgR0M8sdeQFfiHA99wL'  # Must create SMTP Credentials
-DEFAULT_FROM_EMAIL = 'incuba.robotica.auto@gmail.com' # If don't need, comment out!!
+DEFAULT_FROM_EMAIL = 'incuba.robotica.auto@gmail.com' # If don't need, comment out!
 
 # Application definition
 
@@ -58,7 +54,7 @@ INSTALLED_APPS = [
     'interno',
     'database',
     'rest_framework',
-    'django_smtp_ssl'
+    'django_smtp_ssl',
 ]
 
 SITE_ID = 1
@@ -138,7 +134,6 @@ TIME_ZONE = 'America/Sao_Paulo'
 USE_I18N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/

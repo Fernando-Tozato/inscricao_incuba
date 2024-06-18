@@ -74,11 +74,13 @@ class Aluno(models.Model):
     ps = models.BooleanField(default=False)
     id_turma = models.ForeignKey(Turma, on_delete=models.CASCADE, related_name='inscrito_turma')
 
-class Sorteado (models.Model):
-    nome = models.CharField(max_length=100)
-    nome_pesquisa = models.CharField(max_length=100)
-    nome_social = models.CharField(max_length=100, null=True, default=None, blank=True)
-    nome_social_pesquisa = models.CharField(max_length=100, null=True, default=None, blank=True)
-    cpf = models.CharField(max_length=14, unique=True)
-    id_turma = models.ForeignKey(Turma, on_delete=models.CASCADE, related_name='sorteado_turma')
-    id_inscrito = models.ForeignKey(Turma, on_delete=models.CASCADE, related_name='sorteado_inscrito')
+class Controle(models.Model):
+    inscricao_inicio = models.DateTimeField()
+    inscricao_fim = models.DateTimeField()
+    sorteio_data = models.DateTimeField()
+    matricula_sorteados = models.DateTimeField()
+    matricula_geral = models.DateTimeField()
+    matricula_fim = models.DateTimeField()
+
+    def __str__(self):
+        return f"Configuração de {self.inscricao_inicio} a {self.matricula_fim}"
