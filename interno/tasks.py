@@ -22,19 +22,18 @@ def sortear():
     - As operações são registradas em 'sorteio.log' para auditoria e verificação posterior.
     """
     
-    logger.info("Início do sorteio")
+    logger.info("Inicio do sorteio")
     
     for turma in Turma.objects.all():
-        logger.info(f"Turma: {turma}")
+        logger.info(f"Turma: {turma.curso} - {turma.dias} - {turma.horario()}")
         
         # Sorteio para vagas de cotas
         vagas_cotas = turma.cotas()
         inscritos_cotas = list(Inscrito.objects.filter(Q(id_turma=turma) & Q(Q(pcd=True) | Q(ps=True))))
         sorteados_cotas = random.sample(inscritos_cotas, vagas_cotas)
         
-        logger.info(f"Sorteados Cotas: {[inscrito.nome for inscrito in sorteados_cotas]}")
-        
         for sorteado in sorteados_cotas:
+            logger.info(f'{sorteado.nome if sorteado.nome_social != '' else sorteado.nome_social}')
             sorteado.ja_sorteado = True
             sorteado.save()
         
@@ -43,9 +42,8 @@ def sortear():
         inscritos_gerais = list(Inscrito.objects.filter(Q(id_turma=turma) & Q(ja_sorteado=False)))
         sorteados_gerais = random.sample(inscritos_gerais, vagas_gerais)
         
-        logger.info(f"Sorteados Gerais: {[inscrito.nome for inscrito in sorteados_gerais]}")
-        
         for sorteado in sorteados_gerais:
+            logger.info(f'{sorteado.nome if sorteado.nome_social != '' else sorteado.nome_social}')
             sorteado.ja_sorteado = True
             sorteado.save()
     

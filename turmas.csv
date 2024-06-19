@@ -1,0 +1,65 @@
+id,curso,dias,horario_entrada,horario_saida,vagas,escolaridade,idade,professor
+1,Informática para Iniciantes e Melhor Idade,Ter e Qui,08:40,10:40,13,2,12,Cláudia
+2,Informática para Iniciantes e Melhor Idade,Ter e Qui,14:00,16:00,11,2,12,Cláudia
+3,Informática para Iniciantes e Melhor Idade,Ter e Qui,16:00,18:20,11,2,12,Erika
+4,Informática para Iniciantes e Melhor Idade,Ter e Qui,18:30,20:30,7,2,12,Erika
+5,Informática para Iniciantes e Melhor Idade,Qua e Sex,10:50,12:50,13,2,12,Cláudia
+6,Informática para Iniciantes e Melhor Idade,Qua e Sex,16:10,18:10,11,2,12,Cláudia
+7,Informática para Iniciantes e Melhor Idade,Qua e Sex,18:20,20:20,7,2,12,Cláudia
+8,Informática Básica,Ter e Qui,10:30,12:30,11,3,12,Erika
+9,Informática Básica,Ter e Qui,10:50,12:50,11,3,12,Cláudia
+10,Informática Básica,Ter e Qui,16:10,18:10,13,3,12,Cláudia
+11,Informática Básica,Ter e Qui,18:20,20:20,19,3,12,Cláudia
+12,Informática Básica,Qua e Sex,08:40,10:40,11,3,12,Cláudia
+13,Informática Básica,Qua e Sex,14:00,16:00,13,3,12,Cláudia
+14,Excel Intermediário,Seg e Qua,08:40,10:40,19,3,14,Erika
+15,Excel Intermediário,Seg e Qua,14:10,16:10,19,3,14,Erika
+16,Excel Intermediário,Seg e Qua,16:20,18:20,19,3,14,Erika
+17,Excel Intermediário,Seg e Qua,18:30,20:30,19,3,14,Erika
+18,Excel Avançado,Seg e Qua,10:50,13:10,19,3,16,Erika
+19,Excel Avançado,Ter e Qui,13:30,15:20,7,3,16,Erika
+20,Montagem e Manutenção de Computadores,Seg e Qua,08:40,10:40,20,3,14,Celso
+21,Montagem e Manutenção de Computadores,Seg e Qua,10:50,12:50,20,3,14,Celso
+22,Montagem e Manutenção de Computadores,Seg e Qua,14:00,16:00,20,3,14,Celso
+23,Montagem e Manutenção de Computadores,Seg e Qua,16:10,18:10,20,3,14,Celso
+24,Montagem e Manutenção de Computadores,Seg e Qua,18:20,20:20,20,3,14,Celso
+25,Montagem e Manutenção de Computadores,Ter e Qui,08:40,10:40,20,3,14,Celso
+26,Montagem e Manutenção de Computadores,Ter e Qui,10:50,12:50,20,3,14,Celso
+27,Montagem e Manutenção de Computadores,Ter e Qui,14:00,16:00,20,3,14,Celso
+28,Montagem e Manutenção de Computadores,Ter e Qui,16:10,18:10,20,3,14,Celso
+29,Robótica e Automação: Módulo 01,Seg e Qua,08:40,10:40,20,3,12,Miguel
+30,Robótica e Automação: Módulo 01,Seg e Qua,14:00,16:00,20,3,12,Miguel
+31,Robótica e Automação: Módulo 01,Ter e Qui,10:50,12:50,20,3,12,Miguel
+32,Robótica e Automação: Módulo 01,Ter e Qui,16:10,18:10,20,3,12,Miguel
+33,Robótica e Automação: Módulo 02,Seg e Qua,10:50,12:50,20,3,12,Miguel
+34,Robótica e Automação: Módulo 02,Seg e Qua,16:10,18:10,20,3,12,Miguel
+35,Robótica e Automação: Módulo 02,Ter e Qui,14:00,16:00,20,3,12,Miguel
+36,Robótica e Automação: Módulo 02,Ter e Qui,18:20,20:20,20,3,12,Miguel
+37,Robótica e Automação: Módulo 03,Seg e Qua,18:20,20:20,20,3,12,Miguel
+38,Robótica e Automação: Módulo 03,Ter e Qui,08:40,10:40,20,3,12,Miguel
+39,Design e Modelagem 3D: Módulo 01,Ter e Qui,08:40,09:50,12,3,14,Beatriz
+40,Design e Modelagem 3D: Módulo 01,Ter e Qui,13:20,14:30,12,3,14,Beatriz
+41,Design e Modelagem 3D: Módulo 01,Ter e Qui,17:00,18:10,12,3,14,Beatriz
+42,Design e Modelagem 3D: Módulo 01,Qua e Sex,11:00,12:10,12,3,14,Beatriz
+43,Design e Modelagem 3D: Módulo 01,Qua e Sex,13:10,14:20,12,3,14,Beatriz
+44,Design e Modelagem 3D: Módulo 02,Ter e Qui,10:00,12:10,12,3,14,Beatriz
+45,Design e Modelagem 3D: Módulo 02,Ter e Qui,14:40,16:50,12,3,14,Beatriz
+46,Design e Modelagem 3D: Módulo 02,Ter e Qui,18:20,20:30,12,3,14,Beatriz
+47,Design e Modelagem 3D: Módulo 02,Qua e Sex,08:40,10:50,12,3,14,Beatriz
+48,Design e Modelagem 3D: Módulo 02,Qua e Sex,14:30,16:40,12,3,14,Beatriz
+49,Gestão de Pessoas,Terça,13:00,16:00,25,4,16,Alessandra
+50,Gestão de Pessoas,Quinta,09:00,12:00,25,4,16,Alessandra
+51,Gestão de Pessoas,Quinta,17:30,20:30,25,4,16,Alessandra
+52,Gestão de Pessoas,Sexta,13:00,16:00,25,4,16,Alessandra
+53,Educação Financeira,Terça,09:00,12:00,25,4,16,Alessandra
+54,Educação Financeira,Terça,17:30,20:30,25,4,16,Alessandra
+55,Educação Financeira,Quinta,13:00,16:00,25,4,16,Alessandra
+56,Educação Financeira,Sexta,09:00,12:00,25,4,16,Alessandra
+57,Marketing Digital,Segunda,09:00,12:00,25,4,16,Mayco
+58,Marketing Digital,Segunda,17:30,20:30,25,4,16,Mayco
+59,Marketing Digital,Quarta,13:00,16:00,25,4,16,Mayco
+60,Marketing Digital,Sexta,17:30,20:30,25,4,16,Mayco
+61,Marketing Empreendedor,Segunda,13:00,16:00,25,4,16,Mayco
+62,Marketing Empreendedor,Quarta,09:00,12:00,25,4,16,Mayco
+63,Marketing Empreendedor,Quarta,17:30,20:30,25,4,16,Mayco
+64,Marketing Empreendedor,Sexta,13:00,16:00,25,4,16,Mayco

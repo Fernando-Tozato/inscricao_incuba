@@ -40,12 +40,36 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'controle' %}">Controle</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'logout' %}">Sair</a>
+                    </li>
                 </ul>
             </div>
         </div>
     </nav>
 
     <div class="container my-5 px-5">
+        {% if vagas %}
+        <div class="p-4 mb-5 border bg-body-secondary text-body-secondary rounded">
+            <h1>Vagas por Curso</h1>
+            <table class="table table-striped border">
+                <thead>
+                    <tr>
+                        <th scope="col">Curso</th>
+                        <th scope="col">Total de Vagas</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for curso in vagas %}
+                        <tr>
+                            <td>{{ curso.curso }}</td>
+                            <td>{{ curso.vagas }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
         <div class="p-4 mb-5 border bg-body-secondary text-body-secondary rounded">
             <label for="busca" class="form-label">Digite o nome ou CPF:</label>
             <div class="input-group mb-3">
@@ -85,7 +109,7 @@
             {% endif %}
         </div>
         <div class="container align-items-center float-end">
-            <button class="btn btn-primary float-end" id="btn" type="button" onclick="window.location.href = '{% url 'matricula_novo' %}'">Aluno não inscrito</button>
+            <a href="{% url 'matricula_novo' %}" class="btn btn-primary float-end">Aluno não inscrito</a>
         </div>
     </div>
 

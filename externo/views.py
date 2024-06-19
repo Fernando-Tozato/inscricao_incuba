@@ -4,12 +4,23 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_protect
 from django.core.exceptions import ValidationError
 from django.db.models import Q
-from database.models import Inscrito, Turma
+from database.models import *
+from django.utils import timezone
 
 def home(request):
     return render(request, 'home.html')
 
 def inscricao(request):
+    agora = timezone.now()
+    controle = Controle.objects.first()
+    inicio = timezone.localtime(controle.inscricao_inicio) # type: ignore
+    fim = timezone.localtime(controle.inscricao_fim) # type: ignore
+    remanescente = timezone.localtime(controle.matricula_geral) # type: ignore
+    
+    if agora < inicio:
+        return render(request, 'antes_inscricao.html', {'data': inicio})
+    elif agora > fim:
+        return render(request, 'depois_inscricao.html', {'data_inscricao': fim, 'data_remanescente': remanescente})
     return render(request, 'inscricao.html')
 
 def enviado(request):

@@ -1,9 +1,8 @@
-from concurrent.futures import thread
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_protect
 from django.core.exceptions import ValidationError
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.tokens import default_token_generator
@@ -19,7 +18,7 @@ from .forms import *
 from database.models import *
 from .tasks import *
 
-import json, threading
+import json, threading, time
 from datetime import datetime
 
 def grupo_necessario(user):
@@ -27,9 +26,10 @@ def grupo_necessario(user):
 
 def loop():
     while True:
-        controle = Controle.objects.first()
+        time.sleep(1)
+        data_sorteio = Controle.objects.first().sorteio_data # type: ignore
         agora = timezone.now()
-        if agora >= controle.sorteio_data: # type: ignore
+        if agora >= data_sorteio: # type: ignore
             sortear()
             break
 
@@ -37,6 +37,8 @@ def loop():
 def busca_de_inscrito(request):
     parametro = request.GET.get('parametro', '')
     valor = request.GET.get('valor', '')
+    
+    vagas = Turma.objects.values('curso').annotate(vagas=(Sum('vagas')-Sum('num_alunos')))
         
     if parametro and valor:
         if parametro == 'nome':
@@ -50,15 +52,9 @@ def busca_de_inscrito(request):
             elif len(valor) == 11: valor += '-'
         else:
             return JsonResponse({'error': 'Parâmetro não suportado.'}, status=405)
-        return render(request, 'interno/busca_de_inscrito.html', {'inscritos': inscritos, 'busca': valor})
+        return render(request, 'interno/busca_de_inscrito.html', {'inscritos': inscritos, 'busca': valor, 'vagas': vagas})
     else:
-        return render(request, 'interno/busca_de_inscrito.html')
-
-def abrir_inscricoes(request):
-    pass
-
-def fechar_inscricoes(request):
-    pass
+        return render(request, 'interno/busca_de_inscrito.html', {'vagas': vagas})
 
 def matricula_novo(request):
     return render(request, 'interno/matricula_novo.html')
@@ -124,8 +120,11 @@ def matricula_criar(request):
                 id_turma = id_turma
             )
             
+            id_turma.num_alunos += 1
+            
             try:
                 aluno.save()
+                id_turma.save()
                 return JsonResponse({'success': 'Sucesso no envio'}, status=200)
             except ValidationError as e:
                 return JsonResponse({'error': e.message_dict}, status=400)
@@ -133,14 +132,6 @@ def matricula_criar(request):
             return JsonResponse({'error': 'Dados JSON inválidos'}, status=400)
     else:
         return JsonResponse({'error': 'Método não permitido.'}, status=405)
-
-@csrf_protect
-def matricula_sorteados(request):
-    pass
-
-@csrf_protect
-def matricula_geral(request):
-    pass
 
 @csrf_protect
 def verificar_cpf(request):
@@ -285,7 +276,7 @@ def controle(request):
         thread.daemon = True
         thread.start()
         
-        return redirect('controle')
+        return redirect('busca_de_inscrito')
     
     return render(request, 'interno/controle.html', {'controle': controle})
         
@@ -306,7 +297,7 @@ def login_view(request):
 @login_required
 def logout_view(request):
     logout(request)
-    return redirect('busca_de_inscrito')
+    return redirect('login')
 
 def register_view(request):
     if request.method == 'POST':

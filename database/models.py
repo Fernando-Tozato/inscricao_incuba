@@ -9,6 +9,7 @@ class Turma(models.Model):
     escolaridade = models.IntegerField()
     idade = models.IntegerField()
     professor = models.CharField(max_length=100)
+    num_alunos = models.IntegerField(default=0)
     
     def horario(self):
         return f'{self.horario_entrada.strftime("%H:%M")} - {self.horario_saida.strftime("%H:%M")}'
