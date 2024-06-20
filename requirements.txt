@@ -4,3 +4,4 @@ django
 Pillow
 django_rest_framework
 pandas
+django_smtp_ssl

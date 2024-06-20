@@ -2,7 +2,6 @@ from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_protect
 from django.core.exceptions import ValidationError
-from django.core.serializers import serialize
 from django.db.models import Q
 from database.models import *
 from django.utils import timezone
