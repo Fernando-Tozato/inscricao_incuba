@@ -79,22 +79,22 @@
                         <div class="form-text" id="cpf_placeholder"></div>
                     </div>
                     <div class="col-md mt-3 form-floating">
-                        <input type="text" class="form-control required" oninput="mascara_rg(this)" id="rg">
-                        <label for="rg">RG *</label>
+                        <input type="text" class="form-control" oninput="mascara_rg(this)" id="rg">
+                        <label for="rg">RG</label>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md mt-3 form-floating">
-                        <input type="text" class="form-control required" id="data_emissao" oninput="mascara_data(this)" onblur="verifica_data_emissao(this.value.split('/'))">
-                        <label for="data_emissao">Data de emissão *</label>
+                        <input type="text" class="form-control" id="data_emissao" oninput="mascara_data(this)" onblur="verifica_data_emissao(this.value.split('/'))">
+                        <label for="data_emissao">Data de emissão</label>
                         <div class="form-text" id="data_emissao_placeholder"></div>
                     </div>
                     <div class="col-md mt-3 form-floating">
-                        <input type="text" class="form-control required" id="orgao_emissor" oninput="mascara_palavras(this)">
-                        <label for="orgao_emissor">Órgão emissor *</label>
+                        <input type="text" class="form-control" id="orgao_emissor" oninput="mascara_palavras(this)">
+                        <label for="orgao_emissor">Órgão emissor</label>
                     </div>
                     <div class="col-md mt-3 form-floating">
-                        <select class="form-select required" id="uf_emissao">
+                        <select class="form-select" id="uf_emissao">
                             <option selected disabled hidden></option>
                             <option value="ac">AC</option>
                             <option value="al">AL</option>
@@ -124,7 +124,7 @@
                             <option value="se">SE</option>
                             <option value="to">TO</option>
                         </select>
-                        <label for="uf_emissao">UF de emissão *</label>
+                        <label for="uf_emissao">UF de emissão</label>
                     </div>
                 </div>
                 <div class="row">
@@ -145,6 +145,16 @@
                             <option value="7">Pós-graduação completa</option>
                         </select>
                         <label for="escolaridade">Escolaridade *</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm mt-3 form-check form-switch">
+                        <input class="form-check-input" type="checkbox" role="switch" id="pcd">
+                        <label class="form-check-label" for="pcd">É PcD?</label>
+                    </div>
+                    <div class="col-sm mt-3 form-check form-switch">
+                        <input class="form-check-input" type="checkbox" role="switch" id="ps">
+                        <label class="form-check-label" for="ps">Participa de Programa Social?</label>
                     </div>
                 </div>
 

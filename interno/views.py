@@ -39,6 +39,9 @@ def busca_de_inscrito(request):
     valor = request.GET.get('valor', '')
     
     vagas = Turma.objects.values('curso').annotate(vagas=(Sum('vagas')-Sum('num_alunos')))
+    
+    agora = timezone.now()
+    matricula_geral = timezone.localtime(Controle.objects.first().matricula_geral)  # type: ignore
         
     if parametro and valor:
         if parametro == 'nome':
@@ -46,12 +49,18 @@ def busca_de_inscrito(request):
             resultados_nome = Inscrito.objects.filter(nome_pesquisa__contains=valor).filter(Q(nome_social='') | Q(nome_social__isnull=True))
             inscritos = resultados_nome_social | resultados_nome
             valor = valor.capitalize()
+            
         elif parametro == 'cpf':
             inscritos = Inscrito.objects.filter(cpf__contains=valor)
             if len(valor) in [3, 7]: valor += '.'
             elif len(valor) == 11: valor += '-'
+            
         else:
             return JsonResponse({'error': 'Parâmetro não suportado.'}, status=405)
+        
+        if agora < matricula_geral:
+            inscritos = inscritos.filter(ja_sorteado=True)
+            
         return render(request, 'interno/busca_de_inscrito.html', {'inscritos': inscritos, 'busca': valor, 'vagas': vagas})
     else:
         return render(request, 'interno/busca_de_inscrito.html', {'vagas': vagas})

@@ -22,7 +22,7 @@ let url_horarios = '/externo/busca_horarios/';
 let url_enviado = '/interno/enviado/';
 
 function form_valido(){
-    if(form_vazio || cpf_invalido || data_nasc_invalida || data_emissao_invalida || email_invalido || cep_invalido || ddd_tel_invalido || ddd_cel_invalido){
+    if(form_vazio || cpf_invalido || /*data_nasc_invalida || data_emissao_invalida ||*/ email_invalido || cep_invalido || ddd_tel_invalido || ddd_cel_invalido){
         return false
     }
     return true
