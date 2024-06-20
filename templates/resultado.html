@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulário enviado</title>
+    <title>Resultados</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="{% static 'css/posicao_footer.css' %}">
 </head>
@@ -13,6 +13,9 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
     <script src="https://kit.fontawesome.com/b87058db00.js" crossorigin="anonymous"></script>
+    <script src="{% static 'js/resultados.js' %}"></script>
+
+    <div class="d-none" id="token">{% csrf_token %}</div>
 
     <nav class="navbar navbar-expand-sm bg-body-secondary text-body-secondary border-bottom" aria-label="Tenth navbar example">
         <div class="container-fluid">
@@ -39,11 +42,62 @@
         </div>
     </nav>
 
-    <div class="container my-5" style="height: 49.5vh;">
-        <div class="alert alert-success d-flex align-items-center" role="alert">
-            <i class="fa-solid fa-circle-check bi flex-shrink-0 mx-4" style="color: #2e7a63;"></i>
-            <h4 class="alert-heading mt-1">Os seus dados foram enviados com sucesso!</h4>
+    <div class="container my-5">
+        <div class="p-5 mb-5 border bg-body-secondary text-body-secondary rounded">
+            <div class="row">
+                <div class="col-sm mt-3 form-floating">
+                    <select class="form-select" id="curso" onchange="habilitar_dias(this)">
+                        <option selected disabled hidden></option>
+                        {% if cursos %}
+                            {% for curso in cursos %}
+                                <option>{{ curso }}</option>
+                            {% endfor %}
+                        {% endif %}
+                    </select>
+                    <label for="curso">Curso</label>
+                    <div class="form-text" id="curso_placeholder"></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm mt-3 form-floating">
+                    <select class="form-select" id="dias" disabled onchange="habilitar_horarios(this)">
+                        <option selected disabled hidden></option>
+                    </select>
+                    <label for="dias">Dias</label>
+                </div>
+                <div class="col-sm mt-3 form-floating">
+                    <select class="form-select" id="horario" disabled onchange="set_horario(this)">
+                        <option selected disabled hidden></option>
+                    </select>
+                    <label for="horario">Horário</label>
+                </div>
+            </div>
+            <div class="row d-flex">
+                <div class="col d-flex justify-content-end mt-3">
+                    <button type="button" class="btn btn-primary" onclick="buscar();">Buscar</button>
+                </div>
+            </div>
         </div>
+
+        {% if sorteados %}
+            <div class="p-5 mb-5 border bg-body-secondary text-body-secondary rounded">
+                {% if sorteados == 'Não houveram inscritos.'  %}
+                    <h2>{{ sorteados }}</h2>
+                {% else %}
+                    <ul class="justify-content-center list-group" id="resultado_pesquisa">
+                        {% for sorteado in sorteados %}
+                            <li class="list-group-item">
+                                {% if sorteado.nome_social != '' %}
+                                    <h1>{{ sorteado.nome_social }}</h1>
+                                {% else %}
+                                    <h1>{{ sorteado.nome }}</h1>
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+        {% endif %}
     </div>
 
     <footer class="border-top bg-body-secondary text-body-secondary px-5 py-2" id="footer">

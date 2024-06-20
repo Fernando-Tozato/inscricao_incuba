@@ -12,6 +12,7 @@ urlpatterns = [
     path('inscricao/busca_horarios/', busca_horarios, name='busca_horarios'),
     path('editais/', editais, name='editais'),
     path('resultado/', resultado, name='resultado'),
+    path('resultado/<int:id_turma>/', resultado_id, name='resultado_id'),
     path('design/', design, name='design'),
     path('educacao/', educacao, name='educacao'),
     path('excel/', excel, name='excel'),
@@ -22,4 +23,5 @@ urlpatterns = [
     path('marketing_emp/', marketing_emp, name='marketing_emp'),
     path('montagem/', montagem, name='montagem'),
     path('robotica/', robotica, name='robotica'),
+    path('download_1/', download_1, name='download_1'),
 ]

@@ -5,7 +5,7 @@ import random, logging
 
 # Configuração do log
 logger = logging.getLogger(__name__)
-handler = logging.FileHandler('sorteio.log')
+handler = logging.FileHandler('sorteio.log', encoding='utf-8')
 formatter = logging.Formatter('%(asctime)s - %(message)s')
 handler.setFormatter(formatter)
 logger.addHandler(handler)
@@ -37,10 +37,11 @@ def sortear():
         
         if len(inscritos_cotas) <= vagas_cotas: # Caso o número de inscritos cotistas para a turma atual seja menor que o número de vagas para cotas da turma...
             sorteados_cotas = inscritos_cotas # ... define os sorteados cotistas para a turma atual como todos os inscritos para a turma atual
-        sorteados_cotas = random.sample(inscritos_cotas, vagas_cotas) # Se não, sorteia os inscritos de acordo com o número de vagas
+        else: # Se não...
+            sorteados_cotas = random.sample(inscritos_cotas, vagas_cotas) # ... sorteia os inscritos de acordo com o número de vagas
         
         for sorteado in sorteados_cotas: # Itera sobre todos os sorteados cotistas da turma atual
-            logger.info(f'{sorteado.nome if sorteado.nome_social != '' else sorteado.nome_social}') # Mostra o nome civil ou social do sorteado no log
+            logger.info(f'{sorteado.nome if sorteado.nome_social == '' else sorteado.nome_social} - Cota') # Mostra o nome civil ou social do sorteado no log
             sorteado.ja_sorteado = True # Define o atributo ja_sorteado como verdadeiro
             sorteado.save() # Salva a alteração
         
@@ -54,12 +55,18 @@ def sortear():
         
         if len(inscritos_gerais) <= vagas_gerais: # Caso o número de inscritos para a turma atual seja menor que o número de vagas da turma...
             sorteados_gerais = inscritos_gerais # ... define os sorteados para a turma atual como todos os inscritos para a turma atual
-        sorteados_gerais = random.sample(inscritos_gerais, vagas_gerais) # Se não, sorteia os inscritos de acordo com o número de vagas
+        else: # Se não...
+            sorteados_gerais = random.sample(inscritos_gerais, vagas_gerais) # ... sorteia os inscritos de acordo com o número de vagas
         
         for sorteado in sorteados_gerais: # Itera sobre todos os sorteados de ampla concorrência da turma atual
-            logger.info(f'{sorteado.nome if sorteado.nome_social != '' else sorteado.nome_social}') # Mostra o nome civil ou social do sorteado no log
+            logger.info(f'{sorteado.nome if sorteado.nome_social == '' else sorteado.nome_social} - Ampla concorrência') # Mostra o nome civil ou social do sorteado no log
             sorteado.ja_sorteado = True # Define o atributo ja_sorteado como verdadeiro
             sorteado.save() # Salva a alteração
+        
+        logger.info('Fim da turma.') # Mostra o final do sorteio da turma atual no log
+        
+        for i in range(5): # Pula 5 linhas no log para melhorar a legibilidade
+            logger.info("")
         
         """
         Por ser um loop, o processo se repetirá para todas as turmas 

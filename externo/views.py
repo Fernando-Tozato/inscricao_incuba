@@ -1,11 +1,17 @@
-from django.shortcuts import render
-import json
+from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_protect
 from django.core.exceptions import ValidationError
+from django.core.serializers import serialize
 from django.db.models import Q
 from database.models import *
 from django.utils import timezone
+from django.http import HttpResponse, Http404
+from django.conf import settings
+
+from io import BytesIO
+
+import os, zipfile, json
 
 def home(request):
     return render(request, 'home.html')
@@ -190,7 +196,18 @@ def editais(request):
     return render(request, 'editais.html')
 
 def resultado(request):
-    return render(request, 'resultado.html')
+    cursos = Turma.objects.values_list('curso', flat=True).distinct()
+    return render(request, 'resultado.html', {'cursos': cursos})
+
+def resultado_id(request, id_turma):
+    cursos = Turma.objects.values_list('curso', flat=True).distinct()
+    turma = get_object_or_404(Turma, id=id_turma)
+    sorteados = Inscrito.objects.filter(Q(id_turma=turma) & Q(ja_sorteado=True))
+    
+    if len(sorteados) == 0:
+        sorteados = 'Não houveram inscritos.'    
+    
+    return render(request, 'resultado.html', {'cursos': cursos, 'sorteados': sorteados})
 
 def design(request):
     return render(request, 'cursos/design.html')
@@ -221,3 +238,34 @@ def montagem(request):
 
 def robotica(request):
     return render(request, 'cursos/robotica.html')
+
+def download_1(request):
+    filenames = [
+        'EDITAL FECHADO E REVISADO.pdf',
+        'ANEXO I FECHADO REVISADO.pdf',
+        'Anexo II - FECHADO E REVISADO.pdf',
+        'ANEXO III FECHADO REVISADO.pdf',
+        'ANEXO IV FECHADO E REVISADO.pdf'
+    ]
+    
+    zip_subdir = "editais_e_anexos"
+    zip_filename = f"{zip_subdir}.zip"
+
+    buffer = BytesIO()
+
+    with zipfile.ZipFile(buffer, "w") as zf:
+        for filename in filenames:
+            file_path = os.path.join(settings.MEDIA_ROOT, filename)
+            if os.path.exists(file_path):
+                with open(file_path, 'rb') as f:
+                    zip_path = os.path.join(zip_subdir, filename)
+                    zf.writestr(zip_path, f.read())
+            else:
+                raise Http404(f"{filename} não encontrado")
+
+    buffer.seek(0)
+
+    response = HttpResponse(buffer, content_type="application/zip")
+    response['Content-Disposition'] = f'attachment; filename={zip_filename}'
+
+    return response

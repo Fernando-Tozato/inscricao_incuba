@@ -51,7 +51,7 @@ comandos.append('''
 ''')
 
 comandos.append('''
-    DROP TABLE database_sorteado;
+    DROP TABLE database_controle;
 ''')
 
 comandos.append('''
