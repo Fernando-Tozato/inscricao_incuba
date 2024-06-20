@@ -35,9 +35,13 @@
                                 {{ form.username }}
                                 <label for="username">{{ form.username.label }}</label>
                             </div>
-                            <div class="mb-3 form-floating">
+                            <div class="mb-1 form-floating">
                                 {{ form.password }}
                                 <label for="password">{{ form.password.label }}</label>
+                            </div>
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="togglePassword('password')">
+                                <label class="form-check-label" for="flexSwitchCheckDefault">Mostrar senha</label>
                             </div>
                             <div class="col-sm float-end">
                                 <button type="submit" class="btn btn-primary">Login</button>

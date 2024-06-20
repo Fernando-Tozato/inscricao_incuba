@@ -39,20 +39,28 @@
                                 {{ form.email }}
                                 <label for="email">{{ form.email.label }}</label>
                             </div>
-                            <div class="mb-3 form-floating">
+                            <div class="mb-1 form-floating">
                                 {{ form.password1 }}
                                 <label for="password">{{ form.password1.label }}</label>
                             </div>
-                            <div class="mb-3 form-floating">
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="togglePassword('password1')">
+                                <label class="form-check-label" for="flexSwitchCheckDefault">Mostrar senha</label>
+                            </div>
+                            <div class="mb-1 form-floating">
                                 {{ form.password2 }}
                                 <label for="password">{{ form.password2.label }}</label>
                             </div>
-                            <div class="col-sm float-end">
-                                <button type="submit" class="btn btn-primary">Login</button>
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="togglePassword('password2')">
+                                <label class="form-check-label" for="flexSwitchCheckDefault">Mostrar confirmação de senha</label>
+                            </div>
+                                <div class="col-sm float-end">
+                                <button type="submit" class="btn btn-primary">Registrar</button>
                             </div>
                         </form>
                         <div class="">
-                            <a href="{% url 'login' %}">Login</a>
+                            <a href="{% url 'login' %}">Fazer login</a>
                         </div>
                     </div>
                 </div>

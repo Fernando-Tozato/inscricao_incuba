@@ -1,5 +1,5 @@
-let url_cpf = '/interno/busca_de_inscrito/?parametro=cpf&valor=';
-let url_nome = '/interno/busca_de_inscrito/?parametro=nome&valor=';
+let url_cpf = '/interno/?parametro=cpf&valor=';
+let url_nome = '/interno/?parametro=nome&valor=';
 let csrftoken;
 
 function buscar(busca){
