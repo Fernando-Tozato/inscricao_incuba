@@ -11,7 +11,7 @@ function habilitar_dias(selected){
     select_dias.innerHTML = '<option selected disabled hidden></option>'
     select_horario.innerHTML = '<option selected disabled hidden></option>'
     select_dias.disabled = true;
-    select_horario.disabled = false;
+    select_horario.disabled = true;
 
     const dados = {'curso': curso}
 
@@ -50,7 +50,7 @@ function habilitar_horarios(selected){
     dias = selected.value;
 
     select_horario.innerHTML = '<option selected disabled hidden></option>'
-    select_horario.disabled = false;
+    select_horario.disabled = true;
 
     const dados = {
         'curso': curso,

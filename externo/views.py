@@ -195,18 +195,38 @@ def editais(request):
     return render(request, 'editais.html')
 
 def resultado(request):
+    agora = timezone.now()
+    controle = Controle.objects.first()
+    sorteio = timezone.localtime(controle.sorteio_data) # type: ignore
+    
+    if agora < sorteio:
+        return render(request, 'antes_resultado.html', {'data': sorteio})
+    
     cursos = Turma.objects.values_list('curso', flat=True).distinct()
     return render(request, 'resultado.html', {'cursos': cursos})
 
 def resultado_id(request, id_turma):
+    agora = timezone.now()
+    controle = Controle.objects.first()
+    sorteio = timezone.localtime(controle.sorteio_data) # type: ignore
+    
+    if agora < sorteio:
+        return render(request, 'antes_resultado.html', {'data': sorteio})
+    
     cursos = Turma.objects.values_list('curso', flat=True).distinct()
     turma = get_object_or_404(Turma, id=id_turma)
     sorteados = Inscrito.objects.filter(Q(id_turma=turma) & Q(ja_sorteado=True))
     
-    if len(sorteados) == 0:
-        sorteados = 'Não houveram inscritos.'    
+    busca = {
+        'curso': turma.curso,
+        'dias': turma.dias,
+        'horario': turma.horario()
+    }
     
-    return render(request, 'resultado.html', {'cursos': cursos, 'sorteados': sorteados})
+    if len(sorteados) == 0:
+        sorteados = -1   
+    
+    return render(request, 'resultado.html', {'cursos': cursos, 'sorteados': sorteados, 'busca': json.dumps(busca)})
 
 def design(request):
     return render(request, 'cursos/design.html')

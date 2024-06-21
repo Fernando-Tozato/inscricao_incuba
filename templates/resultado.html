@@ -50,7 +50,7 @@
                         <option selected disabled hidden></option>
                         {% if cursos %}
                             {% for curso in cursos %}
-                                <option>{{ curso }}</option>
+                                <option value="{{ curso }}">{{ curso }}</option>
                             {% endfor %}
                         {% endif %}
                     </select>
@@ -81,8 +81,8 @@
 
         {% if sorteados %}
             <div class="p-5 mb-5 border bg-body-secondary text-body-secondary rounded">
-                {% if sorteados == 'Não houveram inscritos.'  %}
-                    <h2>{{ sorteados }}</h2>
+                {% if sorteados == -1  %}
+                    <h2>Não houveram inscritos para esta turma.</h2>
                 {% else %}
                     <ul class="justify-content-center list-group" id="resultado_pesquisa">
                         {% for sorteado in sorteados %}
@@ -122,5 +122,38 @@
             </div>
         </div>
     </footer>
+
+    <script>
+        const busca = JSON.parse('{{ busca|escapejs }}');
+        const select_curso = document.getElementById('curso');
+        const select_dias = document.getElementById('dias');
+        const select_horario = document.getElementById('horario');
+
+        function selectOption(selectElement, value) {   
+            const options = selectElement.options;
+            for (let i = 0; i < options.length; i++) {
+                if (options[i].value === value) {
+                    selectElement.selectedIndex = i;
+                }
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', (event) => {
+
+            selectOption(select_curso, busca.curso)
+            habilitar_dias(select_curso);
+
+            setTimeout(() => {
+                selectOption(select_dias, busca.dias)
+                habilitar_horarios(select_dias);
+                    
+                setTimeout(() => {
+                    selectOption(select_horario, busca.horario)
+                    set_horario(select_horario);
+                }, 100);
+            }, 100);
+        });
+        
+    </script>
 </body>
 </html>
