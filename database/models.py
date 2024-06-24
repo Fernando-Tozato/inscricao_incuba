@@ -73,6 +73,7 @@ class Aluno(models.Model):
     uf = models.CharField(max_length=2)
     pcd = models.BooleanField(default=False)
     ps = models.BooleanField(default=False)
+    observacoes = models.TextField(null=True, default=None, blank=True)
     id_turma = models.ForeignKey(Turma, on_delete=models.CASCADE, related_name='inscrito_turma')
 
 class Controle(models.Model):

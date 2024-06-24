@@ -87,7 +87,7 @@
                     <ul class="justify-content-center list-group" id="resultado_pesquisa">
                         {% for sorteado in sorteados %}
                             <li class="list-group-item">
-                                {% if sorteado.nome_social != '' %}
+                                {% if sorteado.nome_social %}
                                     <h1>{{ sorteado.nome_social }}</h1>
                                 {% else %}
                                     <h1>{{ sorteado.nome }}</h1>

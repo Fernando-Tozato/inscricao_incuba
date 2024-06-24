@@ -41,7 +41,7 @@ def sortear():
             sorteados_cotas = random.sample(inscritos_cotas, vagas_cotas) # ... sorteia os inscritos de acordo com o número de vagas
         
         for sorteado in sorteados_cotas: # Itera sobre todos os sorteados cotistas da turma atual
-            logger.info(f'{sorteado.nome if sorteado.nome_social == '' else sorteado.nome_social} - Cota') # Mostra o nome civil ou social do sorteado no log
+            logger.info(f'{sorteado.nome_social if sorteado.nome_social else sorteado.nome} - Cota') # Mostra o nome civil ou social do sorteado no log
             sorteado.ja_sorteado = True # Define o atributo ja_sorteado como verdadeiro
             sorteado.save() # Salva a alteração
         
@@ -59,7 +59,7 @@ def sortear():
             sorteados_gerais = random.sample(inscritos_gerais, vagas_gerais) # ... sorteia os inscritos de acordo com o número de vagas
         
         for sorteado in sorteados_gerais: # Itera sobre todos os sorteados de ampla concorrência da turma atual
-            logger.info(f'{sorteado.nome if sorteado.nome_social == '' else sorteado.nome_social} - Ampla concorrência') # Mostra o nome civil ou social do sorteado no log
+            logger.info(f'{sorteado.nome_social if sorteado.nome_social else sorteado.nome} - Ampla concorrência') # Mostra o nome civil ou social do sorteado no log
             sorteado.ja_sorteado = True # Define o atributo ja_sorteado como verdadeiro
             sorteado.save() # Salva a alteração
         

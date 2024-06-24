@@ -101,6 +101,9 @@ def matricula_criar(request):
             bairro = data['bairro']
             cidade = data['cidade']
             uf = data['uf']
+            pcd = data['pcd']
+            ps = data['ps']
+            observacoes = data['observacoes']
             id_turma = Turma.objects.filter(pk=data['id_turma'])[0]
             
             aluno = Aluno(
@@ -126,6 +129,9 @@ def matricula_criar(request):
                 bairro = bairro,
                 cidade = cidade,
                 uf = uf,
+                pcd = pcd,
+                ps = ps,
+                observacoes = observacoes,
                 id_turma = id_turma
             )
             

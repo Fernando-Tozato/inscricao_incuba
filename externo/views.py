@@ -59,6 +59,8 @@ def validar_inscricao(request):
             bairro = data['bairro']
             cidade = data['cidade']
             uf = data['uf']
+            pcd = data['pcd']
+            ps = data['ps']
             id_turma = Turma.objects.filter(pk=data['id_turma'])[0]
             
             inscrito = Inscrito(
@@ -84,6 +86,8 @@ def validar_inscricao(request):
                 bairro = bairro,
                 cidade = cidade,
                 uf = uf,
+                pcd = pcd,
+                ps = ps,
                 id_turma = id_turma
             )
             
