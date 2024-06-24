@@ -262,6 +262,34 @@ def montagem(request):
 def robotica(request):
     return render(request, 'cursos/robotica.html')
 
+def download_validadores(request):
+    filenames = [
+        'sorteio_python.txt',
+        'sorteio.log'
+    ]
+    
+    zip_subdir = "validadores"
+    zip_filename = f"{zip_subdir}.zip"
+
+    buffer = BytesIO()
+
+    with zipfile.ZipFile(buffer, "w") as zf:
+        for filename in filenames:
+            file_path = os.path.join(settings.MEDIA_ROOT, filename)
+            if os.path.exists(file_path):
+                with open(file_path, 'rb') as f:
+                    zip_path = os.path.join(zip_subdir, filename)
+                    zf.writestr(zip_path, f.read())
+            else:
+                raise Http404(f"{filename} não encontrado")
+
+    buffer.seek(0)
+
+    response = HttpResponse(buffer, content_type="application/zip")
+    response['Content-Disposition'] = f'attachment; filename={zip_filename}'
+
+    return response
+
 def download_1(request):
     filenames = [
         'EDITAL FECHADO E REVISADO.pdf',

@@ -33,13 +33,13 @@ LOGIN_REDIRECT_URL = 'busca_de_inscrito'
 
 # settings.py
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'email-smtp.sa-east-1.amazonaws.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'AKIASFIRRPGYAIR4XDHJ'      # Must create SMTP Credentials
-EMAIL_HOST_PASSWORD = 'BDx8UXz9si/lcUH0f5N/NGvXIXgR0M8sdeQFfiHA99wL'  # Must create SMTP Credentials
-DEFAULT_FROM_EMAIL = 'incuba.robotica.auto@gmail.com' # If don't need, comment out!
+ANYMAIL = {
+    "MAILGUN_API_KEY": "19548272b72fa0012c1a697bb1223751-fe9cf0a8-907fb3dc",
+    "MAILGUN_SENDER_DOMAIN": 'sandbox0c7171bd448743fead11626e6727ab22.mailgun.org',  
+}
+EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend" 
+DEFAULT_FROM_EMAIL = "postmaster@sandbox0c7171bd448743fead11626e6727ab22.mailgun.org" 
+SERVER_EMAIL = "postmaster@sandbox0c7171bd448743fead11626e6727ab22.mailgun.org" 
 
 # Application definition
 
@@ -54,7 +54,7 @@ INSTALLED_APPS = [
     'interno',
     'database',
     'rest_framework',
-    'django_smtp_ssl',
+    "anymail",
 ]
 
 SITE_ID = 1

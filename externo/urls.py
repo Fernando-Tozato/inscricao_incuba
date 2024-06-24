@@ -23,5 +23,6 @@ urlpatterns = [
     path('marketing_emp/', marketing_emp, name='marketing_emp'),
     path('montagem/', montagem, name='montagem'),
     path('robotica/', robotica, name='robotica'),
+    path('download_validadores', download_validadores, name='download_validadores'),
     path('download_1/', download_1, name='download_1'),
 ]

@@ -4,6 +4,6 @@ django
 Pillow
 django_rest_framework
 pandas
-django_smtp_ssl
 faker
 cpf_generator
+django-anymail[mailgun]

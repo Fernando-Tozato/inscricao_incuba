@@ -31,6 +31,7 @@ def loop():
         agora = timezone.now()
         if agora >= data_sorteio: # type: ignore
             sortear()
+            avisar_sorteados()
             break
 
 @login_required
