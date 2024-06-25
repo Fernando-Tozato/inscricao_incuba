@@ -44,7 +44,7 @@ def validar_inscricao(request):
             nascimento = data['nascimento']
             cpf = data['cpf']
             rg = data['rg']
-            data_emissao = data['data_emissao'] if data['data_emissao'] != '' else None
+            data_emissao = data['data_emissao']
             orgao_emissor = data['orgao_emissor']
             uf_emissao = data['uf_emissao']
             filiacao = data['filiacao']
@@ -61,17 +61,17 @@ def validar_inscricao(request):
             uf = data['uf']
             pcd = data['pcd']
             ps = data['ps']
-            id_turma = Turma.objects.filter(pk=data['id_turma'])[0]
+            id_turma = get_object_or_404(Turma, id=data['id_turma'])
             
             inscrito = Inscrito(
                 nome = nome,
                 nome_pesquisa = nome_pesquisa,
-                nome_social = nome_social,
-                nome_social_pesquisa = nome_social_pesquisa,
+                nome_social = nome_social if nome_social != '' else None,
+                nome_social_pesquisa = nome_social_pesquisa if nome_social_pesquisa != '' else None,
                 nascimento = nascimento,
                 cpf = cpf,
                 rg = rg,
-                data_emissao = data_emissao,
+                data_emissao = data_emissao if data_emissao != '' else None,
                 orgao_emissor = orgao_emissor,
                 uf_emissao = uf_emissao,
                 filiacao = filiacao,
@@ -88,6 +88,7 @@ def validar_inscricao(request):
                 uf = uf,
                 pcd = pcd,
                 ps = ps,
+                ja_sorteado=False,
                 id_turma = id_turma
             )
             
@@ -263,11 +264,15 @@ def robotica(request):
     return render(request, 'cursos/robotica.html')
 
 def download_validadores(request):
-    filenames = [
-        'sorteio_python.txt',
-        'sorteio.log'
-    ]
+    planilhas_dir = os.path.join(settings.MEDIA_ROOT, 'sorteio')
     
+    # Verificar se a pasta "planilhas" existe
+    if not os.path.exists(planilhas_dir):
+        raise Http404("A pasta 'planilhas' não foi encontrada")
+
+    # Listar todos os arquivos dentro da pasta "planilhas"
+    filenames = os.listdir(planilhas_dir)
+
     zip_subdir = "validadores"
     zip_filename = f"{zip_subdir}.zip"
 
@@ -275,7 +280,7 @@ def download_validadores(request):
 
     with zipfile.ZipFile(buffer, "w") as zf:
         for filename in filenames:
-            file_path = os.path.join(settings.MEDIA_ROOT, filename)
+            file_path = os.path.join(planilhas_dir, filename)
             if os.path.exists(file_path):
                 with open(file_path, 'rb') as f:
                     zip_path = os.path.join(zip_subdir, filename)
@@ -291,22 +296,23 @@ def download_validadores(request):
     return response
 
 def download_1(request):
-    filenames = [
-        'EDITAL FECHADO E REVISADO.pdf',
-        'ANEXO I FECHADO REVISADO.pdf',
-        'Anexo II - FECHADO E REVISADO.pdf',
-        'ANEXO III FECHADO REVISADO.pdf',
-        'ANEXO IV FECHADO E REVISADO.pdf'
-    ]
+    planilhas_dir = os.path.join(settings.MEDIA_ROOT, 'edital_2024_1')
     
-    zip_subdir = "editais_e_anexos"
+    # Verificar se a pasta "planilhas" existe
+    if not os.path.exists(planilhas_dir):
+        raise Http404("A pasta 'planilhas' não foi encontrada")
+
+    # Listar todos os arquivos dentro da pasta "planilhas"
+    filenames = os.listdir(planilhas_dir)
+
+    zip_subdir = "edital_e_anexos_2024_1"
     zip_filename = f"{zip_subdir}.zip"
 
     buffer = BytesIO()
 
     with zipfile.ZipFile(buffer, "w") as zf:
         for filename in filenames:
-            file_path = os.path.join(settings.MEDIA_ROOT, filename)
+            file_path = os.path.join(planilhas_dir, filename)
             if os.path.exists(file_path):
                 with open(file_path, 'rb') as f:
                     zip_path = os.path.join(zip_subdir, filename)

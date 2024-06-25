@@ -13,12 +13,16 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils import timezone
+from django.http import HttpResponse, Http404
+from django.conf import settings
 
 from .forms import *
 from database.models import *
 from .tasks import *
 
-import json, threading, time
+from io import BytesIO
+
+import json, threading, time, os, zipfile
 from datetime import datetime
 
 def grupo_necessario(user):
@@ -28,8 +32,11 @@ def loop():
     while True:
         time.sleep(1)
         data_sorteio = Controle.objects.first().sorteio_data # type: ignore
+        matricula_sorteados = Controle.objects.first().matricula_sorteados # type: ignore
         agora = timezone.now()
         if agora >= data_sorteio: # type: ignore
+            if matricula_sorteados <= agora:
+                break
             sortear()
             avisar_sorteados()
             break
@@ -269,6 +276,8 @@ def controle(request):
         matricula_sorteados = request.POST.get('matricula_sorteados')
         matricula_geral = request.POST.get('matricula_geral')
         matricula_fim = request.POST.get('matricula_fim')
+        aulas_inicio = request.POST.get('aulas_inicio')
+        aulas_fim = request.POST.get('aulas_fim')
 
         if controle:
             controle.inscricao_inicio = inscricao_inicio
@@ -277,6 +286,8 @@ def controle(request):
             controle.matricula_sorteados = matricula_sorteados
             controle.matricula_geral = matricula_geral
             controle.matricula_fim = matricula_fim
+            controle.aulas_inicio = aulas_inicio
+            controle.aulas_fim = aulas_fim
             controle.save()
         else:
             Controle.objects.create(
@@ -285,7 +296,9 @@ def controle(request):
                 sorteio_data=sorteio_data,
                 matricula_sorteados=matricula_sorteados,
                 matricula_geral=matricula_geral,
-                matricula_fim=matricula_fim
+                matricula_fim=matricula_fim,
+                aulas_inicio=aulas_inicio,
+                aulas_fim=aulas_fim
             )
         
         thread = threading.Thread(target=loop)
@@ -381,3 +394,45 @@ def reset_password_confirm_view(request, uidb64, token):
 
 def reset_password_complete_view(request):
     return render(request, 'interno/password_reset_complete.html')
+
+def planilhas(request):
+    planilhas_dir = os.path.join(settings.MEDIA_ROOT, 'planilhas')
+    
+    if not os.path.exists(planilhas_dir):
+        print('planilhas não existe')
+        raise Http404("A pasta 'planilhas' não foi encontrada")
+    print('planilhas existe')
+
+    filenames = os.listdir(planilhas_dir)
+
+    if not filenames:
+        print('planilhas vazio')
+        gerar_planilhas()
+        filenames = os.listdir(planilhas_dir)
+        if not filenames:
+            print('planilhas não geradas')
+            raise Http404("Não foi possível gerar as planilhas")
+        print('planilhas criadas')
+    print('planilhas não vazio')
+
+    zip_subdir = "planilhas"
+    zip_filename = f"{zip_subdir}.zip"
+
+    buffer = BytesIO()
+
+    with zipfile.ZipFile(buffer, "w") as zf:
+        for filename in filenames:
+            file_path = os.path.join(planilhas_dir, filename)
+            if os.path.exists(file_path):
+                with open(file_path, 'rb') as f:
+                    zip_path = os.path.join(zip_subdir, filename)
+                    zf.writestr(zip_path, f.read())
+            else:
+                raise Http404(f"{filename} não encontrado")
+
+    buffer.seek(0)
+
+    response = HttpResponse(buffer, content_type="application/zip")
+    response['Content-Disposition'] = f'attachment; filename={zip_filename}'
+
+    return response

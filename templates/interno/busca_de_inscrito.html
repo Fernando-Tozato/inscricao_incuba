@@ -84,7 +84,7 @@
                     {% for inscrito in inscritos %}
                         <li class="list-group-item">
                             <a href="{% url 'matricula_existente' inscrito.id %}" style="text-decoration: none;" class="text-body-secondary">
-                                {% if inscrito.nome_social != '' %}
+                                {% if inscrito.nome_social %}
                                     <h1>{{ inscrito.nome_social }}</h1>
                                 {% else %}
                                     <h1>{{ inscrito.nome }}</h1>

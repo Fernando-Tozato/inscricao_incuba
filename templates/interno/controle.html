@@ -70,6 +70,14 @@
                         <label for="matricula_fim" class="form-label">Fim das Matrículas</label>
                         <input type="datetime-local" class="form-control" id="matricula_fim" name="matricula_fim" required value="{{ controle.matricula_fim|date:'Y-m-d\TH:i' }}">
                     </div>
+                    <div class="mb-3">
+                        <label for="aulas_inicio" class="form-label">Início das Aulas</label>
+                        <input type="datetime-local" class="form-control" id="aulas_inicio" name="aulas_inicio" required value="{{ controle.aulas_inicio|date:'Y-m-d\TH:i' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="aulas_fim" class="form-label">Fim das Aulas</label>
+                        <input type="datetime-local" class="form-control" id="aulas_fim" name="aulas_fim" required value="{{ controle.aulas_fim|date:'Y-m-d\TH:i' }}">
+                    </div>
                 {% else %}
                     <div class="mb-3">
                         <label for="inscricao_inicio" class="form-label">Início das Inscrições</label>
@@ -95,8 +103,23 @@
                         <label for="matricula_fim" class="form-label">Fim das Matrículas</label>
                         <input type="datetime-local" class="form-control" id="matricula_fim" name="matricula_fim" required>
                     </div>
+                    <div class="mb-3">
+                        <label for="aulas_inicio" class="form-label">Início das Aulas</label>
+                        <input type="datetime-local" class="form-control" id="aulas_inicio" name="aulas_inicio" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="aulas_fim" class="form-label">Fim das Aulas</label>
+                        <input type="datetime-local" class="form-control" id="aulas_fim" name="aulas_fim" required>
+                    </div>
                 {% endif %}
-                <button type="submit" class="btn btn-primary">Salvar Configurações</button>
+                <div class="row">
+                    <div class="col">
+                        <button type="submit" class="btn btn-primary">Salvar Configurações</button>
+                    </div>
+                    <div class="col">
+                        <a href="{% url 'planilhas' %}" class="btn btn-primary">Baixar planilhas</a>
+                    </div>
+                </div>
             </form>
         </div>
     </div>

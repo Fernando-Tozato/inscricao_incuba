@@ -83,6 +83,5 @@ class Controle(models.Model):
     matricula_sorteados = models.DateTimeField()
     matricula_geral = models.DateTimeField()
     matricula_fim = models.DateTimeField()
-
-    def __str__(self):
-        return f"Configuração de {self.inscricao_inicio} a {self.matricula_fim}"
+    aulas_inicio = models.DateTimeField()
+    aulas_fim = models.DateTimeField()

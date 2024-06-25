@@ -7,14 +7,6 @@ cursor = con.cursor()
 comandos = []
 
 comandos.append('''
-    DROP TABLE account_emailaddress;
-''')
-
-comandos.append('''
-    DROP TABLE account_emailconfirmation;
-''')
-
-comandos.append('''
     DROP TABLE auth_group;
 ''')
 
@@ -39,19 +31,19 @@ comandos.append('''
 ''')
 
 comandos.append('''
-    DROP TABLE database_inscrito;
-''')
-
-comandos.append('''
-    DROP TABLE database_turma;
-''')
-
-comandos.append('''
     DROP TABLE database_aluno;
 ''')
 
 comandos.append('''
     DROP TABLE database_controle;
+''')
+
+comandos.append('''
+    DROP TABLE database_inscrito;
+''')
+
+comandos.append('''
+    DROP TABLE database_turma;
 ''')
 
 comandos.append('''
