@@ -1,13 +1,28 @@
 from database.models import *
 from django.db.models import Q
+from django.db.models.functions import Coalesce
 import random, logging
 from openpyxl import Workbook
+from openpyxl.formatting.rule import CellIsRule
 from openpyxl.utils import get_column_letter
 from openpyxl.styles import Font, Alignment, PatternFill
 from datetime import datetime, timedelta
 
 def avisar_sorteados():
     pass
+
+def ajustar_colunas(ws):
+    for col in ws.columns:
+        max_length = 0
+        column = get_column_letter(col[0].column)  # Obtém a letra da coluna
+        for cell in col:
+            try:
+                if len(str(cell.value)) > max_length:
+                    max_length = len(str(cell.value))
+            except:
+                pass
+        adjusted_width = (max_length + 2)
+        ws.column_dimensions[column].width = adjusted_width
 
 def gerar_planilhas():
     aulas_inicio = Controle.objects.first().aulas_inicio # type: ignore
@@ -30,58 +45,156 @@ def gerar_planilhas():
         'Marketing Empreendedor': 'mark_emp'
     }
     
-    professores = Turma.objects.values('professor').distinct()
-    print(professores)
+    turmas = Turma.objects.all()
+    professores = [turma.professor for turma in turmas]
+    
     for professor in professores:
-        professor = professor['professor']
-        print(professor)
-        cursos = Turma.objects.filter(professor=professor).values('curso').distinct()
-        print(cursos)
+        cursos = [(turma.curso if turma.professor == professor else None) for turma in turmas]
+        
         for curso in cursos:
-            curso = curso['curso']
-            print(curso)
-            turmas = Turma.objects.filter(Q(professor=professor) & Q(curso=curso))
+            if not curso:
+                del cursos[cursos.index(curso)]
+                continue
             
             wb = Workbook()
-            sheet_name = 'Presença'
-            ws = wb.create_sheet(title=sheet_name)
+            ws_presenca = wb.create_sheet(title='Presença')
             
-            print(turmas)
+            turmas_aux = Turma.objects.filter(Q(professor=professor) & Q(curso=curso))
+            
             start_row = 1
-            for turma in turmas:
-                header = f"{turma.dias} {turma.horario()}"
-                ws.merge_cells(start_row=start_row, start_column=1, end_row=start_row, end_column=2)
-                ws.cell(row=start_row, column=1).value = header
-                ws.cell(row=start_row, column=1).font = Font(bold=True)
-                ws.cell(row=start_row, column=1).alignment = Alignment(horizontal="center")
+            for turma in turmas_aux:
+                sabados = []
+                domingos = []
 
-                ws.cell(row=start_row + 1, column=1).value = 'id'
-                ws.cell(row=start_row + 1, column=2).value = 'Nome'
+                # Título da Turma
+                header = f'{turma.dias} {turma.horario()}'
+                ws_presenca.merge_cells(start_row=start_row, start_column=1, end_row=start_row, end_column=2)
+                ws_presenca.cell(row=start_row, column=1).value = header
+                ws_presenca.cell(row=start_row, column=1).font = Font(bold=True)
+                ws_presenca.cell(row=start_row, column=1).alignment = Alignment(horizontal="center")
                 
-                for col in range(3, (aulas_fim - aulas_inicio).days + 3):
-                    dia_aula = aulas_inicio + timedelta(days=col - 3)
-                    coluna = get_column_letter(col)
-                    ws.cell(row=start_row + 1, column=col).value = dia_aula.strftime('%d/%m')
+                # LEGENDA
+                # Presente
+                ws_presenca.merge_cells(start_row=start_row, start_column=3, end_row=start_row, end_column=4)
+                ws_presenca.cell(row=start_row, column=3).value = 'Presente'
+                ws_presenca.cell(row=start_row, column=3).font = Font(bold=True)
+                ws_presenca.cell(row=start_row, column=3).alignment = Alignment(horizontal="center")
+                ws_presenca.cell(row=start_row, column=5).value = 'P'
+                ws_presenca.cell(row=start_row, column=5).font = Font(bold=True)
+                ws_presenca.cell(row=start_row, column=5).alignment = Alignment(horizontal="center")
+                ws_presenca.cell(row=start_row, column=5).fill = PatternFill(start_color="6aa84f", end_color="6aa84f", fill_type="solid")
+            
+                # Faltoso
+                ws_presenca.merge_cells(start_row=start_row, start_column=7, end_row=start_row, end_column=8)
+                ws_presenca.cell(row=start_row, column=7).value = 'Faltoso'
+                ws_presenca.cell(row=start_row, column=7).font = Font(bold=True)
+                ws_presenca.cell(row=start_row, column=7).alignment = Alignment(horizontal="center")
+                ws_presenca.cell(row=start_row, column=9).value = 'F'
+                ws_presenca.cell(row=start_row, column=9).font = Font(bold=True)
+                ws_presenca.cell(row=start_row, column=9).alignment = Alignment(horizontal="center")
+                ws_presenca.cell(row=start_row, column=9).fill = PatternFill(start_color="cc0000", end_color="cc0000", fill_type="solid")
+                
+                # Fim de Semana
+                ws_presenca.merge_cells(start_row=start_row, start_column=11, end_row=start_row, end_column=12)
+                ws_presenca.cell(row=start_row, column=11).value = 'Fim de Semana'
+                ws_presenca.cell(row=start_row, column=11).font = Font(bold=True)
+                ws_presenca.cell(row=start_row, column=11).alignment = Alignment(horizontal="center")
+                ws_presenca.cell(row=start_row, column=13).value = 'S/D'
+                ws_presenca.cell(row=start_row, column=13).font = Font(bold=True)
+                ws_presenca.cell(row=start_row, column=13).alignment = Alignment(horizontal="center")
+                ws_presenca.cell(row=start_row, column=13).fill = PatternFill(start_color="3d85c6", end_color="3d85c6", fill_type="solid")
+            
+                # Feriado
+                ws_presenca.merge_cells(start_row=start_row, start_column=15, end_row=start_row, end_column=16)
+                ws_presenca.cell(row=start_row, column=15).value = 'Feriado'
+                ws_presenca.cell(row=start_row, column=15).font = Font(bold=True)
+                ws_presenca.cell(row=start_row, column=15).alignment = Alignment(horizontal="center")
+                ws_presenca.cell(row=start_row, column=17).value = 'H'
+                ws_presenca.cell(row=start_row, column=17).font = Font(bold=True)
+                ws_presenca.cell(row=start_row, column=17).alignment = Alignment(horizontal="center")
+                ws_presenca.cell(row=start_row, column=17).fill = PatternFill(start_color="f1c232", end_color="f1c232", fill_type="solid")
+                
+                # Títulos de coluna
+                ws_presenca.cell(row=start_row + 1, column=1).value = 'ID'
+                ws_presenca.cell(row=start_row + 1, column=2).value = 'Nome'
+                
+                for col in range(3, (aulas_fim - aulas_inicio).days + 4):
+                    dia_aula = aulas_inicio + timedelta(days=col-3)
+                    ws_presenca.cell(row=start_row + 1, column=col).value = dia_aula.strftime('%d/%m')
+                    if dia_aula.weekday() == 5:
+                        sabados.append(col)
+                    elif dia_aula.weekday() == 6:
+                        domingos.append(col)
 
-                for col in range(1, ws.max_column + 1):
-                    cell = ws.cell(row=start_row + 1, column=col)
+                for col in range(1, ws_presenca.max_column + 1):
+                    cell = ws_presenca.cell(row=start_row + 1, column=col)
                     cell.font = Font(bold=True)
                     cell.alignment = Alignment(horizontal="center")
-
-                alunos = Aluno.objects.filter(id_turma=turma)
-
-                idx=0
                 
-                for idx, aluno in enumerate(alunos, start=start_row + 2):
-                    ws.cell(row=idx, column=1).value = aluno.pk
-                    ws.cell(row=idx, column=2).value = aluno.nome
+                
+                # Alunos
+                alunos = Inscrito.objects.filter(id_turma=turma).annotate(nome_ordenacao=Coalesce('nome_social', 'nome')).order_by('nome_ordenacao')
+                for idx, aluno in enumerate(alunos):
+                    ws_presenca.cell(row=idx + start_row + 2, column=1).value = aluno.pk
+                    ws_presenca.cell(row=idx + start_row + 2, column=2).value = aluno.nome_social if aluno.nome_social else aluno.nome
+                    for col in sabados + domingos:
+                        ws_presenca.cell(row=idx + start_row + 2, column=col).font = Font(bold=True)
+                        ws_presenca.cell(row=idx + start_row + 2, column=col).alignment = Alignment(horizontal="center")
+                        ws_presenca.cell(row=idx + start_row + 2, column=col).fill = PatternFill(start_color="3d85c6", end_color="3d85c6", fill_type="solid")
+                        if col in sabados:
+                            ws_presenca.cell(row=idx + start_row + 2, column=col).value = 'S'
+                        else:
+                            ws_presenca.cell(row=idx + start_row + 2, column=col).value = 'D'
+                
+                # Formatação Condicional
+                range_str = f"C{start_row + 2}:{get_column_letter(ws_presenca.max_column)}{idx + start_row + 2}"
+                red_fill = PatternFill(start_color="cc0000", end_color="cc0000", fill_type="solid")
+                green_fill = PatternFill(start_color="6aa84f", end_color="6aa84f", fill_type="solid")
+                yellow_fill = PatternFill(start_color="f1c232", end_color="f1c232", fill_type="solid")
 
-                max_row = idx + 1
-                for col in range(1, ws.max_column + 1):
-                    ws.cell(row=max_row, column=col).fill = PatternFill(start_color="000000", end_color="000000", fill_type="solid")
+                ws_presenca.conditional_formatting.add(range_str, CellIsRule(operator='equal', formula=['"F"'], fill=red_fill))
+                ws_presenca.conditional_formatting.add(range_str, CellIsRule(operator='equal', formula=['"P"'], fill=green_fill))
+                ws_presenca.conditional_formatting.add(range_str, CellIsRule(operator='equal', formula=['"H"'], fill=yellow_fill))
 
+                
+                # Espaçamento
+                max_row = idx + start_row + 3
+                for col in range(1, ws_presenca.max_column + 1):
+                    ws_presenca.cell(row=max_row, column=col).fill = PatternFill(start_color="000000", end_color="000000", fill_type="solid")
+                
                 start_row = max_row + 1
-                    
+            
+            ajustar_colunas(ws_presenca)
+
+            ws_alunos = wb.create_sheet(title='Alunos')
+            ws_alunos.cell(row=1, column=1).value = 'ID'
+            ws_alunos.cell(row=1, column=2).value = 'Nome'
+            ws_alunos.cell(row=1, column=3).value = 'CPF'
+            ws_alunos.cell(row=1, column=4).value = 'Celular'
+            ws_alunos.cell(row=1, column=5).value = 'Rua'
+            ws_alunos.cell(row=1, column=6).value = 'Número'
+            ws_alunos.cell(row=1, column=7).value = 'Bairro'
+            ws_alunos.cell(row=1, column=8).value = 'Cidade'
+            ws_alunos.cell(row=1, column=9).value = 'UF'
+            ws_alunos.cell(row=1, column=10).value = 'É PCD?'
+            
+
+            alunos = Inscrito.objects.filter(id_turma__in=turmas_aux).annotate(nome_ordenacao=Coalesce('nome_social', 'nome')).order_by('nome_ordenacao')
+            
+            for row, aluno in enumerate(alunos, start=2):
+                    ws_alunos.cell(row=row, column=1).value = aluno.pk
+                    ws_alunos.cell(row=row, column=2).value = aluno.nome_social if aluno.nome_social else aluno.nome
+                    ws_alunos.cell(row=row, column=3).value = aluno.cpf
+                    ws_alunos.cell(row=row, column=4).value = aluno.celular
+                    ws_alunos.cell(row=row, column=5).value = aluno.rua
+                    ws_alunos.cell(row=row, column=6).value = aluno.numero
+                    ws_alunos.cell(row=row, column=7).value = aluno.bairro
+                    ws_alunos.cell(row=row, column=8).value = aluno.cidade
+                    ws_alunos.cell(row=row, column=9).value = aluno.uf
+                    ws_alunos.cell(row=row, column=10).value = 'PCD' if aluno.pcd else ''
+
+            ajustar_colunas(ws_alunos)
+            
             filename = f"media/planilhas/presenca_{professor}_{curso_arq[curso]}.xlsx"
             wb.save(filename)
 
