@@ -1,15 +1,36 @@
 from database.models import *
 from django.db.models import Q
 from django.db.models.functions import Coalesce
+from django.contrib.sites.shortcuts import get_current_site
 import random, logging
 from openpyxl import Workbook
 from openpyxl.formatting.rule import CellIsRule
 from openpyxl.utils import get_column_letter
 from openpyxl.styles import Font, Alignment, PatternFill
 from datetime import timedelta
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
 
-def avisar_sorteados():
-    pass
+def avisar_sorteados(request):
+    inscritos = Inscrito.objects.exclude(email__isnull=True)
+    
+    for inscrito in inscritos:
+        email:str = inscrito.email # type: ignore
+        subject = "Alteração de Senha"
+        email_template_name = "interno/password_reset_email.html"
+        c = {
+            "email": email,
+            'domain': get_current_site(request).domain,
+            'site_name': 'Incubadora de Robótica',
+            'protocol': 'http',
+        }
+        email_content = render_to_string(email_template_name, c)
+        email_message = EmailMultiAlternatives(subject, '', 'incuba.robotica.auto@gmail.com', [email])
+        email_message.attach_alternative(email_content, "text/html")
+        try: 
+            email_message.send()
+        except:
+            continue
 
 def ajustar_colunas(ws):
     for col in ws.columns:
@@ -133,7 +154,7 @@ def gerar_planilhas():
                 
                 
                 # Alunos
-                alunos = Inscrito.objects.filter(id_turma=turma).annotate(nome_ordenacao=Coalesce('nome_social', 'nome')).order_by('nome_ordenacao')
+                alunos = Aluno.objects.filter(id_turma=turma).annotate(nome_ordenacao=Coalesce('nome_social', 'nome')).order_by('nome_ordenacao')
                 for idx, aluno in enumerate(alunos):
                     ws_presenca.cell(row=idx + start_row + 2, column=1).value = aluno.pk
                     ws_presenca.cell(row=idx + start_row + 2, column=2).value = aluno.nome_social if aluno.nome_social else aluno.nome
@@ -179,7 +200,7 @@ def gerar_planilhas():
             ws_alunos.cell(row=1, column=10).value = 'É PCD?'
             
 
-            alunos = Inscrito.objects.filter(id_turma__in=turmas_aux).annotate(nome_ordenacao=Coalesce('nome_social', 'nome')).order_by('nome_ordenacao')
+            alunos = Aluno.objects.filter(id_turma__in=turmas_aux).annotate(nome_ordenacao=Coalesce('nome_social', 'nome')).order_by('nome_ordenacao')
             
             for row, aluno in enumerate(alunos, start=2):
                     ws_alunos.cell(row=row, column=1).value = aluno.pk

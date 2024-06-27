@@ -2,6 +2,7 @@ import random, django, os
 from faker import Faker
 from django.shortcuts import get_object_or_404
 from unidecode import unidecode
+from datetime import datetime
 
 fake = Faker('pt_BR')
 
@@ -86,4 +87,8 @@ def generate_and_insert_data():
                 continue
 
 if __name__ == '__main__':
+    start = datetime.now()
     generate_and_insert_data()
+    end = datetime.now()
+    delta = end - start
+    print(delta)

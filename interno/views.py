@@ -28,7 +28,7 @@ from datetime import datetime
 def grupo_necessario(user):
     return user.groups.filter(Q(name='Coord_Ped') | Q(name='Admin')).exists()
 
-def loop():
+def loop(request):
     while True:
         time.sleep(1)
         data_sorteio = Controle.objects.first().sorteio_data # type: ignore
@@ -38,7 +38,7 @@ def loop():
             if matricula_sorteados <= agora:
                 break
             sortear()
-            avisar_sorteados()
+            avisar_sorteados(request)
             break
 
 @login_required
@@ -94,7 +94,7 @@ def matricula_criar(request):
             nascimento = data['nascimento']
             cpf = data['cpf']
             rg = data['rg']
-            data_emissao = data['data_emissao'] if data['data_emissao'] != '' else None
+            data_emissao = data['data_emissao']
             orgao_emissor = data['orgao_emissor']
             uf_emissao = data['uf_emissao']
             filiacao = data['filiacao']
@@ -117,23 +117,23 @@ def matricula_criar(request):
             aluno = Aluno(
                 nome = nome,
                 nome_pesquisa = nome_pesquisa,
-                nome_social = nome_social,
-                nome_social_pesquisa = nome_social_pesquisa,
+                nome_social = nome_social if nome_social != '' else None,
+                nome_social_pesquisa = nome_social_pesquisa if nome_social_pesquisa != '' else None,
                 nascimento = nascimento,
                 cpf = cpf,
-                rg = rg,
-                data_emissao = data_emissao,
-                orgao_emissor = orgao_emissor,
-                uf_emissao = uf_emissao,
+                rg = rg if rg != '' else None,
+                data_emissao = data_emissao if data_emissao != '' else None,
+                orgao_emissor = orgao_emissor if orgao_emissor != '' else None,
+                uf_emissao = uf_emissao if uf_emissao != '' else None,
                 filiacao = filiacao,
                 escolaridade = escolaridade,
-                email = email,
-                telefone = telefone,
-                celular = celular,
+                email = email if email != '' else None,
+                telefone = telefone if telefone != '' else None,
+                celular = celular if celular != '' else None,
                 cep = cep,
                 rua = rua,
                 numero = numero,
-                complemento = complemento,
+                complemento = complemento if complemento != '' else None,
                 bairro = bairro,
                 cidade = cidade,
                 uf = uf,
@@ -301,7 +301,7 @@ def controle(request):
                 aulas_fim=aulas_fim
             )
         
-        thread = threading.Thread(target=loop)
+        thread = threading.Thread(target=loop, args=[request])
         thread.daemon = True
         thread.start()
         

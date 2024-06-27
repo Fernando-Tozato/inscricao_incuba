@@ -63,6 +63,9 @@ def validar_inscricao(request):
             ps = data['ps']
             id_turma = get_object_or_404(Turma, id=data['id_turma'])
             
+            print(pcd, type(pcd))
+            print(ps, type(ps))
+            
             inscrito = Inscrito(
                 nome = nome,
                 nome_pesquisa = nome_pesquisa,
@@ -70,19 +73,19 @@ def validar_inscricao(request):
                 nome_social_pesquisa = nome_social_pesquisa if nome_social_pesquisa != '' else None,
                 nascimento = nascimento,
                 cpf = cpf,
-                rg = rg,
+                rg = rg if rg != '' else None,
                 data_emissao = data_emissao if data_emissao != '' else None,
-                orgao_emissor = orgao_emissor,
-                uf_emissao = uf_emissao,
+                orgao_emissor = orgao_emissor if orgao_emissor != '' else None,
+                uf_emissao = uf_emissao if uf_emissao != '' else None,
                 filiacao = filiacao,
                 escolaridade = escolaridade,
-                email = email,
-                telefone = telefone,
-                celular = celular,
+                email = email if email != '' else None,
+                telefone = telefone if telefone != '' else None,
+                celular = celular if celular != '' else None,
                 cep = cep,
                 rua = rua,
                 numero = numero,
-                complemento = complemento,
+                complemento = complemento if complemento != '' else None,
                 bairro = bairro,
                 cidade = cidade,
                 uf = uf,

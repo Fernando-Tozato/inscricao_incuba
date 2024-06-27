@@ -560,8 +560,8 @@ function enviar_dados(){
             "bairro": document.getElementById('bairro').value,
             "cidade": document.getElementById('cidade').value,
             "uf": document.getElementById('uf').value,
-            "pcd": document.getElementById('pcd').value,
-            "ps": document.getElementById('ps').value,
+            "pcd": document.getElementById('pcd').checked,
+            "ps": document.getElementById('ps').checked,
             "id_turma": id_turma
         };
         

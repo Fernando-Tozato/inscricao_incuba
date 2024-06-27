@@ -18,6 +18,9 @@
     <script src="{% static 'js/matricula.js' %}"></script>
 
     <div class="d-none" id="token">{% csrf_token %}</div>
+    <div class="d-none" id="curso_div">{{ turma.curso }}</div>
+    <div class="d-none" id="dias_div">{{ turma.dias }}</div>
+    <div class="d-none" id="horario_div">{{ turma.horario }}</div>
     <div class="d-none" id="turma">{{ turma.id }}</div>
 
     <nav class="navbar navbar-expand-sm bg-body-secondary text-body-secondary border-bottom" aria-label="Tenth navbar example" id="navbar">
@@ -64,7 +67,11 @@
                 </div>
                 <div class="row">
                     <div class="col-sm mt-3 form-floating">
-                        <input type="text" class="form-control" id="nome_social" oninput="mascara_palavras(this)" maxlength="100" autocomplete="additional-name" value="{{ inscrito.nome_social }}">
+                        {% if inscrito.nome_social %}
+                            <input type="text" class="form-control" id="nome_social" oninput="mascara_palavras(this)" maxlength="100" autocomplete="additional-name" value="{{ inscrito.nome_social }}">
+                        {% else %}
+                            <input type="text" class="form-control" id="nome_social" oninput="mascara_palavras(this)" maxlength="100" autocomplete="additional-name">
+                        {% endif %}
                         <label for="nome_social">Nome social</label>
                     </div>
                 </div>
@@ -80,18 +87,30 @@
                         <div class="form-text" id="cpf_placeholder"></div>
                     </div>
                     <div class="col-md mt-3 form-floating">
-                        <input type="text" class="form-control" oninput="mascara_rg(this)" id="rg" value="{{ inscrito.rg }}">
+                        {% if inscrito.rg %}
+                            <input type="text" class="form-control" oninput="mascara_rg(this)" id="rg" value="{{ inscrito.rg }}">
+                        {% else %}
+                            <input type="text" class="form-control" oninput="mascara_rg(this)" id="rg">
+                        {% endif %}
                         <label for="rg">RG</label>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md mt-3 form-floating">
-                        <input type="text" class="form-control" id="data_emissao" oninput="mascara_data(this)" onblur="verifica_data_emissao(this.value.split('/'))" value="{{ inscrito.data_emissao|date:"d/m/Y" }}">
+                        {% if inscrito.data_emissao %}
+                            <input type="text" class="form-control" id="data_emissao" oninput="mascara_data(this)" onblur="verifica_data_emissao(this.value.split('/'))" value="{{ inscrito.data_emissao|date:"d/m/Y" }}">
+                        {% else %}
+                            <input type="text" class="form-control" id="data_emissao" oninput="mascara_data(this)" onblur="verifica_data_emissao(this.value.split('/'))">
+                        {% endif %}
                         <label for="data_emissao">Data de emissão</label>
                         <div class="form-text" id="data_emissao_placeholder"></div>
                     </div>
                     <div class="col-md mt-3 form-floating">
-                        <input type="text" class="form-control" id="orgao_emissor" oninput="mascara_palavras(this)" value="{{ inscrito.orgao_emissor }}">
+                        {% if inscrito.orgao_emissor %}
+                            <input type="text" class="form-control" id="orgao_emissor" oninput="mascara_palavras(this)" value="{{ inscrito.orgao_emissor }}">
+                        {% else %}
+                            <input type="text" class="form-control" id="orgao_emissor" oninput="mascara_palavras(this)">
+                        {% endif %}
                         <label for="orgao_emissor">Órgão emissor</label>
                     </div>
                     <div class="col-md mt-3 form-floating">
@@ -137,24 +156,32 @@
                     <div class="col-sm mt-3 form-floating">
                         <select class="form-select required" id="escolaridade" onchange="set_escolaridade(this.value)">
                             <option selected disabled hidden></option>
-                            <option value="1" {% if turma.escolaridade == 1 %}selected{% endif %}>Não alfabetizado(a)</option>
-                            <option value="2" {% if turma.escolaridade == 2 %}selected{% endif %}>Alfabetizado(a)</option>
-                            <option value="3" {% if turma.escolaridade == 3 %}selected{% endif %}>Ensino Fundamental I completo (terminou o 5º ano)</option>
-                            <option value="4" {% if turma.escolaridade == 4 %}selected{% endif %}>Ensino Fundamental II completo (terminou o 9º ano)</option>
-                            <option value="5" {% if turma.escolaridade == 5 %}selected{% endif %}>Ensino Médio completo</option>
-                            <option value="6" {% if turma.escolaridade == 6 %}selected{% endif %}>Graduação completa</option>
-                            <option value="7" {% if turma.escolaridade == 7 %}selected{% endif %}>Pós-graduação completa</option>
+                            <option value="1" {% if inscrito.escolaridade == 1 %}selected{% endif %}>Não alfabetizado(a)</option>
+                            <option value="2" {% if inscrito.escolaridade == 2 %}selected{% endif %}>Alfabetizado(a)</option>
+                            <option value="3" {% if inscrito.escolaridade == 3 %}selected{% endif %}>Ensino Fundamental I completo (terminou o 5º ano)</option>
+                            <option value="4" {% if inscrito.escolaridade == 4 %}selected{% endif %}>Ensino Fundamental II completo (terminou o 9º ano)</option>
+                            <option value="5" {% if inscrito.escolaridade == 5 %}selected{% endif %}>Ensino Médio completo</option>
+                            <option value="6" {% if inscrito.escolaridade == 6 %}selected{% endif %}>Graduação completa</option>
+                            <option value="7" {% if inscrito.escolaridade == 7 %}selected{% endif %}>Pós-graduação completa</option>
                         </select>
                         <label for="escolaridade">Escolaridade *</label>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-sm mt-3 form-check form-switch">
-                        <input class="form-check-input" type="checkbox" role="switch" id="pcd">
+                        {% if inscrito.pcd %}
+                            <input class="form-check-input" type="checkbox" role="switch" id="pcd" checked>
+                        {% else %}
+                            <input class="form-check-input" type="checkbox" role="switch" id="pcd">
+                        {% endif %}
                         <label class="form-check-label" for="pcd">É PcD?</label>
                     </div>
                     <div class="col-sm mt-3 form-check form-switch">
-                        <input class="form-check-input" type="checkbox" role="switch" id="ps">
+                        {% if inscrito.ps %}
+                            <input class="form-check-input" type="checkbox" role="switch" id="ps" checked>
+                        {% else %}
+                            <input class="form-check-input" type="checkbox" role="switch" id="ps">
+                        {% endif %}
                         <label class="form-check-label" for="ps">Participa de Programa Social?</label>
                     </div>
                 </div>
@@ -173,19 +200,31 @@
 
                 <div class="row">
                     <div class="col-sm mt-3 form-floating">
-                        <input type="text" class="form-control" id="email" oninput="this.value = this.value.replace(/[^a-z0-9.@_-]+$/i, '')" onblur="verifica_email(this.value)" autocomplete="email" value="{{ inscrito.email }}">
+                        {% if inscrito.email %}
+                            <input type="text" class="form-control" id="email" oninput="this.value = this.value.replace(/[^a-z0-9.@_-]+$/i, '')" onblur="verifica_email(this.value)" autocomplete="email" value="{{ inscrito.email }}">
+                        {% else %}
+                            <input type="text" class="form-control" id="email" oninput="this.value = this.value.replace(/[^a-z0-9.@_-]+$/i, '')" onblur="verifica_email(this.value)" autocomplete="email">
+                        {% endif %}
                         <label for="email">E-mail</label>
                         <div class="form-text" id="email_placeholder"></div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-sm mt-3 form-floating">
-                        <input type="tel" class="form-control" id="telefone" oninput="mascara_tel(this)" onblur="verifica_ddd_tel(this.value.substring(1,3))" autocomplete="tel" value="{{ inscrito.telefone }}">
+                        {% if inscrito.telefone %}
+                            <input type="tel" class="form-control" id="telefone" oninput="mascara_tel(this)" onblur="verifica_ddd_tel(this.value.substring(1,3))" autocomplete="tel" value="{{ inscrito.telefone }}">
+                        {% else %}
+                            <input type="tel" class="form-control" id="telefone" oninput="mascara_tel(this)" onblur="verifica_ddd_tel(this.value.substring(1,3))">
+                        {% endif %}
                         <label for="telefone">Telefone</label>
                         <div class="form-text" id="tel_placeholder"></div>
                     </div>
                     <div class="col-sm mt-3 form-floating">
-                        <input type="tel" class="form-control" id="celular" oninput="mascara_cel(this)" onblur="verifica_ddd_cel(this.value.substring(1,3))" autocomplete="phone" value="{{ inscrito.celular }}">
+                        {% if inscrito.celular %}
+                            <input type="tel" class="form-control" id="celular" oninput="mascara_cel(this)" onblur="verifica_ddd_cel(this.value.substring(1,3))" autocomplete="phone" value="{{ inscrito.celular }}">
+                        {% else %}
+                            <input type="tel" class="form-control" id="celular" oninput="mascara_cel(this)" onblur="verifica_ddd_cel(this.value.substring(1,3))">
+                        {% endif %}
                         <label for="celular">Celular</label>
                         <div class="form-text" id="cel_placeholder"></div>
                     </div>
@@ -214,7 +253,11 @@
                 </div>
                 <div class="row">
                     <div class="col-md mt-3 form-floating">
-                        <input type="text" class="form-control" id="complemento" value="{{ inscrito.complemento }}">
+                        {% if inscrito.complemento %}
+                            <input type="text" class="form-control" id="complemento" value="{{ inscrito.complemento }}">
+                        {% else %}
+                            <input type="text" class="form-control" id="complemento">
+                        {% endif %}
                         <label for="complemento">Complemento</label>
                     </div>
                     <div class="col-md mt-3 form-floating">
@@ -268,7 +311,7 @@
 
                 <div class="row">
                     <div class="col-sm mt-3 form-floating">
-                        <select class="form-select required" id="curso" disabled onchange="habilitar_dias(this)">
+                        <select class="form-select required" id="curso" onchange="habilitar_dias(this)">
                             <option selected disabled hidden></option>
                             <option value="{{ turma.curso }}" selected>{{ turma.curso }}</option>
                         </select>
@@ -278,14 +321,14 @@
                 </div>
                 <div class="row">
                     <div class="col-sm mt-3 form-floating">
-                        <select class="form-select required" id="dias" disabled onchange="habilitar_horarios(this)">
+                        <select class="form-select required" id="dias" onchange="habilitar_horarios(this)">
                             <option selected disabled hidden></option>
                             <option value="{{ turma.dias }}" selected>{{ turma.dias }}</option>
                         </select>
                         <label for="dias">Dias *</label>
                     </div>
                     <div class="col-sm mt-3 form-floating">
-                        <select class="form-select required" id="horario" disabled onchange="set_horario(this.value)">
+                        <select class="form-select required" id="horario" onchange="set_horario(this.value)">
                             <option selected disabled hidden></option>
                             <option value="{{ turma.horario }}" selected>{{ turma.horario }}</option>
                         </select>

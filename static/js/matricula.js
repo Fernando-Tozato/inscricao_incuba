@@ -16,13 +16,13 @@ let id_turma;
 let csrftoken;
 let url_envio = '/interno/matricula/criar/';
 let url_cpf = '/interno/verificar_cpf/';
-let url_cursos = '/externo/busca_cursos/';
-let url_dias = '/externo/busca_dias/';
-let url_horarios = '/externo/busca_horarios/';
+let url_cursos = '/inscricao/busca_cursos/';
+let url_dias = '/inscricao/busca_dias/';
+let url_horarios = '/inscricao/busca_horarios/';
 let url_enviado = '/interno/enviado/';
 
 function form_valido(){
-    if(form_vazio || cpf_invalido || /*data_nasc_invalida || data_emissao_invalida ||*/ email_invalido || cep_invalido || ddd_tel_invalido || ddd_cel_invalido){
+    if(form_vazio || cpf_invalido || data_nasc_invalida || data_emissao_invalida || email_invalido || cep_invalido || ddd_tel_invalido || ddd_cel_invalido){
         return false
     }
     return true
@@ -560,8 +560,8 @@ function enviar_dados(){
             "bairro": document.getElementById('bairro').value,
             "cidade": document.getElementById('cidade').value,
             "uf": document.getElementById('uf').value,
-            "pcd": document.getElementById('pcd').value,
-            "ps": document.getElementById('ps').value,
+            "pcd": document.getElementById('pcd').checked,
+            "ps": document.getElementById('ps').checked,
             "observacoes": document.getElementById('observacoes').value,
             "id_turma": id_turma
         };
@@ -580,7 +580,7 @@ function enviar_dados(){
                     placeholder.innerHTML = [
                         '<div class="alert alert-danger d-flex align-items-center mt-3" role="alert">',
                             '<i class="fa-solid fa-triangle-exclamation bi flex-shrink-0 me-3" role="img" aria-label="Danger:" style="color: #b20101;"></i>',
-                            '<div>Atenção! Seu formulário de inscrição não foi enviado. Tente enviar novamente mais tarde.</div>',
+                            '<div>Atenção! A matrícula não foi efetuada. Tente enviar novamente mais tarde.</div>',
                         '</div>'
                     ].join('');
 
@@ -598,7 +598,7 @@ function enviar_dados(){
         placeholder.innerHTML = [
             '<div class="alert alert-danger d-flex align-items-center mt-3" role="alert">',
                 '<i class="fa-solid fa-triangle-exclamation bi flex-shrink-0 me-3" role="img" aria-label="Danger:" style="color: #b20101;"></i>',
-                '<div>Atenção! Seu formulário de inscrição não foi enviado. Corrija os erros antes do envio.</div>',
+                '<div>Atenção! A matrícula não foi efetuada. Corrija os erros antes do envio.</div>',
             '</div>'
         ].join('');
 
@@ -612,7 +612,7 @@ function erro_envio(){
     placeholder.innerHTML = [
         '<div class="alert alert-danger d-flex align-items-center mt-3" role="alert">',
             '<i class="fa-solid fa-triangle-exclamation bi flex-shrink-0 me-3" role="img" aria-label="Danger:" style="color: #b20101;"></i>',
-            '<div>Atenção! Seu formulário de inscrição não foi enviado. Corrija os erros antes do envio.</div>',
+            '<div>Atenção! A matrícula não foi efetuada. Corrija os erros antes do envio.</div>',
         '</div>'
     ].join('');
 }
@@ -752,17 +752,73 @@ function mascara_pesquisa(value){
     return value;
 }
 
+// function selectOption(selectElement, value) {   
+//     const options = selectElement.options;
+//     for (let i = 0; i < options.length; i++) {
+//         if (options[i].value === value) {
+//             selectElement.selectedIndex = i;
+//         }
+//     }
+// }
+
 document.addEventListener('DOMContentLoaded', function() {
     csrftoken = document.getElementById('token').children[0].value;
     if (document.getElementById('nome').value != ''){
-        verifica_cpf(document.getElementById('cpf').value.replace(/\D/g, '').split(''));
-        verifica_data_nasc(document.getElementById('nascimento').value.split('/'));
-        verifica_data_emissao(document.getElementById('data_emissao').value.split('/'));
-        verifica_email(document.getElementById('email').value);
-        verifica_cep(document.getElementById('cep').value.replace(/\D/g, ''));
-        verifica_ddd_tel(document.getElementById('telefone').value.substring(1,3));
-        verifica_ddd_cel(document.getElementById('celular').value.substring(1,3));
+        const cpf = document.getElementById('cpf').value.replace(/\D/g, '').split('');
+        verifica_cpf(cpf);
+
+        const data_nasc = document.getElementById('nascimento').value.split('/');
+        verifica_data_nasc(data_nasc);
+
+        const data_emissao = document.getElementById('data_emissao').value.split('/');
+        data_emissao_invalida = false;
+        if (data_emissao != ''){
+            verifica_data_emissao(data_emissao);
+        }
+
+        const email = document.getElementById('email').value;
+        email_invalido = false;
+        if (email != ''){
+            verifica_email(email);
+        }
+
+        const ddd_tel = document.getElementById('telefone').value.substring(1,3);
+        ddd_tel_invalido = false;
+        if (ddd_tel != ''){
+            verifica_ddd_tel(ddd_tel);
+        }
+        const ddd_cel = document.getElementById('celular').value.substring(1,3);
+        ddd_cel_invalido = false;
+        if(ddd_cel != ''){
+        verifica_ddd_cel(ddd_cel);
+        }
+
+        const cep = document.getElementById('cep').value.replace(/\D/g, '');
+        verifica_cep(cep);
+
+        const escolaridade_input = document.getElementById('escolaridade').value;
+        set_escolaridade(escolaridade_input);
+
+        // const curso = document.getElementById('curso_div').value;
+        // const dias =  document.getElementById('dias_div').value;
+        // const horario =  document.getElementById('horario_div').value;
+        // const select_curso = document.getElementById('curso');
+        // const select_dias = document.getElementById('dias');
+        // const select_horario = document.getElementById('horario');
+
+        // selectOption(select_curso, curso)
+        // habilitar_dias(select_curso);
+
+        // setTimeout(() => {
+        //     selectOption(select_dias, dias)
+        //     habilitar_horarios(select_dias);
+                
+        //     setTimeout(() => {
+        //         selectOption(select_horario, horario)
+        //         set_horario(select_horario);
+        //     }, 100);
+        // }, 100);
+
         id_turma = document.getElementById('turma').innerHTML;
-        console.log(id_turma, typeof id_turma)
     }
 });
