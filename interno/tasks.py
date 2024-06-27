@@ -6,7 +6,7 @@ from openpyxl import Workbook
 from openpyxl.formatting.rule import CellIsRule
 from openpyxl.utils import get_column_letter
 from openpyxl.styles import Font, Alignment, PatternFill
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 def avisar_sorteados():
     pass
