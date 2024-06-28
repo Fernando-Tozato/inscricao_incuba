@@ -752,17 +752,18 @@ function mascara_pesquisa(value){
     return value;
 }
 
-// function selectOption(selectElement, value) {   
-//     const options = selectElement.options;
-//     for (let i = 0; i < options.length; i++) {
-//         if (options[i].value === value) {
-//             selectElement.selectedIndex = i;
-//         }
-//     }
-// }
+function selectOption(selectElement, value){   
+    const options = selectElement.options;
+    for (let i = 0; i < options.length; i++){
+        if (options[i].value === value){
+            selectElement.selectedIndex = i;
+        }
+    }
+}
 
 document.addEventListener('DOMContentLoaded', function() {
     csrftoken = document.getElementById('token').children[0].value;
+
     if (document.getElementById('nome').value != ''){
         const cpf = document.getElementById('cpf').value.replace(/\D/g, '').split('');
         verifica_cpf(cpf);
@@ -799,25 +800,27 @@ document.addEventListener('DOMContentLoaded', function() {
         const escolaridade_input = document.getElementById('escolaridade').value;
         set_escolaridade(escolaridade_input);
 
-        // const curso = document.getElementById('curso_div').value;
-        // const dias =  document.getElementById('dias_div').value;
-        // const horario =  document.getElementById('horario_div').value;
-        // const select_curso = document.getElementById('curso');
-        // const select_dias = document.getElementById('dias');
-        // const select_horario = document.getElementById('horario');
+        const curso = document.getElementById('curso_div').innerHTML;
+        const dias =  document.getElementById('dias_div').innerHTML;
+        const horario =  document.getElementById('horario_div').innerHTML;
+        const select_curso = document.getElementById('curso');
+        const select_dias = document.getElementById('dias');
+        const select_horario = document.getElementById('horario');
 
-        // selectOption(select_curso, curso)
-        // habilitar_dias(select_curso);
+        setTimeout(() => {
+            selectOption(select_curso, curso);
+            habilitar_dias(select_curso);
 
-        // setTimeout(() => {
-        //     selectOption(select_dias, dias)
-        //     habilitar_horarios(select_dias);
-                
-        //     setTimeout(() => {
-        //         selectOption(select_horario, horario)
-        //         set_horario(select_horario);
-        //     }, 100);
-        // }, 100);
+            setTimeout(() => {
+                selectOption(select_dias, dias)
+                habilitar_horarios(select_dias);
+                    
+                setTimeout(() => {
+                    selectOption(select_horario, horario)
+                    set_horario(select_horario);
+                }, 100);
+            }, 100);
+        }, 100);
 
         id_turma = document.getElementById('turma').innerHTML;
     }

@@ -36,10 +36,32 @@ def loop(request):
         agora = timezone.now()
         if agora >= data_sorteio: # type: ignore
             if matricula_sorteados <= agora:
+                print('tarde')
                 break
-            sortear()
-            avisar_sorteados(request)
+            print('na hora')
+            # sortear()
+            
+            # inscritos = Inscrito.objects.exclude(email__isnull=True)
+            # num_threads = 10
+            # num_inscritos_por_thread = len(inscritos) // num_threads
+            # threads = []
+            
+            # for i in range(num_threads):
+            #     thread = threading.Thread(target=avisar_sorteados, args=[request, inscritos[num_inscritos_por_thread * i: num_inscritos_por_thread * (i + 1)]])
+            #     threads.append(thread)
+                
+            #     if i + 1 == num_threads:
+            #         thread = threading.Thread(target=avisar_sorteados, args=[request, inscritos[num_inscritos_por_thread * (i + 1):]])
+            #         threads.append(thread)
+            
+            # for thread in threads:
+            #     thread.daemon = True
+            #     thread.start()
+            
+            avisar_sorteados(request, Inscrito.objects.filter(cpf='123.456.789-09'))
+                
             break
+        print('cedo')
 
 @login_required
 def busca_de_inscrito(request):

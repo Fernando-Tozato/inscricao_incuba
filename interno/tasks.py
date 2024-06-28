@@ -1,3 +1,4 @@
+from math import e
 from database.models import *
 from django.db.models import Q
 from django.db.models.functions import Coalesce
@@ -11,26 +12,33 @@ from datetime import timedelta
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 
-def avisar_sorteados(request):
-    inscritos = Inscrito.objects.exclude(email__isnull=True)
-    
+def avisar_sorteados(request, inscritos):
     for inscrito in inscritos:
         email:str = inscrito.email # type: ignore
-        subject = "Alteração de Senha"
-        email_template_name = "interno/password_reset_email.html"
+        print(email)
+        if inscrito.ja_sorteado:
+            subject = 'Incubadora de Robótica'
+            email_template_name = "aviso_sorteado.html"
+        else:
+            subject = 'Incubadora de Robótica'
+            email_template_name = 'aviso_nao_sorteado.html'
+        
         c = {
             "email": email,
             'domain': get_current_site(request).domain,
             'site_name': 'Incubadora de Robótica',
             'protocol': 'http',
         }
+        
         email_content = render_to_string(email_template_name, c)
         email_message = EmailMultiAlternatives(subject, '', 'incuba.robotica.auto@gmail.com', [email])
         email_message.attach_alternative(email_content, "text/html")
         try: 
             email_message.send()
-        except:
+        except Exception as e:
+            print(e)
             continue
+    print('Fim')
 
 def ajustar_colunas(ws):
     for col in ws.columns:

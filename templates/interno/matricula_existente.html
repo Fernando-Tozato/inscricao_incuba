@@ -313,7 +313,6 @@
                     <div class="col-sm mt-3 form-floating">
                         <select class="form-select required" id="curso" onchange="habilitar_dias(this)">
                             <option selected disabled hidden></option>
-                            <option value="{{ turma.curso }}" selected>{{ turma.curso }}</option>
                         </select>
                         <label for="curso">Curso *</label>
                         <div class="form-text" id="curso_placeholder"></div>
@@ -323,14 +322,12 @@
                     <div class="col-sm mt-3 form-floating">
                         <select class="form-select required" id="dias" onchange="habilitar_horarios(this)">
                             <option selected disabled hidden></option>
-                            <option value="{{ turma.dias }}" selected>{{ turma.dias }}</option>
                         </select>
                         <label for="dias">Dias *</label>
                     </div>
                     <div class="col-sm mt-3 form-floating">
                         <select class="form-select required" id="horario" onchange="set_horario(this.value)">
                             <option selected disabled hidden></option>
-                            <option value="{{ turma.horario }}" selected>{{ turma.horario }}</option>
                         </select>
                         <label for="horario">Horário *</label>
                     </div>

@@ -55,11 +55,11 @@ id,curso,dias,horario_entrada,horario_saida,vagas,escolaridade,idade,professor
 54,Educação Financeira,Terça,17:30,20:30,25,4,16,Alessandra
 55,Educação Financeira,Quinta,13:00,16:00,25,4,16,Alessandra
 56,Educação Financeira,Sexta,09:00,12:00,25,4,16,Alessandra
-57,Marketing Digital,Segunda,09:00,12:00,25,4,16,Mayco
-58,Marketing Digital,Segunda,17:30,20:30,25,4,16,Mayco
-59,Marketing Digital,Quarta,13:00,16:00,25,4,16,Mayco
-60,Marketing Digital,Sexta,17:30,20:30,25,4,16,Mayco
-61,Marketing Empreendedor,Segunda,13:00,16:00,25,4,16,Mayco
-62,Marketing Empreendedor,Quarta,09:00,12:00,25,4,16,Mayco
-63,Marketing Empreendedor,Quarta,17:30,20:30,25,4,16,Mayco
-64,Marketing Empreendedor,Sexta,13:00,16:00,25,4,16,Mayco
+57,Marketing Digital e Empreendedor,Segunda,09:00,12:00,25,4,16,Mayco
+58,Marketing Digital e Empreendedor,Segunda,17:30,20:30,25,4,16,Mayco
+59,Marketing Digital e Empreendedor,Quarta,13:00,16:00,25,4,16,Mayco
+60,Marketing Digital e Empreendedor,Sexta,17:30,20:30,25,4,16,Mayco
+61,Ferramentas do Marketing Digital,Segunda,13:00,16:00,25,4,16,Mayco
+62,Ferramentas do Marketing Digital,Quarta,09:00,12:00,25,4,16,Mayco
+63,Ferramentas do Marketing Digital,Quarta,17:30,20:30,25,4,16,Mayco
+64,Ferramentas do Marketing Digital,Sexta,13:00,16:00,25,4,16,Mayco
