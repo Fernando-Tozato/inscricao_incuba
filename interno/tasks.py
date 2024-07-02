@@ -13,21 +13,28 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 
 def avisar_sorteados(request, inscritos):
+    controle = Controle.objects.first()
     for inscrito in inscritos:
         email:str = inscrito.email # type: ignore
         print(email)
         if inscrito.ja_sorteado:
             subject = 'Incubadora de Robótica'
             email_template_name = "aviso_sorteado.html"
+            matricula_inicio = controle.matricula_sorteados # type: ignore
+            
         else:
             subject = 'Incubadora de Robótica'
             email_template_name = 'aviso_nao_sorteado.html'
+            matricula_inicio = controle.matricula_geral # type: ignore
         
         c = {
             "email": email,
             'domain': get_current_site(request).domain,
             'site_name': 'Incubadora de Robótica',
             'protocol': 'http',
+            'data_matricula_inicio': matricula_inicio,
+            'data_matricula_fim': controle.matricula_fim, # type: ignore
+            'data_aulas_inicio': controle.aulas_inicio, # type: ignore
         }
         
         email_content = render_to_string(email_template_name, c)
@@ -35,6 +42,7 @@ def avisar_sorteados(request, inscritos):
         email_message.attach_alternative(email_content, "text/html")
         try: 
             email_message.send()
+            print('enviado')
         except Exception as e:
             print(e)
             continue
