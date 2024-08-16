@@ -33,13 +33,12 @@ LOGIN_REDIRECT_URL = 'busca_de_inscrito'
 
 # settings.py
 
-ANYMAIL = {
-    "MAILGUN_API_KEY": "19548272b72fa0012c1a697bb1223751-fe9cf0a8-907fb3dc",
-    "MAILGUN_SENDER_DOMAIN": 'sandbox0c7171bd448743fead11626e6727ab22.mailgun.org',  
-}
-EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend" 
-DEFAULT_FROM_EMAIL = "postmaster@sandbox0c7171bd448743fead11626e6727ab22.mailgun.org" 
-SERVER_EMAIL = "postmaster@sandbox0c7171bd448743fead11626e6727ab22.mailgun.org" 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.mailgun.org'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'nao-responda@incubarobotica.com.br'
+EMAIL_HOST_PASSWORD = 'ec00dbf4d3dba556a4473a39c9a0a9c0-623e10c8-5a02bc6d'
 
 # Application definition
 

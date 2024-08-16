@@ -58,7 +58,16 @@ def loop(request):
             #     thread.daemon = True
             #     thread.start()
             
-            avisar_sorteados(request, Inscrito.objects.filter(cpf='123.456.789-09'))
+            inscritos = Inscrito.objects.exclude(email__isnull=True)
+            
+            sorteados = inscritos.filter(ja_sorteado=True)
+            nao_sorteados = inscritos.filter(ja_sorteado=False)
+            
+            emails_sorteados = [sorteado.email for sorteado in sorteados]
+            emails_nao_sorteados = [nao_sorteado.email for nao_sorteado in nao_sorteados]
+            
+            avisar_sorteados(request, ['tozato.fernando2004@gmail.com'], True)
+            # avisar_sorteados(request, emails_nao_sorteados, False)
                 
             break
         print('cedo')
