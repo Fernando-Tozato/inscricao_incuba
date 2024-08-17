@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-w_si1$m7krbe!-5is)ik6ngwaxhdkd*v4m(u&*yj5t%**gr-3g'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['incubarobotica.com.br', 'www.incubarobotica.com.br']
 
