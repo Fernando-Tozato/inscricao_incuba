@@ -9,4 +9,4 @@ cpf_generator
 django-anymail[mailgun]
 openpyxl
 unidecode
-gunicorn
+psycopg2-binary
