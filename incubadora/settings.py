@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-w_si1$m7krbe!-5is)ik6ngwaxhdkd*v4m(u&*yj5t%**gr-3g
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['incubarobotica.com.br', 'www.incubarobotica.com.br']
+ALLOWED_HOSTS = ['*']
 
 LOGIN_URL = 'login'  # Nome da URL definida para a view de login
 LOGIN_REDIRECT_URL = 'busca_de_inscrito'
@@ -138,7 +138,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 MEDIA_URL = '/media/'
