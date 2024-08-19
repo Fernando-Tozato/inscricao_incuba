@@ -5,6 +5,8 @@
 {% load static %}
 
 {% block content %}
+    <script src="{% static 'js/resultados.js' %}"></script>
+    <div class="d-none" id="token">{% csrf_token %}</div>
     <div class="container my-5">
         <div class="p-5 mb-5 border bg-body-secondary text-body-secondary rounded">
             <div class="row">

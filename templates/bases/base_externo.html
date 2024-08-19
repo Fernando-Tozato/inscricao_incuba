@@ -11,6 +11,17 @@
 <body class="bg-light">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script src="https://kit.fontawesome.com/b87058db00.js" crossorigin="anonymous"></script>
+    
+    <script>
+        function height_verifier() {
+            if (document.body.scrollHeight < window.innerHeight){
+                document.getElementById('footer').classList.add('fixed-bottom');
+            }
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            height_verifier()
+        });
+    </script>
 
     <nav class="navbar navbar-expand-sm">
         <div class="container border-bottom bg-light py-3">
@@ -46,7 +57,7 @@
         {% endblock %}
     </main>
 
-    <div class="container border-top bg-light">
+    <div class="container border-top bg-light" id="footer">
         <footer class="d-flex flex-wrap justify-content-between align-items-center p-3 mt-4">
             <figure class="figure float-start">
                 <img src="{% static 'img/Logo prefeitura.png' %}" class="figure-img img-fluid rounded" width="200" alt="Prefeitura de Maricá">
