@@ -1,0 +1,17 @@
+{% extends 'bases/base_externo.html' %}
+
+{% block title %}Editais{% endblock %}
+
+{% load static %}
+
+{% block content %}
+    <div class="container my-5" style="height: 49.5vh;">
+        <div class="p-5 mb-5 border bg-body-secondary text-body-secondary rounded">
+            <ul class="justify-content-center list-group">
+                <li class="list-group-item">
+                    <a href="{% url 'download_1' %}" class="btn">Edital e anexos, primeiro ciclo 2024.</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+{% endblock %}

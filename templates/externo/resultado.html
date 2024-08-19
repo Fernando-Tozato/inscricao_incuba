@@ -1,0 +1,99 @@
+{% extends 'bases/base_externo.html' %}
+
+{% block title %}Resultado{% endblock %}
+
+{% load static %}
+
+{% block content %}
+    <div class="container my-5">
+        <div class="p-5 mb-5 border bg-body-secondary text-body-secondary rounded">
+            <div class="row">
+                <div class="col-sm mt-3 form-floating">
+                    <select class="form-select" id="curso" onchange="habilitar_dias(this)">
+                        <option selected disabled hidden></option>
+                        {% if cursos %}
+                            {% for curso in cursos %}
+                                <option value="{{ curso }}">{{ curso }}</option>
+                            {% endfor %}
+                        {% endif %}
+                    </select>
+                    <label for="curso">Curso</label>
+                    <div class="form-text" id="curso_placeholder"></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm mt-3 form-floating">
+                    <select class="form-select" id="dias" disabled onchange="habilitar_horarios(this)">
+                        <option selected disabled hidden></option>
+                    </select>
+                    <label for="dias">Dias</label>
+                </div>
+                <div class="col-sm mt-3 form-floating">
+                    <select class="form-select" id="horario" disabled onchange="set_horario(this)">
+                        <option selected disabled hidden></option>
+                    </select>
+                    <label for="horario">Horário</label>
+                </div>
+            </div>
+            <div class="row d-flex">
+                <div class="col d-flex justify-content-end mt-3">
+                    <button type="button" class="btn btn-primary" onclick="buscar();">Buscar</button>
+                </div>
+            </div>
+        </div>
+
+        {% if sorteados %}
+            <div class="p-5 mb-5 border bg-body-secondary text-body-secondary rounded">
+                {% if sorteados == -1  %}
+                    <h2>Não houveram inscritos para esta turma.</h2>
+                {% else %}
+                    <ul class="justify-content-center list-group" id="resultado_pesquisa">
+                        {% for sorteado in sorteados %}
+                            <li class="list-group-item">
+                                {% if sorteado.nome_social %}
+                                    <h1>{{ sorteado.nome_social }}</h1>
+                                {% else %}
+                                    <h1>{{ sorteado.nome }}</h1>
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+            <a href="{% url 'download_validadores' %}" class="btn btn-primary float-end">Baixar arquivos de validação do sorteio</a>
+        {% endif %}
+    </div>
+
+    <script>
+        const busca = JSON.parse('{{ busca|escapejs }}');
+        const select_curso = document.getElementById('curso');
+        const select_dias = document.getElementById('dias');
+        const select_horario = document.getElementById('horario');
+
+        function selectOption(selectElement, value) {   
+            const options = selectElement.options;
+            for (let i = 0; i < options.length; i++) {
+                if (options[i].value === value) {
+                    selectElement.selectedIndex = i;
+                }
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', (event) => {
+
+            selectOption(select_curso, busca.curso)
+            habilitar_dias(select_curso);
+
+            setTimeout(() => {
+                selectOption(select_dias, busca.dias)
+                habilitar_horarios(select_dias);
+                    
+                setTimeout(() => {
+                    selectOption(select_horario, busca.horario)
+                    set_horario(select_horario);
+                }, 100);
+            }, 100);
+        });
+        
+    </script>
+{% endblock %}
