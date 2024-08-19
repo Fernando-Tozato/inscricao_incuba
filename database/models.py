@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class Turma(models.Model):
     curso = models.CharField(max_length=100)
     dias = models.CharField(max_length=20)
@@ -19,6 +20,7 @@ class Turma(models.Model):
     
     def ampla_conc(self):
         return self.vagas - self.cotas()
+
 
 class Inscrito(models.Model):
     nome = models.CharField(max_length=100)
@@ -48,6 +50,7 @@ class Inscrito(models.Model):
     ja_sorteado = models.BooleanField(default=False)
     id_turma = models.ForeignKey(Turma, on_delete=models.CASCADE)
 
+
 class Aluno(models.Model):
     nome = models.CharField(max_length=100)
     nome_pesquisa = models.CharField(max_length=100)
@@ -75,6 +78,7 @@ class Aluno(models.Model):
     ps = models.BooleanField(default=False)
     observacoes = models.TextField(null=True, default=None, blank=True)
     id_turma = models.ForeignKey(Turma, on_delete=models.CASCADE, related_name='inscrito_turma')
+
 
 class Controle(models.Model):
     inscricao_inicio = models.DateTimeField()

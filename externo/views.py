@@ -1,16 +1,18 @@
-from django.shortcuts import render, get_object_or_404
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_protect
-from django.core.exceptions import ValidationError
-from django.db.models import Q
-from database.models import *
-from django.utils import timezone
-from django.http import HttpResponse, Http404
-from django.conf import settings
-
+import json
+import os
+import zipfile
 from io import BytesIO
 
-import os, zipfile, json
+from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.db.models import Q
+from django.http import HttpResponse, Http404
+from django.http import JsonResponse
+from django.shortcuts import render, get_object_or_404
+from django.utils import timezone
+from django.views.decorators.csrf import csrf_protect
+
+from database.models import *
 
 
 def home(request):

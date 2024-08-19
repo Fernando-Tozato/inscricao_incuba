@@ -295,6 +295,7 @@
   display: block;
   padding: 6px; }
 
+/*noinspection CssInvalidFunction*/
 .select2-container--classic .select2-selection--single {
   background-color: #f7f7f7;
   border: 1px solid #aaa;
@@ -317,7 +318,9 @@
     margin-right: 10px; }
   .select2-container--classic .select2-selection--single .select2-selection__placeholder {
     color: #999; }
-  .select2-container--classic .select2-selection--single .select2-selection__arrow {
+
+/*noinspection CssInvalidFunction*/
+.select2-container--classic .select2-selection--single .select2-selection__arrow {
     background-color: #ddd;
     border: none;
     border-left: 1px solid #aaa;
@@ -366,6 +369,7 @@
       border-color: transparent transparent #888 transparent;
       border-width: 0 4px 5px 4px; }
 
+/*noinspection CssInvalidFunction*/
 .select2-container--classic.select2-container--open.select2-container--above .select2-selection--single {
   border-top: none;
   border-top-left-radius: 0;
@@ -376,6 +380,7 @@
   background-repeat: repeat-x;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFFFFFFF', endColorstr='#FFEEEEEE', GradientType=0); }
 
+/*noinspection CssInvalidFunction*/
 .select2-container--classic.select2-container--open.select2-container--below .select2-selection--single {
   border-bottom: none;
   border-bottom-left-radius: 0;

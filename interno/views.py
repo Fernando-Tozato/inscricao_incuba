@@ -1,123 +1,132 @@
-from django.shortcuts import render, get_object_or_404, redirect
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_protect
-from django.core.exceptions import ValidationError
-from django.db.models import Q, Sum
+import json
+import os
+import threading
+import time
+import zipfile
+from datetime import datetime
+from io import BytesIO
+
+from django.conf import settings
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.tokens import default_token_generator
-from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.core.mail import EmailMultiAlternatives
-from django.template.loader import render_to_string
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.utils.encoding import force_bytes
-from django.contrib.sites.shortcuts import get_current_site
-from django.utils import timezone
+from django.db.models import Sum
 from django.http import HttpResponse, Http404
-from django.conf import settings
+from django.http import JsonResponse
+from django.shortcuts import render, get_object_or_404, redirect
+from django.utils import timezone
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.views.decorators.csrf import csrf_protect
 
 from .forms import *
-from database.models import *
 from .tasks import *
 
-from io import BytesIO
-
-import json, threading, time, os, zipfile
-from datetime import datetime
 
 def grupo_necessario(user):
     return user.groups.filter(Q(name='Coord_Ped') | Q(name='Admin')).exists()
 
+
 def loop(request):
     while True:
         time.sleep(1)
-        data_sorteio = Controle.objects.first().sorteio_data # type: ignore
-        matricula_sorteados = Controle.objects.first().matricula_sorteados # type: ignore
+        data_sorteio = Controle.objects.first().sorteio_data  # type: ignore
+        matricula_sorteados = Controle.objects.first().matricula_sorteados  # type: ignore
         agora = timezone.now()
-        if agora >= data_sorteio: # type: ignore
+        if agora >= data_sorteio:  # type: ignore
             if matricula_sorteados <= agora:
                 print('tarde')
                 break
             print('na hora')
             # sortear()
-            
+
             # inscritos = Inscrito.objects.exclude(email__isnull=True)
             # num_threads = 10
             # num_inscritos_por_thread = len(inscritos) // num_threads
             # threads = []
-            
+
             # for i in range(num_threads):
             #     thread = threading.Thread(target=avisar_sorteados, args=[request, inscritos[num_inscritos_por_thread * i: num_inscritos_por_thread * (i + 1)]])
             #     threads.append(thread)
-                
+
             #     if i + 1 == num_threads:
             #         thread = threading.Thread(target=avisar_sorteados, args=[request, inscritos[num_inscritos_por_thread * (i + 1):]])
             #         threads.append(thread)
-            
+
             # for thread in threads:
             #     thread.daemon = True
             #     thread.start()
-            
+
             inscritos = Inscrito.objects.exclude(email__isnull=True)
-            
+
             sorteados = inscritos.filter(ja_sorteado=True)
             nao_sorteados = inscritos.filter(ja_sorteado=False)
-            
+
             emails_sorteados = [sorteado.email for sorteado in sorteados]
             emails_nao_sorteados = [nao_sorteado.email for nao_sorteado in nao_sorteados]
-            
+
             avisar_sorteados(request, ['tozato.fernando2004@gmail.com'], True)
             # avisar_sorteados(request, emails_nao_sorteados, False)
-                
+
             break
         print('cedo')
+
 
 @login_required
 def busca_de_inscrito(request):
     parametro = request.GET.get('parametro', '')
     valor = request.GET.get('valor', '')
-    
-    vagas = Turma.objects.values('curso').annotate(vagas=(Sum('vagas')-Sum('num_alunos')))
-    
+
+    vagas = Turma.objects.values('curso').annotate(vagas=(Sum('vagas') - Sum('num_alunos')))
+
     agora = timezone.now()
     matricula_geral = timezone.localtime(Controle.objects.first().matricula_geral)  # type: ignore
-        
+
     if parametro and valor:
         if parametro == 'nome':
             resultados_nome_social = Inscrito.objects.filter(nome_social_pesquisa__contains=valor)
-            resultados_nome = Inscrito.objects.filter(nome_pesquisa__contains=valor).filter(Q(nome_social='') | Q(nome_social__isnull=True))
+            resultados_nome = Inscrito.objects.filter(nome_pesquisa__contains=valor).filter(
+                Q(nome_social='') | Q(nome_social__isnull=True))
             inscritos = resultados_nome_social | resultados_nome
             valor = valor.capitalize()
-            
+
         elif parametro == 'cpf':
             inscritos = Inscrito.objects.filter(cpf__contains=valor)
-            if len(valor) in [3, 7]: valor += '.'
-            elif len(valor) == 11: valor += '-'
-            
+            if len(valor) in [3, 7]:
+                valor += '.'
+            elif len(valor) == 11:
+                valor += '-'
+
         else:
             return JsonResponse({'error': 'Parâmetro não suportado.'}, status=405)
-        
+
         if agora < matricula_geral:
             inscritos = inscritos.filter(ja_sorteado=True)
-            
-        return render(request, 'interno/busca_de_inscrito.html', {'inscritos': inscritos, 'busca': valor, 'vagas': vagas})
+
+        return render(request, 'interno/busca_de_inscrito.html',
+                      {'inscritos': inscritos, 'busca': valor, 'vagas': vagas})
     else:
         return render(request, 'interno/busca_de_inscrito.html', {'vagas': vagas})
 
+
 def matricula_novo(request):
     return render(request, 'interno/matricula_novo.html')
+
 
 def matricula_existente(request, inscrito_id):
     inscrito = get_object_or_404(Inscrito, id=inscrito_id)
     turma = inscrito.id_turma
     return render(request, 'interno/matricula_existente.html', {'inscrito': inscrito, 'turma': turma})
 
+
 @csrf_protect
 def matricula_criar(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            
+
             nome = data['nome']
             nome_pesquisa = data['nome_pesquisa']
             nome_social = data['nome_social']
@@ -144,38 +153,38 @@ def matricula_criar(request):
             ps = data['ps']
             observacoes = data['observacoes']
             id_turma = Turma.objects.filter(pk=data['id_turma'])[0]
-            
+
             aluno = Aluno(
-                nome = nome,
-                nome_pesquisa = nome_pesquisa,
-                nome_social = nome_social if nome_social != '' else None,
-                nome_social_pesquisa = nome_social_pesquisa if nome_social_pesquisa != '' else None,
-                nascimento = nascimento,
-                cpf = cpf,
-                rg = rg if rg != '' else None,
-                data_emissao = data_emissao if data_emissao != '' else None,
-                orgao_emissor = orgao_emissor if orgao_emissor != '' else None,
-                uf_emissao = uf_emissao if uf_emissao != '' else None,
-                filiacao = filiacao,
-                escolaridade = escolaridade,
-                email = email if email != '' else None,
-                telefone = telefone if telefone != '' else None,
-                celular = celular if celular != '' else None,
-                cep = cep,
-                rua = rua,
-                numero = numero,
-                complemento = complemento if complemento != '' else None,
-                bairro = bairro,
-                cidade = cidade,
-                uf = uf,
-                pcd = pcd,
-                ps = ps,
-                observacoes = observacoes,
-                id_turma = id_turma
+                nome=nome,
+                nome_pesquisa=nome_pesquisa,
+                nome_social=nome_social if nome_social != '' else None,
+                nome_social_pesquisa=nome_social_pesquisa if nome_social_pesquisa != '' else None,
+                nascimento=nascimento,
+                cpf=cpf,
+                rg=rg if rg != '' else None,
+                data_emissao=data_emissao if data_emissao != '' else None,
+                orgao_emissor=orgao_emissor if orgao_emissor != '' else None,
+                uf_emissao=uf_emissao if uf_emissao != '' else None,
+                filiacao=filiacao,
+                escolaridade=escolaridade,
+                email=email if email != '' else None,
+                telefone=telefone if telefone != '' else None,
+                celular=celular if celular != '' else None,
+                cep=cep,
+                rua=rua,
+                numero=numero,
+                complemento=complemento if complemento != '' else None,
+                bairro=bairro,
+                cidade=cidade,
+                uf=uf,
+                pcd=pcd,
+                ps=ps,
+                observacoes=observacoes,
+                id_turma=id_turma
             )
-            
+
             id_turma.num_alunos += 1
-            
+
             try:
                 aluno.save()
                 id_turma.save()
@@ -187,6 +196,7 @@ def matricula_criar(request):
     else:
         return JsonResponse({'error': 'Método não permitido.'}, status=405)
 
+
 @csrf_protect
 def verificar_cpf(request):
     if request.method == 'POST':
@@ -194,7 +204,7 @@ def verificar_cpf(request):
             data = json.loads(request.body)
             cpf = data['cpf']
             aluno = Aluno.objects.filter(cpf=cpf)
-            
+
             if len(aluno) == 0:
                 return JsonResponse({'response': False}, status=200)
             else:
@@ -204,19 +214,23 @@ def verificar_cpf(request):
     else:
         return JsonResponse({'error': 'Método não permitido.'}, status=405)
 
+
 @login_required
 def enviado(request):
     return render(request, 'interno/enviado_int.html')
+
 
 @user_passes_test(grupo_necessario)
 @login_required
 def turma(request):
     return render(request, 'interno/turma.html', {'turmas': Turma.objects.all()})
 
+
 @user_passes_test(grupo_necessario)
 @login_required
 def turma_novo(request):
     return render(request, 'interno/turma_novo.html')
+
 
 @user_passes_test(grupo_necessario)
 @login_required
@@ -224,12 +238,13 @@ def turma_editar(request, turma_id):
     turma = get_object_or_404(Turma, id=turma_id)
     return render(request, 'interno/turma_editar.html', {'turma': turma})
 
+
 @csrf_protect
 def turma_criar(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            
+
             curso = data['curso']
             dias = data['dias']
             entrada = datetime.strptime(data['entrada'], '%H:%M')
@@ -238,18 +253,18 @@ def turma_criar(request):
             escolaridade = data['escolaridade']
             idade = data['idade']
             professor = data['professor']
-            
+
             turma = Turma(
-                curso = curso,
-                dias = dias,
-                horario_entrada = entrada,
-                horario_saida = saida,
-                vagas = vagas,
-                escolaridade = escolaridade,
-                idade = idade,
-                professor = professor
+                curso=curso,
+                dias=dias,
+                horario_entrada=entrada,
+                horario_saida=saida,
+                vagas=vagas,
+                escolaridade=escolaridade,
+                idade=idade,
+                professor=professor
             )
-            
+
             try:
                 turma.full_clean()
                 turma.save()
@@ -260,6 +275,7 @@ def turma_criar(request):
             return JsonResponse({'error': 'Dados JSON inválidos'}, status=400)
     else:
         return JsonResponse({'error': 'Método não permitido'}, status=405)
+
 
 @csrf_protect
 def turma_view_editar(request):
@@ -294,6 +310,7 @@ def turma_view_editar(request):
         return JsonResponse({'Sucesso': 'Sucesso na atualização'}, status=200)
     else:
         return JsonResponse({'error': 'Método não permitido'}, status=400)
+
 
 @user_passes_test(grupo_necessario)
 @login_required
@@ -331,15 +348,16 @@ def controle(request):
                 aulas_inicio=aulas_inicio,
                 aulas_fim=aulas_fim
             )
-        
+
         thread = threading.Thread(target=loop, args=[request])
         thread.daemon = True
         thread.start()
-        
+
         return redirect('busca_de_inscrito')
-    
+
     return render(request, 'interno/controle.html', {'controle': controle})
-        
+
+
 def login_view(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
@@ -354,10 +372,12 @@ def login_view(request):
         form = LoginForm()
     return render(request, 'interno/login.html', {'form': form})
 
+
 @login_required
 def logout_view(request):
     logout(request)
     return redirect('login')
+
 
 def register_view(request):
     if request.method == 'POST':
@@ -368,6 +388,7 @@ def register_view(request):
     else:
         form = RegisterForm()
     return render(request, 'interno/register.html', {'form': form})
+
 
 def reset_password_view(request):
     if request.method == 'POST':
@@ -397,8 +418,10 @@ def reset_password_view(request):
         form = CustomPasswordResetForm()
     return render(request, 'interno/password_reset.html', {'form': form})
 
+
 def reset_password_sent_view(request):
     return render(request, 'interno/password_reset_sent.html')
+
 
 def reset_password_confirm_view(request, uidb64, token):
     try:
@@ -423,12 +446,14 @@ def reset_password_confirm_view(request, uidb64, token):
     else:
         return render(request, 'interno/password_reset_invalid.html')
 
+
 def reset_password_complete_view(request):
     return render(request, 'interno/password_reset_complete.html')
 
+
 def planilhas(request):
     planilhas_dir = os.path.join(settings.MEDIA_ROOT, 'planilhas')
-    
+
     if not os.path.exists(planilhas_dir):
         print('planilhas não existe')
         raise Http404("A pasta 'planilhas' não foi encontrada")
