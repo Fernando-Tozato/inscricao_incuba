@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-w_si1$m7krbe!-5is)ik6ngwaxhdkd*v4m(u&*yj5t%**gr-3g
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['92.113.32.10', 'localhost']
+ALLOWED_HOSTS = ['*']
 
 LOGIN_URL = 'login'  # Nome da URL definida para a view de login
 LOGIN_REDIRECT_URL = 'busca_de_inscrito'
@@ -98,12 +98,8 @@ AUTHENTICATION_BACKENDS = [
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'incubadora',
-        'USER': 'admin',
-        'PASSWORD': '032daSilva58',
-        'HOST': 'localhost',
-        'PORT': '',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / "db.sqlite3",
     }
 }
 
