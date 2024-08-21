@@ -3,16 +3,19 @@ import os
 import zipfile
 from io import BytesIO
 
+from unidecode import unidecode
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db.models import Q
+from django.db.utils import IntegrityError
 from django.http import HttpResponse, Http404
 from django.http import JsonResponse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_protect
 
 from database.models import *
+from externo.forms import InscricaoForm
 
 
 def home(request):
@@ -20,17 +23,101 @@ def home(request):
 
 
 def inscricao(request):
-    agora = timezone.now()
-    controle = Controle.objects.first()
-    inicio = timezone.localtime(controle.inscricao_inicio)  # type: ignore
-    fim = timezone.localtime(controle.inscricao_fim)  # type: ignore
-    remanescente = timezone.localtime(controle.matricula_geral)  # type: ignore
+    turmas = json.dumps(list(Turma.objects.all().values('curso', 'dia', 'horario')))
+    context = {'turmas': turmas}
 
-    if agora < inicio:
-        return render(request, 'antes_inscricao.html', {'data': inicio})
-    elif agora > fim:
-        return render(request, 'depois_inscricao.html', {'data_inscricao': fim, 'data_remanescente': remanescente})
-    return render(request, 'inscricao.html')
+    if request.method == 'POST':
+        form = InscricaoForm(request.POST)
+        if form.is_valid():
+            nome = form.cleaned_data['nome']
+            nome_pesquisa = unidecode(form.cleaned_data['nome'].upper())
+            nome_social = form.cleaned_data['nome_social']
+            nome_social_pesquisa = unidecode(form.cleaned_data['nome_social'].upper())
+            nascimento = form.cleaned_data['nascimento']
+            cpf = form.cleaned_data['cpf']
+            rg = form.cleaned_data['rg']
+            data_emissao = form.cleaned_data['data_emissao']
+            orgao_emissor = form.cleaned_data['orgao_emissor']
+            uf_emissao = form.cleaned_data['uf_emissao']
+            filiacao = form.cleaned_data['filiacao']
+            escolaridade = form.cleaned_data['escolaridade']
+            email = form.cleaned_data['email']
+            telefone = form.cleaned_data['telefone']
+            celular = form.cleaned_data['celular']
+            cep = form.cleaned_data['cep']
+            rua = form.cleaned_data['rua']
+            numero = form.cleaned_data['numero']
+            complemento = form.cleaned_data['complemento']
+            bairro = form.cleaned_data['bairro']
+            cidade = form.cleaned_data['cidade']
+            uf = form.cleaned_data['uf']
+            pcd = form.cleaned_data['pcd']
+            ps = form.cleaned_data['ps']
+            curso = form.cleaned_data['curso']
+            dia = form.cleaned_data['dia']
+            horario = form.cleaned_data['horario']
+
+            id_turma = Turma.objects.filter(Q(curso=curso) & Q(dias=dia) & Q(horario=horario))
+
+            inscrito = Inscrito(
+                nome=nome,
+                nome_pesquisa=nome_pesquisa,
+                nome_social=nome_social if nome_social != '' else None,
+                nome_social_pesquisa=nome_social_pesquisa if nome_social_pesquisa != '' else None,
+                nascimento=nascimento,
+                cpf=cpf,
+                rg=rg if rg != '' else None,
+                data_emissao=data_emissao if data_emissao != '' else None,
+                orgao_emissor=orgao_emissor if orgao_emissor != '' else None,
+                uf_emissao=uf_emissao if uf_emissao != '' else None,
+                filiacao=filiacao,
+                escolaridade=escolaridade,
+                email=email if email != '' else None,
+                telefone=telefone if telefone != '' else None,
+                celular=celular if celular != '' else None,
+                cep=cep,
+                rua=rua,
+                numero=numero,
+                complemento=complemento if complemento != '' else None,
+                bairro=bairro,
+                cidade=cidade,
+                uf=uf,
+                pcd=pcd,
+                ps=ps,
+                ja_sorteado=False,
+                id_turma=id_turma
+            )
+
+            try:
+                inscrito.full_clean()
+                inscrito.save()
+            except ValidationError as e:
+                return JsonResponse({'error': e}, status=400)
+            except IntegrityError as e:
+                return JsonResponse({'error': e}, status=400)
+            except Exception as e:
+                return JsonResponse({'error': e}, status=400)
+            finally:
+                return redirect('enviado')
+
+        else:
+            context.update({'form': form})
+
+    else:
+        agora = timezone.now()
+        controle = Controle.objects.first()
+        inicio = timezone.localtime(controle.inscricao_inicio)
+        fim = timezone.localtime(controle.inscricao_fim)
+        remanescente = timezone.localtime(controle.matricula_geral)
+
+        if agora < inicio:
+            return render(request, 'antes_inscricao.html', {'data': inicio})
+        elif agora > fim:
+            return render(request, 'depois_inscricao.html', {'data_inscricao': fim, 'data_remanescente': remanescente})
+
+        context.update({'form': InscricaoForm})
+
+    return render(request, 'inscricao.html', context)
 
 
 def enviado(request):
