@@ -1,6 +1,7 @@
 from django import forms
 
 UF_options = [
+    ('', 'Selecione...'),
     ('AC', 'AC'),
     ('AL', 'AL'),
     ('AP', 'AP'),
@@ -31,6 +32,7 @@ UF_options = [
 ]
 
 escolaridade_options = [
+    ('', 'Selecione...'),
     ('1', 'Não Alfabetizado'),
     ('2', 'Alfabetização'),
     ('3', 'Ensino Fundamental 1 Incompleto'),
@@ -53,21 +55,37 @@ class InscricaoForm(forms.Form):
     rg = forms.CharField(max_length=14, required=False)
     data_emissao = forms.DateField(required=False)
     orgao_emissor = forms.CharField(required=False)
-    uf_emissao = forms.ChoiceField(choices=UF_options, required=False)
+    uf_emissao = forms.ChoiceField(choices=UF_options,
+                                   required=False,
+                                   widget=forms.Select(attrs={'class': 'form-select'}),
+                                   initial='')
     filiacao = forms.CharField()
-    escolaridade = forms.ChoiceField(choices=escolaridade_options)
+    escolaridade = forms.ChoiceField(choices=escolaridade_options,
+                                     widget=forms.Select(attrs={'class': 'form-select required'}),
+                                     initial='')
+    pcd = forms.CheckboxInput()
+    ps = forms.CheckboxInput()
+
     email = forms.EmailField(required=False)
     telefone = forms.CharField(required=False)
     celular = forms.CharField()
+
     cep = forms.CharField()
     rua = forms.CharField()
     numero = forms.CharField()
     complemento = forms.CharField(required=False)
     bairro = forms.CharField()
     cidade = forms.CharField()
-    uf = forms.ChoiceField(choices=UF_options)
-    pcd = forms.CheckboxInput()
-    ps = forms.CheckboxInput()
+    uf = forms.ChoiceField(choices=UF_options,
+                           widget=forms.Select(attrs={'class': 'form-select required'}),
+                           initial='')
+
     curso = forms.ChoiceField()
     dia = forms.ChoiceField()
     horario = forms.ChoiceField()
+
+    def __init__(self, *args, **kwargs):
+        super(InscricaoForm, self).__init__(*args, **kwargs)
+        self.fields['uf_emissao'].widget.attrs.update({'class': 'form-select'})
+        self.fields['escolaridade'].widget.attrs.update({'class': 'form-select required'})
+        self.fields['uf'].widget.attrs.update({'class': 'form-select required'})
