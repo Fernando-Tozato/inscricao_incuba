@@ -13,10 +13,10 @@ from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_protect
-from django.forms.models import model_to_dict
 
 from database.models import *
 from externo.forms import InscricaoForm
+from externo.functions import get_turmas_as_json
 
 
 def home(request):
@@ -24,8 +24,8 @@ def home(request):
 
 
 def inscricao(request):
-    turmas = Turma.objects.all()
-    context = {'turmas': [model_to_dict(turma) for turma in turmas]}
+    turmas = get_turmas_as_json(['curso', 'dias', 'horario', 'idade', 'escolaridade'])
+    context = {'turmas': turmas}
 
     if request.method == 'POST':
         form = InscricaoForm(request.POST)
@@ -55,7 +55,7 @@ def inscricao(request):
             pcd = form.cleaned_data['pcd']
             ps = form.cleaned_data['ps']
             curso = form.cleaned_data['curso']
-            dia = form.cleaned_data['dia']
+            dias = form.cleaned_data['dias']
             horario = form.cleaned_data['horario']
 
             horario_entrada = horario[:5]
@@ -65,7 +65,7 @@ def inscricao(request):
 
             id_turma = Turma.objects.filter(
                 Q(curso=curso) &
-                Q(dias=dia) &
+                Q(dias=dias) &
                 Q(horario_entrada=horario_entrada) &
                 Q(horario_saida=horario_saida)
             )

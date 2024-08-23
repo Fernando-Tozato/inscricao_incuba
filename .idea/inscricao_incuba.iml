@@ -23,6 +23,7 @@
     <orderEntry type="library" name="@popperjs/core" level="application" />
     <orderEntry type="library" name="b87058db00" level="application" />
     <orderEntry type="library" name="moment.js" level="application" />
+    <orderEntry type="library" name="inputmask" level="application" />
   </component>
   <component name="PyDocumentationSettings">
     <option name="format" value="PLAIN" />

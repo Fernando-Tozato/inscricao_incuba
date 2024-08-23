@@ -81,7 +81,7 @@ class InscricaoForm(forms.Form):
                            initial='')
 
     curso = forms.ChoiceField()
-    dia = forms.ChoiceField()
+    dias = forms.ChoiceField()
     horario = forms.ChoiceField()
 
     def __init__(self, *args, **kwargs):

@@ -5,13 +5,17 @@
 {% load static %}
 
 {% block content %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/inputmask/4.0.9/inputmask/inputmask.min.js" integrity="sha512-DVfS/GbZzLMmxBL/CW92N84eHP2Fq9d+r9RKbvctcvzISVfu+WvD+MCvbK9j8I6nVLrntGo3UUVrNFUDX0ukBw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="{% static 'js/form_validation.js' %}"></script>
+    <script src="{% static 'js/mascaras.js' %}"></script>
     <script type="text/javascript">
-        window.turmas = {{ turmas|safe }}; 
-        console.log(window.turmas);
+        window.turmas = {{ turmas|safe }};
     </script>
     <script src="{% static 'js/inscricao.js' %}"></script>
     <div class="container my-5 px-5">
-        <form method="post">
+        <form method="post" class="needs-validation">
             {% csrf_token %}
             
             <div class="p-5 mb-5 border bg-body-secondary text-body-secondary rounded">
@@ -19,8 +23,9 @@
 
                 <div class="row">
                     <div class="col-sm mt-3 form-floating">
-                        <input type="text" class="form-control required" id="{{ form.nome.id_for_label }}" name="{{ form.nome.html_name }}" maxlength="100" autocomplete="name" placeholder="Nome">
+                        <input type="text" class="form-control required" id="{{ form.nome.id_for_label }}" name="{{ form.nome.html_name }}" maxlength="100" autocomplete="name" placeholder="Nome" required>
                         <label for="{{ form.nome.id_for_label }}" class="ms-2">Nome civil completo <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
+                        <div class="invalid-feedback">Nome é um campo obrigatório.</div>
                     </div>
                 </div>
                 <div class="row">
@@ -32,13 +37,15 @@
                 </div>
                 <div class="row">
                     <div class="col-md mt-3 form-floating">
-                        <input type="text" class="form-control required" id="{{ form.nascimento.id_for_label }}" name="{{ form.nascimento.html_name }}" autocomplete="bday" placeholder="Nascimento">
-                        <label for="{{ form.nascimento.id_for_label }}" class="ms-2">Nascimento <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
+                        <input type="text" class="form-control required" id="{{ form.nascimento.id_for_label }}" name="{{ form.nascimento.html_name }}" autocomplete="bday" placeholder="Nascimento" required>
+                        <label for="{{ form.nascimento.id_for_label }}" class="ms-2">Data de nascimento <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
+                        <div class="invalid-feedback">Data de nascimento é um campo obrigatório.</div>
                         <div class="form-text" id="data_nasc_placeholder"></div>
                     </div>
                     <div class="col-md mt-3 form-floating">
-                        <input type="text" class="form-control required" id="{{ form.cpf.id_for_label }}" name="{{ form.cpf.html_name }}" placeholder="CPF">
+                        <input type="text" class="form-control required" id="{{ form.cpf.id_for_label }}" name="{{ form.cpf.html_name }}" placeholder="CPF" required>
                         <label for="{{ form.cpf.id_for_label }}" class="ms-2">CPF <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
+                        <div class="invalid-feedback">CPF é um campo obrigatório.</div>
                         <div class="form-text" id="cpf_placeholder"></div>
                     </div>
                     <div class="col-md mt-3 form-floating">
@@ -66,13 +73,15 @@
                 </div>
                 <div class="row">
                     <div class="col-sm mt-3 form-floating">
-                        <input type="text" class="form-control required" id="{{ form.filiacao.id_for_label }}" name="{{ form.filiacao.html_name }}" placeholder="Filiação">
+                        <input type="text" class="form-control required" id="{{ form.filiacao.id_for_label }}" name="{{ form.filiacao.html_name }}" placeholder="Filiação" required>
                         <label for="{{ form.filiacao.id_for_label }}" class="ms-2">Filiação <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
+                        <div class="invalid-feedback">Filiação é um campo obrigatório.</div>
                         <div class="form-text">Nome de apenas uma pessoa.</div>
                     </div>
                     <div class="col-sm mt-3 form-floating">
                         {{ form.escolaridade }}
                         <label for="{{ form.escolaridade.id_for_label }}" class="ms-2">Escolaridade <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
+                        <div class="invalid-feedback">Escolaridade é um campo obrigatório.</div>
                     </div>
                 </div>
                 <div class="row">
@@ -94,7 +103,7 @@
 
                 <div class="row">
                     <div class="col-sm mt-3 form-floating">
-                        <input type="text" class="form-control" id="{{ form.email.id_for_label }}" name="{{ form.email.html_name }}" autocomplete="email" placeholder="E-mail">
+                        <input type="email" class="form-control" id="{{ form.email.id_for_label }}" name="{{ form.email.html_name }}" inputmode="email" autocomplete="email" placeholder="E-mail">
                         <label for="{{ form.email.id_for_label }}" class="ms-2">E-mail</label>
                         <div class="form-text" id="email_placeholder"></div>
                     </div>
@@ -106,8 +115,9 @@
                         <div class="form-text" id="tel_placeholder"></div>
                     </div>
                     <div class="col-sm mt-3 form-floating">
-                        <input type="tel" class="form-control required" id="{{ form.celular.id_for_label }}" name="{{ form.celular.html_name }}" autocomplete="phone" placeholder="Celular">
+                        <input type="tel" class="form-control required" id="{{ form.celular.id_for_label }}" name="{{ form.celular.html_name }}" autocomplete="phone" placeholder="Celular" required>
                         <label for="{{ form.celular.id_for_label }}" class="ms-2">Celular <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
+                        <div class="invalid-feedback">Celular é um campo obrigatório.</div>
                         <div class="form-text" id="cel_placeholder"></div>
                     </div>
                 </div>
@@ -120,19 +130,22 @@
 
                 <div class="row">
                     <div class="col-lg-4 col-md-8 mt-3 form-floating">
-                        <input type="text" class="form-control required" id="{{ form.cep.id_for_label }}" name="{{ form.cep.html_name }}" autocomplete="postal-code" placeholder="CEP">
+                        <input type="text" class="form-control required" id="{{ form.cep.id_for_label }}" name="{{ form.cep.html_name }}" autocomplete="postal-code" placeholder="CEP" required>
                         <label for="{{ form.cep.id_for_label }}" class="ms-2">CEP <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
+                        <div class="invalid-feedback">CEP é um campo obrigatório.</div>
                         <div class="form-text" id="cep_placeholder"></div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-sm-9 mt-3 form-floating">
-                        <input type="text" class="form-control required" id="{{ form.rua.id_for_label }}" name="{{ form.rua.html_name }}" placeholder="Logradouro">
+                        <input type="text" class="form-control required" id="{{ form.rua.id_for_label }}" name="{{ form.rua.html_name }}" placeholder="Logradouro" required>
                         <label for="{{ form.rua.id_for_label }}" class="ms-2">Logradouro <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
+                        <div class="invalid-feedback">Logradouro é um campo obrigatório.</div>
                     </div>
                     <div class="col-sm-3 mt-3 form-floating">
-                        <input type="text" class="form-control required" id="{{ form.numero.id_for_label }}" name="{{ form.numero.html_name }}" placeholder="Número">
+                        <input type="text" class="form-control required" id="{{ form.numero.id_for_label }}" name="{{ form.numero.html_name }}" placeholder="Número"required>
                         <label for="{{ form.numero.id_for_label }}" class="ms-2">Número <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
+                        <div class="invalid-feedback">Número é um campo obrigatório.</div>
                     </div>
                 </div>
                 <div class="row">
@@ -141,16 +154,19 @@
                         <label for="{{ form.complemento.id_for_label }}" class="ms-2">Complemento</label>
                     </div>
                     <div class="col-md mt-3 form-floating">
-                        <input type="text" class="form-control required" id="{{ form.bairro.id_for_label }}" name="{{ form.bairro.html_name }}" placeholder="Bairro">
+                        <input type="text" class="form-control required" id="{{ form.bairro.id_for_label }}" name="{{ form.bairro.html_name }}" placeholder="Bairro" required>
                         <label for="{{ form.bairro.id_for_label }}" class="ms-2">Bairro <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
+                        <div class="invalid-feedback">Bairro é um campo obrigatório.</div>
                     </div>
                     <div class="col-md mt-3 form-floating">
-                        <input type="text" class="form-control required" id="{{ form.cidade.id_for_label }}" name="{{ form.cidade.html_name }}" placeholder="Cidade">
+                        <input type="text" class="form-control required" id="{{ form.cidade.id_for_label }}" name="{{ form.cidade.html_name }}" placeholder="Cidade" required>
                         <label for="{{ form.cidade.id_for_label }}" class="ms-2">Cidade <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
+                        <div class="invalid-feedback">Cidade é um campo obrigatório.</div>
                     </div>
                     <div class="col-md mt-3 form-floating">
                         {{ form.uf }}
                         <label for="{{ form.uf.id_for_label }}" class="ms-2">Estado <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
+                        <div class="invalid-feedback">UF é um campo obrigatório.</div>
                     </div>
                 </div>
 
@@ -162,25 +178,28 @@
 
                 <div class="row">
                     <div class="col-sm mt-3 form-floating">
-                        <select class="form-select required" id="{{ form.curso.id_for_label }}" name="{{ form.curso.html_name }}" disabled>
+                        <select class="form-select required" id="{{ form.curso.id_for_label }}" name="{{ form.curso.html_name }}" disabled required>
                             <option value selected>Selecione...</option>
                         </select>
                         <label for="{{ form.curso.id_for_label }}" class="ms-2">Curso <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
                         <div class="form-text" id="curso_placeholder"></div>
+                        <div class="invalid-feedback">Curso é um campo obrigatório.</div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-sm mt-3 form-floating">
-                        <select class="form-select required" id="{{ form.dia.id_for_label }}" name="{{ form.dia.html_name }}" disabled>
+                        <select class="form-select required" id="{{ form.dias.id_for_label }}" name="{{ form.dias.html_name }}" disabled required>
                             <option value selected>Selecione...</option>
                         </select>
-                        <label for="{{ form.dia.id_for_label }}" class="ms-2">Dias <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
+                        <label for="{{ form.dias.id_for_label }}" class="ms-2">Dias <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
+                        <div class="invalid-feedback">Dias é um campo obrigatório.</div>
                     </div>
                     <div class="col-sm mt-3 form-floating">
-                        <select class="form-select required" id="{{ form.horario.id_for_label }}" name="{{ form.horario.html_name }}" disabled>
+                        <select class="form-select required" id="{{ form.horario.id_for_label }}" name="{{ form.horario.html_name }}" disabled required>
                             <option value selected>Selecione...</option>
                         </select>
                         <label for="{{ form.horario.id_for_label }}" class="ms-2">Horário <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
+                        <div class="invalid-feedback">Horário é um campo obrigatório.</div>
                     </div>
                 </div>
 
@@ -190,8 +209,9 @@
             <div class="container align-items-center my-3">
                 <div class="row">
                     <div class="col-xl-10 col-md-8 col-6 mt-3 form-check">
-                        <input class="form-check-input required" type="checkbox" id="termos">
+                        <input class="form-check-input required" type="checkbox" id="termos" required>
                         <label class="form-check-label" for="termos">Marque para aceitar os termos e condições. <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
+                        <div class="invalid-feedback">Você deve aceitar os termos para prosseguir.</div>
                     </div>
                     <div class="col-xl-2 col-md-4 col-6 mt-3">
                         <button class="btn btn-primary float-end" type="submit">Enviar</button>
