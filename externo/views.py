@@ -122,17 +122,17 @@ def inscricao(request):
         remanescente = timezone.localtime(controle.matricula_geral)
 
         if agora < inicio:
-            return render(request, 'antes_inscricao.html', {'data': inicio})
+            return render(request, 'externo/antes_inscricao.html', {'data': inicio})
         elif agora > fim:
-            return render(request, 'depois_inscricao.html', {'data_inscricao': fim, 'data_remanescente': remanescente})
+            return render(request, 'externo/depois_inscricao.html', {'data_inscricao': fim, 'data_remanescente': remanescente})
 
         context.update({'form': InscricaoForm})
 
-    return render(request, 'inscricao.html', context)
+    return render(request, 'externo/inscricao.html', context)
 
 
 def enviado(request):
-    return render(request, 'enviado_ext.html')
+    return render(request, 'externo/enviado_ext.html')
 
 
 @csrf_protect
@@ -318,7 +318,7 @@ def resultado(request):
     sorteio = timezone.localtime(controle.sorteio_data)  # type: ignore
 
     if agora < sorteio:
-        return render(request, 'antes_resultado.html', {'data': sorteio})
+        return render(request, 'externo/antes_resultado.html', {'data': sorteio})
 
     cursos = Turma.objects.values_list('curso', flat=True).distinct()
     return render(request, 'externo/resultado.html', {'cursos': cursos})
@@ -330,7 +330,7 @@ def resultado_id(request, id_turma):
     sorteio = timezone.localtime(controle.sorteio_data)  # type: ignore
 
     if agora < sorteio:
-        return render(request, 'antes_resultado.html', {'data': sorteio})
+        return render(request, 'externo/antes_resultado.html', {'data': sorteio})
 
     cursos = Turma.objects.values_list('curso', flat=True).distinct()
     turma = get_object_or_404(Turma, id=id_turma)
