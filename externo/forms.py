@@ -63,8 +63,8 @@ class InscricaoForm(forms.Form):
     escolaridade = forms.ChoiceField(choices=escolaridade_options,
                                      widget=forms.Select(attrs={'class': 'form-select required'}),
                                      initial='')
-    pcd = forms.CheckboxInput()
-    ps = forms.CheckboxInput()
+    pcd = forms.BooleanField()
+    ps = forms.BooleanField()
 
     email = forms.EmailField(required=False)
     telefone = forms.CharField(required=False)

@@ -1,5 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
-    // Máscara para o campo CPF
+function adicionar_mascaras() {
     Inputmask("999.999.999-99").mask(document.getElementById('id_cpf'));
 
     // Máscara para o campo RG
@@ -18,5 +17,5 @@ document.addEventListener('DOMContentLoaded', function() {
     Inputmask("(99) 9 9999-9999").mask(document.getElementById('id_celular'));
 
     // Máscara para o campo CEP
-    Inputmask("99999-999").mask(document.getElementById('id_cep'));
-});
+    Inputmask("99.999-999").mask(document.getElementById('id_cep'));
+}
