@@ -24,45 +24,45 @@
 
                 <div class="row">
                     <div class="col-sm mt-3 form-floating">
-                        <input type="text" class="form-control required" id="{{ form.nome.id_for_label }}" name="{{ form.nome.html_name }}" maxlength="100" autocomplete="name" placeholder="Nome" required>
+                        {{ form.nome }}
                         <label for="{{ form.nome.id_for_label }}" class="ms-2">Nome civil completo <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
                         <div class="invalid-feedback" id="{{ form.nome.id_for_label }}_feedback"></div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-sm mt-3 form-floating">
-                        <input type="text" class="form-control" id="{{ form.nome_social.id_for_label }}" name="{{ form.nome_social.html_name }}" maxlength="100" placeholder="Nome social">
+                        {{ form.nome_social }}
                         <label for="{{ form.nome_social.id_for_label }}" class="ms-2">Nome social</label>
                         <div class="form-text">Destinado para pessoas que trocaram de gênero e não se identificam com seu nome civil. Caso não se enquadre, deixe em branco.</div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md mt-3 form-floating">
-                        <input type="text" class="form-control required" id="{{ form.nascimento.id_for_label }}" name="{{ form.nascimento.html_name }}" autocomplete="bday" placeholder="Nascimento" required>
+                        {{ form.nascimento }}
                         <label for="{{ form.nascimento.id_for_label }}" class="ms-2">Data de nascimento <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
                         <div class="invalid-feedback" id="{{ form.nascimento.id_for_label }}_feedback"></div>
                         <div class="form-text" id="data_nasc_placeholder"></div>
                     </div>
                     <div class="col-md mt-3 form-floating">
-                        <input type="text" class="form-control required" id="{{ form.cpf.id_for_label }}" name="{{ form.cpf.html_name }}" placeholder="CPF" required>
+                        {{ form.cpf }}
                         <label for="{{ form.cpf.id_for_label }}" class="ms-2">CPF <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
                         <div class="invalid-feedback" id="{{ form.cpf.id_for_label }}_feedback"></div>
                         <div class="form-text" id="cpf_placeholder"></div>
                     </div>
                     <div class="col-md mt-3 form-floating">
-                        <input type="text" class="form-control" id="{{ form.rg.id_for_label }}" name="{{ form.rg.html_name }}" placeholder="RG">
+                        {{ form.rg }}
                         <label for="{{ form.rg.id_for_label }}" class="ms-2">RG</label>
                         <div class="form-text">Caso não tenha RG, deixe em branco.</div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md mt-3 form-floating">
-                        <input type="text" class="form-control" id="{{ form.data_emissao.id_for_label }}" name="{{ form.data_emissao.html_name }}" placeholder="Data de emissão">
+                        {{ form.data_emissao }}
                         <label for="{{ form.data_emissao.id_for_label }}" class="ms-2">Data de emissão</label>
                         <div class="form-text">Caso não tenha RG, deixe em branco.</div>
                     </div>
                     <div class="col-md mt-3 form-floating">
-                        <input type="text" class="form-control" id="{{ form.orgao_emissor.id_for_label }}" name="{{ form.orgao_emissor.html_name }}" placeholder="Órgão emissor">
+                        {{ form.orgao_emissor }}
                         <label for="{{ form.orgao_emissor.id_for_label }}" class="ms-2">Órgão emissor</label>
                         <div class="form-text">Caso não tenha RG, deixe em branco.</div>
                     </div>
@@ -74,7 +74,7 @@
                 </div>
                 <div class="row">
                     <div class="col-sm mt-3 form-floating">
-                        <input type="text" class="form-control required" id="{{ form.filiacao.id_for_label }}" name="{{ form.filiacao.html_name }}" placeholder="Filiação" required>
+                        {{ form.filiacao }}
                         <label for="{{ form.filiacao.id_for_label }}" class="ms-2">Filiação <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
                         <div class="invalid-feedback" id="{{ form.filiacao.id_for_label }}_feedback"></div>
                         <div class="form-text">Nome de apenas uma pessoa.</div>
@@ -85,13 +85,13 @@
                         <div class="invalid-feedback" id="{{ form.escolaridade.id_for_label }}_feedback"></div>
                     </div>
                 </div>
-                <div class="row">
+                <div class="row ms-1">
                     <div class="col-sm mt-3 form-check form-switch">
-                        <input class="form-check-input" type="checkbox" role="switch" id="{{ form.pcd.id_for_label }}" name="{{ form.pcd.html_name }}">
+                        {{ form.pcd }}
                         <label class="form-check-label" for="{{ form.pcd.id_for_label }}">É PcD?</label>
                     </div>
                     <div class="col-sm mt-3 form-check form-switch">
-                        <input class="form-check-input" type="checkbox" role="switch" id="{{ form.ps.id_for_label }}" name="{{ form.ps.html_name }}">
+                        {{ form.ps }}
                         <label class="form-check-label" for="{{ form.ps.id_for_label }}">Participa de Programa Social?</label>
                     </div>
                 </div>
@@ -104,19 +104,19 @@
 
                 <div class="row">
                     <div class="col-sm mt-3 form-floating">
-                        <input type="email" class="form-control" id="{{ form.email.id_for_label }}" name="{{ form.email.html_name }}" inputmode="email" autocomplete="email" placeholder="E-mail">
+                        {{ form.email }}
                         <label for="{{ form.email.id_for_label }}" class="ms-2">E-mail</label>
                         <div class="form-text" id="email_placeholder"></div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-sm mt-3 form-floating">
-                        <input type="tel" class="form-control" id="{{ form.telefone.id_for_label }}" name="{{ form.telefone.html_name }}" autocomplete="tel" placeholder="Telefone">
+                        {{ form.telefone }}
                         <label for="{{ form.telefone.id_for_label }}" class="ms-2">Telefone</label>
                         <div class="form-text" id="tel_placeholder"></div>
                     </div>
                     <div class="col-sm mt-3 form-floating">
-                        <input type="tel" class="form-control required" id="{{ form.celular.id_for_label }}" name="{{ form.celular.html_name }}" autocomplete="phone" placeholder="Celular" required>
+                        {{ form.celular }}
                         <label for="{{ form.celular.id_for_label }}" class="ms-2">Celular <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
                         <div class="invalid-feedback" id="{{ form.celular.id_for_label }}_feedback"></div>
                         <div class="form-text" id="cel_placeholder"></div>
@@ -131,7 +131,7 @@
 
                 <div class="row">
                     <div class="col-lg-4 col-md-8 col-10 mt-3 form-floating">
-                        <input type="text" class="form-control required" id="{{ form.cep.id_for_label }}" name="{{ form.cep.html_name }}" autocomplete="postal-code" placeholder="CEP" required>
+                        {{ form.cep }}
                         <label for="{{ form.cep.id_for_label }}" class="ms-2">CEP <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
                         <div class="invalid-feedback" id="{{ form.cep.id_for_label }}_feedback"></div>
                         <div class="form-text" id="cep_placeholder"></div>
@@ -144,28 +144,28 @@
                 </div>
                 <div class="row">
                     <div class="col-sm-8 mt-3 form-floating">
-                        <input type="text" class="form-control required" id="{{ form.rua.id_for_label }}" name="{{ form.rua.html_name }}" placeholder="Logradouro" required>
+                        {{ form.rua }}
                         <label for="{{ form.rua.id_for_label }}" class="ms-2">Rua <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
                         <div class="invalid-feedback" id="{{ form.rua.id_for_label }}_feedback"></div>
                     </div>
                     <div class="col-sm-4 mt-3 form-floating">
-                        <input type="text" class="form-control required" id="{{ form.numero.id_for_label }}" name="{{ form.numero.html_name }}" placeholder="Número" required>
+                        {{ form.numero }}
                         <label for="{{ form.numero.id_for_label }}" class="ms-2">Número <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
                         <div class="invalid-feedback" id="{{ form.numero.id_for_label }}_feedback"></div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md mt-3 form-floating">
-                        <input type="text" class="form-control" id="{{ form.complemento.id_for_label }}" name="{{ form.complemento.html_name }}" placeholder="Complemento">
+                        {{ form.complemento }}
                         <label for="{{ form.complemento.id_for_label }}" class="ms-2">Complemento</label>
                     </div>
                     <div class="col-md mt-3 form-floating">
-                        <input type="text" class="form-control required" id="{{ form.bairro.id_for_label }}" name="{{ form.bairro.html_name }}" placeholder="Bairro" required>
+                        {{ form.bairro }}
                         <label for="{{ form.bairro.id_for_label }}" class="ms-2">Bairro <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
                         <div class="invalid-feedback" id="{{ form.bairro.id_for_label }}_feedback"></div>
                     </div>
                     <div class="col-md mt-3 form-floating">
-                        <input type="text" class="form-control required" id="{{ form.cidade.id_for_label }}" name="{{ form.cidade.html_name }}" placeholder="Cidade" required>
+                        {{ form.cidade }}
                         <label for="{{ form.cidade.id_for_label }}" class="ms-2">Cidade <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
                         <div class="invalid-feedback" id="{{ form.cidade.id_for_label }}_feedback"></div>
                     </div>

@@ -6,6 +6,17 @@
 
 {% block content %}
     <div class="container my-5 px-5 align-center">
+        {% if inscricao %}
+            <div class="alert alert-info mb-5" role="alert">
+                <h4 class="alert-heading">As inscrições estão abertas!</h4>
+                <p>Caso ainda não tenha feito a sua, faça agora clicando <a href="{% url 'inscricao' %}" class="alert-link">AQUI</a>.</p>
+                <hr>
+                <p>Você tem até {{ inscricao|date:"d/m/Y" }} às {{ inscricao|date:"H:i" }} para fazer sua inscrição.</p>
+            </div>
+        {% endif %}
+    
+    
+    
         <div class="text-center display-1 border-bottom mb-5">Nossos Cursos</div>
         
         <div class="row">

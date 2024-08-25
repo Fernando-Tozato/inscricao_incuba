@@ -48,44 +48,72 @@ escolaridade_options = [
 
 
 class InscricaoForm(forms.Form):
-    nome = forms.CharField()
-    nome_social = forms.CharField(required=False)
-    nascimento = forms.DateField()
-    cpf = forms.CharField(max_length=14)
-    rg = forms.CharField(max_length=14, required=False)
-    data_emissao = forms.DateField(required=False)
-    orgao_emissor = forms.CharField(required=False)
+    nome = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control required',
+                                                         'placeholder': 'Nome'}))
+    nome_social = forms.CharField(required=False,
+                                  widget=forms.TextInput(attrs={'class': 'form-control',
+                                                                'placeholder': 'Nome social'}))
+    nascimento = forms.DateField(widget=forms.TextInput(attrs={'class': 'form-control required',
+                                                               'placeholder': 'Nascimento'}))
+    cpf = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control required',
+                                                        'placeholder': 'CPF'}))
+    rg = forms.CharField(required=False,
+                         widget=forms.TextInput(attrs={'class': 'form-control',
+                                                       'placeholder': 'RG'}))
+    data_emissao = forms.DateField(required=False,
+                                   widget=forms.TextInput(attrs={'class': 'form-control',
+                                                                 'placeholder': 'Emissão'}))
+    orgao_emissor = forms.CharField(required=False,
+                                    widget=forms.TextInput(attrs={'class': 'form-control',
+                                                                  'placeholder': 'Emissor'}))
     uf_emissao = forms.ChoiceField(choices=UF_options,
                                    required=False,
                                    widget=forms.Select(attrs={'class': 'form-select'}),
                                    initial='')
-    filiacao = forms.CharField()
+    filiacao = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control required',
+                                                             'placeholder': 'Filiação'}))
     escolaridade = forms.ChoiceField(choices=escolaridade_options,
                                      widget=forms.Select(attrs={'class': 'form-select required'}),
                                      initial='')
-    pcd = forms.BooleanField()
-    ps = forms.BooleanField()
+    pcd = forms.BooleanField(required=False,
+                             widget=forms.TextInput(attrs={'class': 'form-check-input required',
+                                                           'role': 'switch'}))
+    ps = forms.BooleanField(required=False,
+                            widget=forms.TextInput(attrs={'class': 'form-check-input required',
+                                                          'role': 'switch'}))
 
-    email = forms.EmailField(required=False)
-    telefone = forms.CharField(required=False)
-    celular = forms.CharField()
+    email = forms.EmailField(required=False,
+                             widget=forms.TextInput(attrs={'class': 'form-control',
+                                                           'placeholder': 'Email'}))
+    telefone = forms.CharField(required=False,
+                               widget=forms.TextInput(attrs={'class': 'form-control',
+                                                             'placeholder': 'Telefone'}))
+    celular = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control required',
+                                                            'placeholder': 'Celular'}))
 
-    cep = forms.CharField()
-    rua = forms.CharField()
-    numero = forms.CharField()
-    complemento = forms.CharField(required=False)
-    bairro = forms.CharField()
-    cidade = forms.CharField()
+    cep = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control required',
+                                                        'placeholder': 'CEP'}))
+    rua = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control required',
+                                                        'placeholder': 'Rua'}))
+    numero = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control required',
+                                                           'placeholder': 'Número'}))
+    complemento = forms.CharField(required=False,
+                                  widget=forms.TextInput(attrs={'class': 'form-control',
+                                                                'placeholder': 'Complemento'}))
+    bairro = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control required',
+                                                           'placeholder': 'Bairro'}))
+    cidade = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control required',
+                                                           'placeholder': 'Cidade'}))
     uf = forms.ChoiceField(choices=UF_options,
                            widget=forms.Select(attrs={'class': 'form-select required'}),
                            initial='')
 
-    curso = forms.ChoiceField()
-    dias = forms.ChoiceField()
-    horario = forms.ChoiceField()
-
-    def __init__(self, *args, **kwargs):
-        super(InscricaoForm, self).__init__(*args, **kwargs)
-        self.fields['uf_emissao'].widget.attrs.update({'class': 'form-select'})
-        self.fields['escolaridade'].widget.attrs.update({'class': 'form-select required'})
-        self.fields['uf'].widget.attrs.update({'class': 'form-select required'})
+    curso = forms.CharField(widget=forms.Select(choices=[('', 'Selecione...')],
+                                                attrs={'class': 'form-select required',
+                                                       'disabled': 'true'}))
+    dias = forms.CharField(widget=forms.Select(choices=[('', 'Selecione...')],
+                                               attrs={'class': 'form-select required',
+                                                      'disabled': 'true'}))
+    horario = forms.CharField(widget=forms.Select(choices=[('', 'Selecione...')],
+                                                  attrs={'class': 'form-select required',
+                                                         'disabled': 'true'}))
