@@ -1,0 +1,42 @@
+{% extends 'bases/base_interno.html' %}
+
+{% block title %}Login{% endblock %}
+
+{% load static %}
+
+{% block content %}
+    <script src="{% static 'js/login.js' %}"></script>
+
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card bg-body-secondary">
+                    <div class="card-body">
+                        <h1 class="mb-3">Login</h1>
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="mb-3 form-floating">
+                                {{ form.username }}
+                                <label for="username">{{ form.username.label }}</label>
+                            </div>
+                            <div class="mb-1 form-floating">
+                                {{ form.password }}
+                                <label for="password">{{ form.password.label }}</label>
+                            </div>
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="togglePassword('password')">
+                                <label class="form-check-label" for="flexSwitchCheckDefault">Mostrar senha</label>
+                            </div>
+                            <div class="col-sm float-end">
+                                <button type="submit" class="btn btn-primary">Login</button>
+                            </div>
+                        </form>
+                        <div class="">
+                            <a href="{% url 'reset_password' %}">Esqueci minha senha</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

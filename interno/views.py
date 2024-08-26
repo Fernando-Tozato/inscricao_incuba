@@ -370,7 +370,7 @@ def login_view(request):
                 return redirect('busca_de_inscrito')
     else:
         form = LoginForm()
-    return render(request, 'interno/login.html', {'form': form})
+    return render(request, 'interno/accounts/login.html', {'form': form})
 
 
 @login_required
@@ -387,7 +387,7 @@ def register_view(request):
             return redirect('login')
     else:
         form = RegisterForm()
-    return render(request, 'interno/register.html', {'form': form})
+    return render(request, 'interno/accounts/register.html', {'form': form})
 
 
 def reset_password_view(request):
@@ -416,11 +416,11 @@ def reset_password_view(request):
                 return redirect('reset_password_sent')
     else:
         form = CustomPasswordResetForm()
-    return render(request, 'interno/password_reset.html', {'form': form})
+    return render(request, 'interno/accounts/password_reset.html', {'form': form})
 
 
 def reset_password_sent_view(request):
-    return render(request, 'interno/password_reset_sent.html')
+    return render(request, 'interno/accounts/password_reset_sent.html')
 
 
 def reset_password_confirm_view(request, uidb64, token):
@@ -442,13 +442,13 @@ def reset_password_confirm_view(request, uidb64, token):
                 return redirect('reset_password_complete')
         else:
             form = CustomSetPasswordForm(user)
-        return render(request, 'interno/password_reset_confirm.html', {'form': form})
+        return render(request, 'interno/accounts/password_reset_confirm.html', {'form': form})
     else:
-        return render(request, 'interno/password_reset_invalid.html')
+        return render(request, 'interno/accounts/password_reset_invalid.html')
 
 
 def reset_password_complete_view(request):
-    return render(request, 'interno/password_reset_complete.html')
+    return render(request, 'interno/accounts/password_reset_complete.html')
 
 
 def planilhas(request):

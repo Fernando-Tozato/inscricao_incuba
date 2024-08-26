@@ -1,0 +1,65 @@
+{% extends 'bases/base_externo.html' %}
+
+{% block title %}Montagem de Computadores{% endblock %}
+
+{% load static %}
+
+{% block content %}
+    <div class="container my-5 px-5">
+        <div class="row">
+            <div class="col-sm px-0 me-sm-3 mb-3 card bg-body-secondary">
+                <div class="card-body">
+                    <h1 class="card-title">Montagem e Manutenção de Computadores</h1>
+                    <p class="card-text">Proporcionar o conhecimento sobre os componentes primordiais e conseguir instalar tarefas para que um computador funcione. Explorar hardware em detalhes e compreender os princípios do software, incluindo prompt de comando.</p>
+                </div>
+            </div>
+            <div class="col-sm px-0 mb-3">
+                <img src="{% static 'img/montagem.jpg' %}" alt="Montagem e Manutenção de Computadores" class="img-fluid rounded">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm px-0 me-sm-3 card bg-body-secondary">
+                <div class="card-body">
+                    <h2 class="card-title">Requisitos:</h2>
+                    <p class="card-text mb-4">
+                        - Idade mínima: 14 anos. <br>
+                        - Escolaridade mínima: Ensino Fundamental I (terminou o 5 ano). <br> 
+                        - Conhecimento básico em informática.
+                    </p>
+                </div>
+            </div>
+            <div class="col-sm px-0 me-sm-3 card bg-body-secondary">
+                <div class="card-body">
+                    <h2 class="card-title">Dias e Horários:</h2>
+                    <div class="row mb-3">
+                        <div class="col-md">
+                            <p class="card-text">Segunda e quarta</p>
+                        </div>
+                        <div class="col-md">
+                            <p class="card-text">
+                                <a href="{% url 'resultado_id' 20 %}">08:40 - 10:40</a><br>
+                                <a href="{% url 'resultado_id' 21 %}">10:50 - 12:50</a><br>
+                                <a href="{% url 'resultado_id' 22 %}">14:00 - 16:00</a><br>
+                                <a href="{% url 'resultado_id' 23 %}">16:10 - 18:10</a><br>
+                                <a href="{% url 'resultado_id' 24 %}">18:20 - 20:20</a>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md">
+                            <p class="card-text">Terça e quinta</p>
+                        </div>
+                        <div class="col-md">
+                            <p class="card-text">
+                                <a href="{% url 'resultado_id' 25 %}">08:40 - 10:40</a><br>
+                                <a href="{% url 'resultado_id' 26 %}">10:50 - 12:50</a><br>
+                                <a href="{% url 'resultado_id' 27 %}">14:00 - 16:00</a><br>
+                                <a href="{% url 'resultado_id' 28 %}">16:10 - 18:10</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

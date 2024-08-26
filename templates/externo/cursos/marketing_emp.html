@@ -1,0 +1,68 @@
+{% extends 'bases/base_externo.html' %}
+
+{% block title %}Marketing Empreendedor{% endblock %}
+
+{% load static %}
+
+{% block content %}
+    <div class="container my-5 px-5">
+        <div class="row">
+            <div class="col-sm px-0 me-sm-3 mb-3 card bg-body-secondary">
+                <div class="card-body">
+                    <h1 class="card-title">Marketing Empreendedor</h1>
+                    <p class="card-text">Aprender a criar perfis de freelancer atrativos, maximizar a remuneração no trabalho home office e dominar estratégias de anúncios online nas principais plataformas, como Facebook, Instagram, Google e YouTube.</p>
+                </div>
+            </div>
+            <div class="col-sm px-0 mb-3">
+                <img src="{% static 'img/marketing_emp.jpg' %}" alt="Marketing Empreendedor" class="img-fluid rounded">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm px-0 me-sm-3 card bg-body-secondary">
+                <div class="card-body">
+                    <h2 class="card-title">Requisitos:</h2>
+                    <p class="card-text mb-4">
+                        - Idade mínima: 16 anos. <br>
+                        - Escolaridade mínima: Ensino Fundamental II (terminou o 9 ano). 
+                    </p>
+                </div>
+            </div>
+            <div class="col-sm px-0 me-sm-3 card bg-body-secondary">
+                <div class="card-body">
+                    <h2 class="card-title">Dias e Horários:</h2>
+                    <div class="row mb-3">
+                        <div class="col-md">
+                            <p class="card-text">Terça</p>
+                        </div>
+                        <div class="col-md">
+                            <p class="card-text">
+                                <a href="{% url 'resultado_id' 61 %}">13:00 - 16:00</a>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md">
+                            <p class="card-text">Quinta</p>
+                        </div>
+                        <div class="col-md">
+                            <p class="card-text">
+                                <a href="{% url 'resultado_id' 62 %}">09:00 - 12:00</a><br>
+                                <a href="{% url 'resultado_id' 63 %}">17:30 - 20:30</a>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md">
+                            <p class="card-text">Sexta</p>
+                        </div>
+                        <div class="col-md">
+                            <p class="card-text">
+                                <a href="{% url 'resultado_id' 64 %}">13:00 - 16:00</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

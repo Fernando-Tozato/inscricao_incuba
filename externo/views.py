@@ -185,43 +185,43 @@ def resultado_id(request, id_turma):
 
 
 def design(request):
-    return render(request, 'cursos/design.html')
+    return render(request, 'externo/cursos/design.html')
 
 
 def educacao(request):
-    return render(request, 'cursos/educacao.html')
+    return render(request, 'externo/cursos/educacao.html')
 
 
 def excel(request):
-    return render(request, 'cursos/excel.html')
+    return render(request, 'externo/cursos/excel.html')
 
 
 def gestao(request):
-    return render(request, 'cursos/gestao.html')
+    return render(request, 'externo/cursos/gestao.html')
 
 
 def info_basica(request):
-    return render(request, 'cursos/info_basica.html')
+    return render(request, 'externo/cursos/info_basica.html')
 
 
 def info_melhor_idade(request):
-    return render(request, 'cursos/info_melhor_idade.html')
+    return render(request, 'externo/cursos/info_melhor_idade.html')
 
 
 def marketing_digital(request):
-    return render(request, 'cursos/marketing_digital.html')
+    return render(request, 'externo/cursos/marketing_digital.html')
 
 
 def marketing_emp(request):
-    return render(request, 'cursos/marketing_emp.html')
+    return render(request, 'externo/cursos/marketing_emp.html')
 
 
 def montagem(request):
-    return render(request, 'cursos/montagem.html')
+    return render(request, 'externo/cursos/montagem.html')
 
 
 def robotica(request):
-    return render(request, 'cursos/robotica.html')
+    return render(request, 'externo/cursos/robotica.html')
 
 
 def download_validadores(request):
