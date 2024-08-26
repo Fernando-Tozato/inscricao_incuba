@@ -3,7 +3,7 @@ import os
 import threading
 import time
 import zipfile
-from datetime import datetime
+import datetime
 from io import BytesIO
 
 from django.conf import settings
@@ -12,6 +12,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.tokens import default_token_generator
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMultiAlternatives
+from django.db.utils import IntegrityError
 from django.db.models import Sum
 from django.http import HttpResponse, Http404
 from django.http import JsonResponse
@@ -20,7 +21,9 @@ from django.utils import timezone
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views.decorators.csrf import csrf_protect
+from unidecode import unidecode
 
+from externo.functions import get_turmas_as_json
 from .forms import *
 from .tasks import *
 
@@ -47,13 +50,11 @@ def loop(request):
             # num_inscritos_por_thread = len(inscritos) // num_threads
             # threads = []
 
-            # for i in range(num_threads):
-            #     thread = threading.Thread(target=avisar_sorteados, args=[request, inscritos[num_inscritos_por_thread * i: num_inscritos_por_thread * (i + 1)]])
-            #     threads.append(thread)
+            # for i in range(num_threads): thread = threading.Thread(target=avisar_sorteados, args=[request,
+            # inscritos[num_inscritos_por_thread * i: num_inscritos_por_thread * (i + 1)]]) threads.append(thread)
 
-            #     if i + 1 == num_threads:
-            #         thread = threading.Thread(target=avisar_sorteados, args=[request, inscritos[num_inscritos_por_thread * (i + 1):]])
-            #         threads.append(thread)
+            # if i + 1 == num_threads: thread = threading.Thread(target=avisar_sorteados, args=[request, inscritos[
+            # num_inscritos_por_thread * (i + 1):]]) threads.append(thread)
 
             # for thread in threads:
             #     thread.daemon = True
@@ -109,6 +110,106 @@ def busca_de_inscrito(request):
                       {'inscritos': inscritos, 'busca': valor, 'vagas': vagas})
     else:
         return render(request, 'interno/busca_de_inscrito.html', {'vagas': vagas})
+
+
+def matricula(request, inscrito_id=None):
+    turmas: str = get_turmas_as_json(['curso', 'dias', 'horario', 'idade', 'escolaridade'])
+    context: dict[str: str | MatriculaForm] = {'turmas': turmas}
+
+    if request.method == 'POST':
+        form = MatriculaForm(request.POST, inscrito=get_object_or_404(Inscrito, id=inscrito_id) if inscrito_id else None)
+        print(request.POST)
+
+        if form.is_valid():
+            print('valid')
+            nome = form.cleaned_data['nome']
+            nome_pesquisa = unidecode(form.cleaned_data['nome'].upper())
+            nome_social = form.cleaned_data['nome_social']
+            nome_social_pesquisa = unidecode(form.cleaned_data['nome_social'].upper())
+            nascimento = form.cleaned_data['nascimento']
+            cpf = form.cleaned_data['cpf']
+            rg = form.cleaned_data['rg']
+            data_emissao = form.cleaned_data['data_emissao']
+            orgao_emissor = form.cleaned_data['orgao_emissor']
+            uf_emissao = form.cleaned_data['uf_emissao']
+            filiacao = form.cleaned_data['filiacao']
+            escolaridade = form.cleaned_data['escolaridade']
+            observacoes = form.cleaned_data['observacoes']
+            email = form.cleaned_data['email']
+            telefone = form.cleaned_data['telefone']
+            celular = form.cleaned_data['celular']
+            cep = form.cleaned_data['cep']
+            rua = form.cleaned_data['rua']
+            numero = form.cleaned_data['numero']
+            complemento = form.cleaned_data['complemento']
+            bairro = form.cleaned_data['bairro']
+            cidade = form.cleaned_data['cidade']
+            uf = form.cleaned_data['uf']
+            pcd = form.cleaned_data['pcd']
+            ps = form.cleaned_data['ps']
+            curso = form.cleaned_data['curso']
+            dias = form.cleaned_data['dias']
+            horario = form.cleaned_data['horario']
+
+            horario_entrada = horario[:5]
+            horario_saida = horario[8:]
+
+            id_turma = Turma.objects.filter(
+                Q(curso=curso) &
+                Q(dias=dias) &
+                Q(horario_entrada=horario_entrada) &
+                Q(horario_saida=horario_saida)
+            )[0]
+
+            aluno = Aluno(
+                nome=nome,
+                nome_pesquisa=nome_pesquisa,
+                nome_social=nome_social if nome_social != '' else None,
+                nome_social_pesquisa=nome_social_pesquisa if nome_social_pesquisa != '' else None,
+                nascimento=datetime.datetime.strptime(nascimento, '%d/%m/%Y'),
+                cpf=cpf,
+                rg=rg if rg != '' else None,
+                data_emissao=datetime.datetime.strptime(data_emissao, '%d/%m/%Y') if data_emissao != '' else None,
+                orgao_emissor=orgao_emissor if orgao_emissor != '' else None,
+                uf_emissao=uf_emissao if uf_emissao != '' else None,
+                filiacao=filiacao,
+                escolaridade=escolaridade if observacoes != '' else None,
+                observacoes=observacoes,
+                email=email if email != '' else None,
+                telefone=telefone if telefone != '' else None,
+                celular=celular if celular != '' else None,
+                cep=cep,
+                rua=rua,
+                numero=numero,
+                complemento=complemento if complemento != '' else None,
+                bairro=bairro,
+                cidade=cidade,
+                uf=uf,
+                pcd=pcd,
+                ps=ps,
+                ja_sorteado=False,
+                id_turma=id_turma
+            )
+
+            try:
+                aluno.full_clean()
+                aluno.save()
+            except ValidationError as e:
+                return JsonResponse({'error': e}, status=400)
+            except IntegrityError as e:
+                return JsonResponse({'error': e}, status=400)
+            except Exception as e:
+                return JsonResponse({'error': e}, status=400)
+            finally:
+                return redirect('enviado_int')
+
+        else:
+            print('invalid')
+            print(form.errors )
+            context.update({'form': form})
+    else:
+        context.update({'form': MatriculaForm(inscrito=get_object_or_404(Inscrito, id=inscrito_id) if inscrito_id else None)})
+    return render(request, 'interno/matricula.html', context)
 
 
 def matricula_novo(request):

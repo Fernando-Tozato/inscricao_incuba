@@ -1,9 +1,9 @@
+import datetime
 import json
 import os
 import zipfile
 from io import BytesIO
 
-from unidecode import unidecode
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db.models import Q
@@ -12,7 +12,7 @@ from django.http import HttpResponse, Http404
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
-from django.views.decorators.csrf import csrf_protect
+from unidecode import unidecode
 
 from database.models import *
 from externo.forms import InscricaoForm
@@ -83,10 +83,10 @@ def inscricao(request):
                 nome_pesquisa=nome_pesquisa,
                 nome_social=nome_social if nome_social != '' else None,
                 nome_social_pesquisa=nome_social_pesquisa if nome_social_pesquisa != '' else None,
-                nascimento=nascimento,
+                nascimento=datetime.datetime.strptime(nascimento, '%d/%m/%Y'),
                 cpf=cpf,
                 rg=rg if rg != '' else None,
-                data_emissao=data_emissao if data_emissao != '' else None,
+                data_emissao=datetime.datetime.strptime(data_emissao, '%d/%m/%Y') if data_emissao != '' else None,
                 orgao_emissor=orgao_emissor if orgao_emissor != '' else None,
                 uf_emissao=uf_emissao if uf_emissao != '' else None,
                 filiacao=filiacao,
@@ -121,7 +121,6 @@ def inscricao(request):
 
         else:
             context.update({'form': form})
-
     else:
         agora = timezone.now()
         controle = Controle.objects.first()

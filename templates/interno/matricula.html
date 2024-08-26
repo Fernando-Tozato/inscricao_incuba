@@ -1,6 +1,6 @@
-{% extends 'bases/base_externo.html' %}
+{% extends 'bases/base_interno.html' %}
 
-{% block title %}Inscrição{% endblock %}
+{% block title %}Matrícula{% endblock %}
 
 {% load static %}
 
@@ -10,15 +10,18 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
     <script src="{% static 'js/mascaras.js' %}"></script>
     <script src="{% static 'js/validacao.js' %}"></script>
+    <script src="{% static 'js/matricula.js' %}"></script>
     <script type="text/javascript">
         window.turmas = {{ turmas|safe }};
     </script>
     <script src="{% static 'js/inscricao_e_matricula.js' %}"></script>
 
+    {{ form.turma }}
+
     <div class="container my-5 px-5">
         <form method="post" class="needs-validation">
             {% csrf_token %}
-            
+
             <div class="p-5 mb-5 border bg-body-secondary text-body-secondary rounded">
                 <h2>Informações Pessoais</h2>
 
@@ -95,6 +98,12 @@
                         <label class="form-check-label" for="{{ form.ps.id_for_label }}">Participa de Programa Social?</label>
                     </div>
                 </div>
+                <div class="row">
+                    <div class="col-sm mt-3 form-floating">
+                        {{ form.observacoes }}
+                        <label for="{{ form.observacoes.id_for_label }}" class="ms-2">Observações</label>
+                    </div>
+                </div>
 
                 <span class="mt-4 badge text-bg-danger" id="danger_badge">Os itens marcados com<i class="fa-solid fa-asterisk" style="color: #ffffff;"></i> são obrigatórios!</span>
             </div>
@@ -122,7 +131,7 @@
                         <div class="form-text" id="cel_placeholder"></div>
                     </div>
                 </div>
-    
+
                 <span class="mt-4 badge text-bg-danger" id="danger_badge">Os itens marcados com<i class="fa-solid fa-asterisk" style="color: #ffffff;"></i> são obrigatórios!</span>
             </div>
 
@@ -211,7 +220,7 @@
 
                 <span class="mt-4 badge text-bg-danger" id="danger_badge">Os itens marcados com<i class="fa-solid fa-asterisk" style="color: #ffffff;"></i> são obrigatórios!</span>
             </div>
-            
+
             <div class="container align-items-center my-3">
                 <div class="row">
                     <div class="col-xl-10 col-md-8 col-6 mt-3 form-check">

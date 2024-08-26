@@ -3,9 +3,8 @@ from .views import *
 
 urlpatterns = [
     path('', busca_de_inscrito, name='busca_de_inscrito'),
-    path('matricula/novo/', matricula_novo, name='matricula_novo'),
-    path('matricula/existente/<int:inscrito_id>/', matricula_existente, name='matricula_existente'),
-    path('matricula/criar/', matricula_criar, name='matricula_criar'),
+    path('matricula/', matricula, name='matricula'),
+    path('matricula/<int:inscrito_id>/', matricula, name='matricula_inscrito'),
     path('verificar_cpf/', verificar_cpf, name='verificar_cpf'),
     path('enviado/', enviado, name='enviado_int'),
     path('turma/', turma, name='turma'),

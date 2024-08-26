@@ -165,6 +165,12 @@ document.addEventListener('DOMContentLoaded', function ()  {
         }
         add_options(select_horario, horarios);
     });
+
+    if(document.getElementById('id_turma').value !== '') {
+        input_nascimento.dispatchEvent(new Event('blur'));
+        select_escolaridade.dispatchEvent(new Event('blur'));
+        renderizar_turma();
+    }
 });
 
 function definir_cursos(){
@@ -193,7 +199,6 @@ function add_options(select, options){
         select.appendChild(new_opt);
     }
     select.disabled = false;
-    console.log(select.disabled)
 }
 
 function preparar_campos() {
