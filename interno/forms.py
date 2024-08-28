@@ -82,7 +82,8 @@ class MatriculaForm(forms.Form):
                                                   attrs={'class': 'form-select required',
                                                          'disabled': 'true'}))
 
-    turma = forms.CharField(widget=forms.TextInput(attrs={'class': 'd-none'}))
+    turma = forms.CharField(required=False,
+                            widget=forms.TextInput(attrs={'class': 'd-none'}))
 
     def __init__(self, *args, **kwargs):
         inscrito: Inscrito | None = kwargs.pop('inscrito', None)
@@ -112,6 +113,11 @@ class MatriculaForm(forms.Form):
             self.fields['cidade'].initial = inscrito.cidade
             self.fields['uf'].initial = inscrito.uf
             self.fields['turma'].initial = inscrito.id_turma.pk
+
+
+class BuscaForm(forms.Form):
+    busca = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control',
+                                                          'placeholder': 'Busca'}))
 
 
 class LoginForm(forms.Form):

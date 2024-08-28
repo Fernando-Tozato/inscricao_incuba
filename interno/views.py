@@ -1,22 +1,24 @@
+import datetime
 import json
 import os
+import re
 import threading
 import time
 import zipfile
-import datetime
 from io import BytesIO
 
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.tokens import default_token_generator
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMultiAlternatives
-from django.db.utils import IntegrityError
 from django.db.models import Sum
+from django.db.utils import IntegrityError
 from django.http import HttpResponse, Http404
 from django.http import JsonResponse
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -77,47 +79,46 @@ def loop(request):
 
 @login_required
 def busca_de_inscrito(request):
-    parametro = request.GET.get('parametro', '')
-    valor = request.GET.get('valor', '')
-
     vagas = Turma.objects.values('curso').annotate(vagas=(Sum('vagas') - Sum('num_alunos')))
 
-    agora = timezone.now()
-    matricula_geral = timezone.localtime(Controle.objects.first().matricula_geral)  # type: ignore
+    context = {'vagas': vagas}
 
-    if parametro and valor:
-        if parametro == 'nome':
-            resultados_nome_social = Inscrito.objects.filter(nome_social_pesquisa__contains=valor)
-            resultados_nome = Inscrito.objects.filter(nome_pesquisa__contains=valor).filter(
-                Q(nome_social='') | Q(nome_social__isnull=True))
-            inscritos = resultados_nome_social | resultados_nome
-            valor = valor.capitalize()
+    if request.method == 'POST':
+        form = BuscaForm(request.POST)
+        if form.is_valid():
+            busca = form.cleaned_data['busca']
 
-        elif parametro == 'cpf':
-            inscritos = Inscrito.objects.filter(cpf__contains=valor)
-            if len(valor) in [3, 7]:
-                valor += '.'
-            elif len(valor) == 11:
-                valor += '-'
+            if any(char.isalpha() for char in busca):
+                busca = unidecode(busca.upper())
+                resultados_nome_social = Inscrito.objects.filter(nome_social_pesquisa__contains=busca)
+                resultados_nome = (Inscrito.objects.filter(nome_pesquisa__contains=busca)
+                                   .filter(Q(nome_social='') | Q(nome_social__isnull=True)))
+                inscritos = resultados_nome_social | resultados_nome
+            else:
+                busca = re.sub(r'\D', '', busca)
 
-        else:
-            return JsonResponse({'error': 'Parâmetro não suportado.'}, status=405)
+                inscritos = Inscrito.objects.filter(cpf__contains=busca)
 
-        if agora < matricula_geral:
-            inscritos = inscritos.filter(ja_sorteado=True)
-
-        return render(request, 'interno/busca_de_inscrito.html',
-                      {'inscritos': inscritos, 'busca': valor, 'vagas': vagas})
+            if len(inscritos) == 0:
+                inscritos = {'erro': 'Nenhum inscrito encontrado.'}
+            else:
+                inscritos = inscritos.exclude(cpf__in=Aluno.objects.values_list('cpf', flat=True))
+            context.update({'inscritos': inscritos})
+        context.update({'form': form})
     else:
-        return render(request, 'interno/busca_de_inscrito.html', {'vagas': vagas})
+        context.update({'form': BuscaForm})
+    return render(request, 'interno/busca_de_inscrito.html', context)
 
 
+@login_required
 def matricula(request, inscrito_id=None):
     turmas: str = get_turmas_as_json(['curso', 'dias', 'horario', 'idade', 'escolaridade'])
     context: dict[str: str | MatriculaForm] = {'turmas': turmas}
 
     if request.method == 'POST':
         form = MatriculaForm(request.POST, inscrito=get_object_or_404(Inscrito, id=inscrito_id) if inscrito_id else None)
+        context.update({'form': form})
+
         print(request.POST)
 
         if form.is_valid():
@@ -167,107 +168,14 @@ def matricula(request, inscrito_id=None):
                 nome_social=nome_social if nome_social != '' else None,
                 nome_social_pesquisa=nome_social_pesquisa if nome_social_pesquisa != '' else None,
                 nascimento=datetime.datetime.strptime(nascimento, '%d/%m/%Y'),
-                cpf=cpf,
+                cpf=re.sub(r'\D', '', cpf),
                 rg=rg if rg != '' else None,
                 data_emissao=datetime.datetime.strptime(data_emissao, '%d/%m/%Y') if data_emissao != '' else None,
                 orgao_emissor=orgao_emissor if orgao_emissor != '' else None,
                 uf_emissao=uf_emissao if uf_emissao != '' else None,
                 filiacao=filiacao,
-                escolaridade=escolaridade if observacoes != '' else None,
-                observacoes=observacoes,
-                email=email if email != '' else None,
-                telefone=telefone if telefone != '' else None,
-                celular=celular if celular != '' else None,
-                cep=cep,
-                rua=rua,
-                numero=numero,
-                complemento=complemento if complemento != '' else None,
-                bairro=bairro,
-                cidade=cidade,
-                uf=uf,
-                pcd=pcd,
-                ps=ps,
-                ja_sorteado=False,
-                id_turma=id_turma
-            )
-
-            try:
-                aluno.full_clean()
-                aluno.save()
-            except ValidationError as e:
-                return JsonResponse({'error': e}, status=400)
-            except IntegrityError as e:
-                return JsonResponse({'error': e}, status=400)
-            except Exception as e:
-                return JsonResponse({'error': e}, status=400)
-            finally:
-                return redirect('enviado_int')
-
-        else:
-            print('invalid')
-            print(form.errors )
-            context.update({'form': form})
-    else:
-        context.update({'form': MatriculaForm(inscrito=get_object_or_404(Inscrito, id=inscrito_id) if inscrito_id else None)})
-    return render(request, 'interno/matricula.html', context)
-
-
-def matricula_novo(request):
-    return render(request, 'interno/matricula_novo.html')
-
-
-def matricula_existente(request, inscrito_id):
-    inscrito = get_object_or_404(Inscrito, id=inscrito_id)
-    turma = inscrito.id_turma
-    return render(request, 'interno/matricula_existente.html', {'inscrito': inscrito, 'turma': turma})
-
-
-@csrf_protect
-def matricula_criar(request):
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-
-            nome = data['nome']
-            nome_pesquisa = data['nome_pesquisa']
-            nome_social = data['nome_social']
-            nome_social_pesquisa = data['nome_social_pesquisa']
-            nascimento = data['nascimento']
-            cpf = data['cpf']
-            rg = data['rg']
-            data_emissao = data['data_emissao']
-            orgao_emissor = data['orgao_emissor']
-            uf_emissao = data['uf_emissao']
-            filiacao = data['filiacao']
-            escolaridade = data['escolaridade']
-            email = data['email']
-            telefone = data['telefone']
-            celular = data['celular']
-            cep = data['cep']
-            rua = data['rua']
-            numero = data['numero']
-            complemento = data['complemento']
-            bairro = data['bairro']
-            cidade = data['cidade']
-            uf = data['uf']
-            pcd = data['pcd']
-            ps = data['ps']
-            observacoes = data['observacoes']
-            id_turma = Turma.objects.filter(pk=data['id_turma'])[0]
-
-            aluno = Aluno(
-                nome=nome,
-                nome_pesquisa=nome_pesquisa,
-                nome_social=nome_social if nome_social != '' else None,
-                nome_social_pesquisa=nome_social_pesquisa if nome_social_pesquisa != '' else None,
-                nascimento=nascimento,
-                cpf=cpf,
-                rg=rg if rg != '' else None,
-                data_emissao=data_emissao if data_emissao != '' else None,
-                orgao_emissor=orgao_emissor if orgao_emissor != '' else None,
-                uf_emissao=uf_emissao if uf_emissao != '' else None,
-                filiacao=filiacao,
                 escolaridade=escolaridade,
+                observacoes=observacoes if observacoes != '' else None,
                 email=email if email != '' else None,
                 telefone=telefone if telefone != '' else None,
                 celular=celular if celular != '' else None,
@@ -280,40 +188,32 @@ def matricula_criar(request):
                 uf=uf,
                 pcd=pcd,
                 ps=ps,
-                observacoes=observacoes,
                 id_turma=id_turma
             )
 
             id_turma.num_alunos += 1
 
             try:
+                aluno.full_clean()
                 aluno.save()
+
+                id_turma.full_clean()
                 id_turma.save()
-                return JsonResponse({'success': 'Sucesso no envio'}, status=200)
             except ValidationError as e:
-                return JsonResponse({'error': e.message_dict}, status=400)
-        except json.JSONDecodeError:
-            return JsonResponse({'error': 'Dados JSON inválidos'}, status=400)
-    else:
-        return JsonResponse({'error': 'Método não permitido.'}, status=405)
-
-
-@csrf_protect
-def verificar_cpf(request):
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            cpf = data['cpf']
-            aluno = Aluno.objects.filter(cpf=cpf)
-
-            if len(aluno) == 0:
-                return JsonResponse({'response': False}, status=200)
+                messages.error(request, f'Aluno já matriculado.')
+            except IntegrityError as e:
+                messages.error(request, f'Erro de integridade: {e}')
+            except Exception as e:
+                messages.error(request, f'Erro: {e}')
             else:
-                return JsonResponse({'response': True}, status=200)
-        except json.JSONDecodeError:
-            return JsonResponse({'error': 'Dados JSON inválidos'}, status=400)
+                return render(request, 'interno/enviado_int.html')
+
+        else:
+            print('invalid')
+            print(form.errors)
     else:
-        return JsonResponse({'error': 'Método não permitido.'}, status=405)
+        context.update({'form': MatriculaForm(inscrito=get_object_or_404(Inscrito, id=inscrito_id) if inscrito_id else None)})
+    return render(request, 'interno/matricula.html', context)
 
 
 @login_required

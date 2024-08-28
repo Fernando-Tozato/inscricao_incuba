@@ -5,10 +5,6 @@
 {% load static %}
 
 {% block content %}
-    <script src="{% static 'js/busca_inscritos.js' %}"></script>
-
-    <div class="d-none" id="token">{% csrf_token %}</div>
-
     <div class="container my-5 px-5">
         {% if vagas %}
         <div class="p-4 mb-5 border bg-body-secondary text-body-secondary rounded">
@@ -32,45 +28,59 @@
         </div>
         {% endif %}
         <div class="p-4 mb-5 border bg-body-secondary text-body-secondary rounded">
-            <label for="busca" class="form-label">Digite o nome ou CPF:</label>
-            <div class="input-group mb-3">
-                <i class="fa-solid fa-magnifying-glass input-group-text" id="basic-addon3"></i>
-                <input type="text" class="form-control" id="busca" aria-describedby="basic-addon3" oninput="buscar(this)" value="{{ busca }}">
-            </div>
-            <div class="form-text">Caso tenha nome social, busque pelo nome social e não pelo civil. Se a busca for efetuada por CPF, não digite os pontos e traço.</div>
+            <form method="post">
+                {% csrf_token %}
+                <div class="row g-3">
+                    <div class="input-group col-auto w-75">
+                        <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+                        <div class="form-floating">
+                            {{ form.busca }}
+                            <label for="{{ form.busca.id_for_label }}">Digite o nome ou CPF</label>
+                        </div>
+                    </div>
+                    <div class="col-auto w-25 position-relative">
+                         <button class="btn btn-lg btn-primary position-absolute top-50 start-50 translate-middle" type="submit">Buscar</button>
+                    </div>
+                </div>
+                <div class="form-text row">Caso tenha nome social, busque pelo nome social e não pelo civil. Se a busca for efetuada por CPF, não digite os pontos e traço.</div>
+            </form>
         </div>
         <div class="p-4 mb-5 border bg-body-secondary text-body-secondary rounded">
             {% if inscritos %}
-                <ul class="justify-content-center list-group" id="resultado_pesquisa">
-                    {% for inscrito in inscritos %}
-                        <li class="list-group-item">
-                            <a href="{% url 'matricula_existente' inscrito.id %}" style="text-decoration: none;" class="text-body-secondary">
-                                {% if inscrito.nome_social %}
-                                    <h1>{{ inscrito.nome_social }}</h1>
-                                {% else %}
-                                    <h1>{{ inscrito.nome }}</h1>
-                                {% endif %}
-                                <div class="row">
-                                    <div class="col-md">
-                                        <h4>{{ inscrito.filiacao }}</h4>
+                {% if inscritos.erro %}
+                    <h3>{{ inscritos.erro }}</h3>
+                {% else %}    
+                    <ul class="justify-content-center list-group" id="resultado_pesquisa">
+                        {% for inscrito in inscritos %}
+                            <li class="list-group-item">
+                                <a href="/interno/matricula/{{ inscrito.id }}/" style="text-decoration: none;" class="text-body-secondary">
+                                    {% if inscrito.nome_social %}
+                                        <h1>{{ inscrito.nome_social }}</h1>
+                                    {% else %}
+                                        <h1>{{ inscrito.nome }}</h1>
+                                    {% endif %}
+                                    <div class="row">
+                                        <div class="col-md">
+                                            <h4>{{ inscrito.filiacao }}</h4>
+                                        </div>
+                                        <div class="col-md">
+                                            <h4>{{ inscrito.cpf_formatado }}</h4>
+                                        </div>
+                                        <div class="col-md">
+                                            <h4>{{ inscrito.nascimento }}</h4>
+                                        </div>
                                     </div>
-                                    <div class="col-md">
-                                        <h4>{{ inscrito.cpf }}</h4>
-                                    </div>
-                                    <div class="col-md">
-                                        <h4>{{ inscrito.nascimento }}</h4>
-                                    </div>
-                                </div>
-                            </a>
-                        </li>
-                    {% endfor %}
-                </ul>
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}    
             {% else %}
                 <h3>Faça uma busca para começar a mostrar resultados.</h3>
             {% endif %}
         </div>
         <div class="container align-items-center float-end">
-            <a href="{% url 'matricula_novo' %}" class="btn btn-primary float-end">Aluno não inscrito</a>
+            <a href="/interno/matricula/" class="btn btn-primary float-end">Aluno não inscrito</a>
         </div>
     </div>
 {% endblock %}

@@ -1,10 +1,12 @@
 import datetime
 import json
+import re
 import os
 import zipfile
 from io import BytesIO
 
 from django.conf import settings
+from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.db.utils import IntegrityError
@@ -16,7 +18,7 @@ from unidecode import unidecode
 
 from database.models import *
 from externo.forms import InscricaoForm
-from externo.functions import get_turmas_as_json
+from externo.functions import *
 
 
 def home(request):
@@ -39,6 +41,7 @@ def inscricao(request):
 
     if request.method == 'POST':
         form = InscricaoForm(request.POST)
+        context.update({'form': form})
         if form.is_valid():
             nome = form.cleaned_data['nome']
             nome_pesquisa = unidecode(form.cleaned_data['nome'].upper())
@@ -78,13 +81,15 @@ def inscricao(request):
                 Q(horario_saida=horario_saida)
             )[0]
 
+            numero_inscricao = gerar_numero_inscricao(nome, cpf, nascimento)
+
             inscrito = Inscrito(
                 nome=nome,
                 nome_pesquisa=nome_pesquisa,
                 nome_social=nome_social if nome_social != '' else None,
                 nome_social_pesquisa=nome_social_pesquisa if nome_social_pesquisa != '' else None,
                 nascimento=datetime.datetime.strptime(nascimento, '%d/%m/%Y'),
-                cpf=cpf,
+                cpf=re.sub(r'\D', '', cpf),
                 rg=rg if rg != '' else None,
                 data_emissao=datetime.datetime.strptime(data_emissao, '%d/%m/%Y') if data_emissao != '' else None,
                 orgao_emissor=orgao_emissor if orgao_emissor != '' else None,
@@ -104,23 +109,22 @@ def inscricao(request):
                 pcd=pcd,
                 ps=ps,
                 ja_sorteado=False,
-                id_turma=id_turma
+                id_turma=id_turma,
+                numero_inscricao=numero_inscricao
             )
 
             try:
                 inscrito.full_clean()
                 inscrito.save()
             except ValidationError as e:
-                return JsonResponse({'error': e}, status=400)
+                messages.error(request, f'Candidato já inscrito.')
             except IntegrityError as e:
-                return JsonResponse({'error': e}, status=400)
+                messages.error(request, f'Houve um problema com os dados inseridos. Volte à página inicial, depois abra um formulário de inscrição em branco e preencha os campos novamente.')
             except Exception as e:
-                return JsonResponse({'error': e}, status=400)
-            finally:
-                return redirect('enviado_ext')
+                messages.error(request, f'Erro: {e}')
+            else:
+                return render(request, 'externo/enviado_ext.html', {'inscricao': numero_inscricao})
 
-        else:
-            context.update({'form': form})
     else:
         agora = timezone.now()
         controle = Controle.objects.first()

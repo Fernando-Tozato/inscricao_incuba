@@ -5,7 +5,6 @@ urlpatterns = [
     path('', busca_de_inscrito, name='busca_de_inscrito'),
     path('matricula/', matricula, name='matricula'),
     path('matricula/<int:inscrito_id>/', matricula, name='matricula_inscrito'),
-    path('verificar_cpf/', verificar_cpf, name='verificar_cpf'),
     path('enviado/', enviado, name='enviado_int'),
     path('turma/', turma, name='turma'),
     path('turma/novo/', turma_novo, name='turma_novo'),

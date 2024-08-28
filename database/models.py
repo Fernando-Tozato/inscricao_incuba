@@ -49,6 +49,10 @@ class Inscrito(models.Model):
     ps = models.BooleanField(default=False)
     ja_sorteado = models.BooleanField(default=False)
     id_turma = models.ForeignKey(Turma, on_delete=models.CASCADE)
+    numero_inscricao = models.CharField(max_length=14)
+
+    def cpf_formatado(self):
+        return f"{self.cpf[:3]}.{self.cpf[3:6]}.{self.cpf[6:9]}-{self.cpf[9:]}"
 
 
 class Aluno(models.Model):
