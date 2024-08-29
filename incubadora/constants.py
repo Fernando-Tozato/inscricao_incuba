@@ -1,0 +1,20 @@
+UF_OPTIONS: list[tuple[str]] = [('', 'Selecione...'),
+                                ('AC', 'AC'), ('AL', 'AL'), ('AP', 'AP'),
+                                ('AM', 'AM'), ('BA', 'BA'), ('CE', 'CE'),
+                                ('DF', 'DF'), ('ES', 'ES'), ('GO', 'GO'),
+                                ('MA', 'MA'), ('MT', 'MT'), ('MS', 'MS'),
+                                ('MG', 'MG'), ('PA', 'PA'), ('PB', 'PB'),
+                                ('PR', 'PR'), ('PE', 'PE'), ('PI', 'PI'),
+                                ('RJ', 'RJ'), ('RN', 'RN'), ('RS', 'RS'),
+                                ('RO', 'RO'), ('RR', 'RR'), ('SC', 'SC'),
+                                ('SP', 'SP'), ('SE', 'SE'), ('TO', 'TO')]
+
+ESCOLARIDADE_OPTIONS: list[tuple[str]] = [('', 'Selecione...'),
+                                          ('1', 'Não Alfabetizado'), ('2', 'Alfabetização'),
+                                          ('3', 'Ensino Fundamental 1 Incompleto'),
+                                          ('4', 'Ensino Fundamental 1 Completo'),
+                                          ('5', 'Ensino Fundamental 2 Incompleto'),
+                                          ('6', 'Ensino Fundamental 2 Completo'),
+                                          ('7', 'Ensino Médio Incompleto'), ('8', 'Ensino Médio Completo'),
+                                          ('9', 'Ensino Superior Incompleto'), ('10', 'Ensino Superior Completo'),
+                                          ('11', 'Pós-graduação Completa')]

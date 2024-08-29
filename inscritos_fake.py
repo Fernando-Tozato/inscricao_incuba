@@ -1,8 +1,11 @@
-import random, django, os
-from faker import Faker
-from django.shortcuts import get_object_or_404
-from unidecode import unidecode
+import django
+import os
+import random
 from datetime import datetime
+
+from django.shortcuts import get_object_or_404
+from faker import Faker
+from unidecode import unidecode
 
 fake = Faker('pt_BR')
 
@@ -14,6 +17,7 @@ from database.models import Inscrito, Turma
 # Definindo algumas constantes
 NUM_TURMAS = 64
 INSCRITOS_POR_TURMA = 100
+
 
 def generate_and_insert_data():
     for id_turma in range(1, NUM_TURMAS + 1):
@@ -35,7 +39,7 @@ def generate_and_insert_data():
             uf = fake.estado_sigla()
             pcd = fake.boolean(chance_of_getting_true=20)
             ps = fake.boolean(chance_of_getting_true=10)
-            
+
             nome_social = None
             nome_social_pesquisa = None
             if fake.boolean(chance_of_getting_true=20):
@@ -51,9 +55,9 @@ def generate_and_insert_data():
                 data_emissao = fake.date_between(start_date='-30y', end_date='-18y')
                 orgao_emissor = fake.random_element(elements=('SSP', 'DETRAN', 'IFP', 'OAB'))
                 uf_emissao = fake.estado_sigla()
-            
+
             turma = get_object_or_404(Turma, id=id_turma)
-            
+
             inscrito = Inscrito(
                 nome=nome,
                 nome_pesquisa=nome_pesquisa,
@@ -80,11 +84,12 @@ def generate_and_insert_data():
                 ps=ps,
                 id_turma=turma
             )
-            
+
             try:
                 inscrito.save()
             except:
                 continue
+
 
 if __name__ == '__main__':
     start = datetime.now()

@@ -1,0 +1,134 @@
+{% extends 'bases/base_externo.html' %}
+
+{% block title %}Incubadora de Robótica{% endblock %}
+
+{% load static %}
+
+{% block content %}
+    <div class="container my-5 px-5 align-center">
+        {% if inscricao %}
+            <div class="alert alert-info mb-5" role="alert">
+                <h4 class="alert-heading">As inscrições estão abertas!</h4>
+                <p>Caso ainda não tenha feito a sua, faça agora clicando <a href="{% url 'inscricao' %}" class="alert-link">AQUI</a>.</p>
+                <hr>
+                <p>Você tem até {{ inscricao|date:"d/m/Y" }} às {{ inscricao|date:"H:i" }} para fazer sua inscrição.</p>
+            </div>
+        {% endif %}
+    
+    
+    
+        <div class="text-center display-1 border-bottom mb-5">Nossos Cursos</div>
+        
+        <div class="row">
+            <div class="card col-sm mb-3 me-sm-3 px-0 bg-body-secondary" style="width: 18rem;">
+                <a href="{% url 'info_melhor_idade' %}">
+                    <img src="{% static 'img/info_melhor_idade.jpg' %}" class="card-img-top" alt="Informática para Iniciantes e Melhor Idade">
+                </a>
+                <div class="card-body">
+                    <h5 class="card-title">Informática para Iniciantes e Melhor Idade</h5>
+                    <p class="card-text">Aprender desde como ligar um computador, passando por todo o processo de comunicação através das redes sociais, internet e outros.</p>
+                    <a href="{% url 'info_melhor_idade' %}" class="btn btn-primary">Ver mais</a>
+                </div>
+            </div>
+            <div class="card col-sm mb-3 px-0 bg-body-secondary" style="width: 18rem;">
+                <a href="{% url 'info_basica' %}">
+                    <img src="{% static 'img/info_basica.jpg' %}" class="card-img-top" alt="Informática Básica">
+                </a>
+                <div class="card-body">
+                    <h5 class="card-title">Informática Básica</h5>
+                    <p class="card-text">Capacitar o participante a utilizar as principais ferramentas do pacote office.</p>
+                    <a href="{% url 'info_basica' %}" class="btn btn-primary">Ver mais</a>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="card col-sm mb-3 me-sm-3 px-0 bg-body-secondary" style="width: 18rem;">
+                <a href="{% url 'excel' %}">
+                    <img src="{% static 'img/excel.jpg' %}" class="card-img-top" alt="Excel">
+                </a>
+                <div class="card-body">
+                    <h5 class="card-title">Excel</h5>
+                    <p class="card-text">Realizar dinâmicas para aumentar a habilidade no uso de planilhas e aprender fórmulas intermediárias, recursos de hipóteses, tabelas dinâmicas, dashboards, fórmulas complexas, auditoria de células, separação de informações e macros.</p>
+                    <a href="{% url 'excel' %}" class="btn btn-primary">Ver mais</a>
+                </div>
+            </div>
+            <div class="card col-sm mb-3 px-0 bg-body-secondary" style="width: 18rem;">
+                <a href="{% url 'design' %}">
+                    <img src="{% static 'img/design.jpg' %}" class="card-img-top" alt="Design e Modelagem 3D">
+                </a>
+                <div class="card-body">
+                    <h5 class="card-title">Design e Modelagem 3D</h5>
+                    <p class="card-text">Entender os fundamentos do design gráfico e modelagem 3D, aprofundando o conhecimento nos softwares de criação de imagem, arte vetorial e modelagem 3D, permitindo aos participantes alcançarem resultados de alta qualidade em suas criações visuais.</p>
+                    <a href="{% url 'design' %}" class="btn btn-primary">Ver mais</a>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="card col-sm mb-3 me-sm-3 px-0 bg-body-secondary" style="width: 18rem;">
+                <a href="{% url 'montagem' %}">
+                    <img src="{% static 'img/montagem.jpg' %}" class="card-img-top" alt="Montagem e Manutenção de Computadores">
+                </a>
+                <div class="card-body">
+                    <h5 class="card-title">Montagem e Manutenção de Computadores</h5>
+                    <p class="card-text">Proporcionar o conhecimento sobre os componentes primordiais e conseguir instalar tarefas para que um computador funcione. Explorar hardware em detalhes e compreender os princípios do software, incluindo prompt de comando.</p>
+                    <a href="{% url 'montagem' %}" class="btn btn-primary">Ver mais</a>
+                </div>
+            </div>
+            <div class="card col-sm mb-3 px-0 bg-body-secondary" style="width: 18rem;">
+                <a href="{% url 'robotica' %}">
+                    <img src="{% static 'img/robotica.jpg' %}" class="card-img-top" alt="Robótica e Automação">
+                </a>
+                <div class="card-body">
+                    <h5 class="card-title">Robótica e Automação</h5>
+                    <p class="card-text">Mostrar ao aluno os elementos essenciais para um projeto integrado de robótica, cobrindo lógica básica, programação em sistemas robóticos, operadores lógicos, estruturas de controle, variáveis homogêneas e heterogêneas, e a execução da primeira aplicação em qualquer linguagem.</p>
+                    <a href="{% url 'robotica' %}" class="btn btn-primary">Ver mais</a>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="card col-sm mb-3 me-sm-3 px-0 bg-body-secondary" style="width: 18rem;">
+                <a href="{% url 'gestao' %}">
+                    <img src="{% static 'img/gestao.jpg' %}" class="card-img-top" alt="Gestão de Pessoas">
+                </a>
+                <div class="card-body">
+                    <h5 class="card-title">Gestão de Pessoas</h5>
+                    <p class="card-text">Conhecer e desenvolver ferramentas e estratégias para gerir com eficiência o recrutamento e a seleção de bons profissionais, buscando autoeficiência.</p>
+                    <a href="{% url 'gestao' %}" class="btn btn-primary">Ver mais</a>
+                </div>
+            </div>
+            <div class="card col-sm mb-3 px-0 bg-body-secondary" style="width: 18rem;">
+                <a href="{% url 'educacao' %}">
+                    <img src="{% static 'img/educacao.jpg' %}" class="card-img-top" alt="Educação Financeira">
+                </a>
+                <div class="card-body">
+                    <h5 class="card-title">Educação Financeira</h5>
+                    <p class="card-text">Conhecer a definição de educação financeira e identificar a importância da mesma no cotidiano dos cidadãos, além de tratar de métodos de planejamento e organização financeira.</p>
+                    <a href="{% url 'educacao' %}" class="btn btn-primary">Ver mais</a>
+                </div>
+            </div>
+            
+        </div>
+        <div class="row">
+            <div class="card col-sm me-sm-3 px-0 bg-body-secondary" style="width: 18rem;">
+                <a href="{% url 'marketing_digital' %}">
+                    <img src="{% static 'img/marketing_digital.jpg' %}" class="card-img-top" alt="Marketing Digital">
+                </a>
+                <div class="card-body">
+                    <h5 class="card-title">Marketing Digital</h5>
+                    <p class="card-text">Identificar o papel do marketing no contexto da gestão organizacional e do comportamento do consumidor</p>
+                    <a href="{% url 'marketing_digital' %}" class="btn btn-primary">Ver mais</a>
+                </div>
+            </div>
+            <div class="card col-sm px-0 bg-body-secondary" style="width: 18rem;">
+                <a href="{% url 'marketing_emp' %}">
+                    <img src="{% static 'img/marketing_emp.jpg' %}" class="card-img-top" alt="Marketing Empreendedor">
+                </a>
+                <div class="card-body">
+                    <h5 class="card-title">Marketing Empreendedor</h5>
+                    <p class="card-text">Aprender a criar perfis de freelancer atrativos, maximizar a remuneração no trabalho home office e dominar estratégias de anúncios online nas principais plataformas, como Facebook, Instagram, Google e YouTube.</p>
+                    <a href="{% url 'marketing_emp' %}" class="btn btn-primary">Ver mais</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
