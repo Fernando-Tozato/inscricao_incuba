@@ -10,3 +10,4 @@ django-anymail[mailgun]
 openpyxl
 unidecode
 djangorestframework
+python-decouple
