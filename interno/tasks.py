@@ -89,8 +89,8 @@ def gerar_planilhas():
         'Design e Modelagem 3D: Módulo 02': 'design_02',
         'Gestão de Pessoas': 'gestao',
         'Educação Financeira': 'educ_finan',
-        'Marketing Digital': 'mark_digital',
-        'Marketing Empreendedor': 'mark_emp'
+        'Marketing Digital e Empreendedor': 'mark_digital_emp',
+        'Ferramentas do Marketing Digital': 'fer_mark_digital'
     }
 
     turmas = Turma.objects.all()
@@ -186,6 +186,9 @@ def gerar_planilhas():
                 # Alunos
                 alunos = Aluno.objects.filter(id_turma=turma).annotate(
                     nome_ordenacao=Coalesce('nome_social', 'nome')).order_by('nome_ordenacao')
+
+                idx = 0
+
                 for idx, aluno in enumerate(alunos):
                     ws_presenca.cell(row=idx + start_row + 2, column=1).value = aluno.pk
                     ws_presenca.cell(row=idx + start_row + 2,
