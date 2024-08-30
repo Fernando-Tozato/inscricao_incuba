@@ -21,6 +21,7 @@ jobs:
         password: ${{ secrets.SERVER_PASSWORD }}
         script: |
           cd /home/catatau/incuba_teste
+          git clean -f -d
           git pull origin tests
           source /home/catatau/incuba_teste/venv/bin/activate
           pip install -r requirements.txt
