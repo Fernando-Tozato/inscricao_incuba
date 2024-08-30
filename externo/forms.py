@@ -32,11 +32,11 @@ class InscricaoForm(forms.Form):
                                      widget=forms.Select(attrs={'class': 'form-select required'}),
                                      initial='')
     pcd = forms.BooleanField(required=False,
-                             widget=forms.TextInput(attrs={'class': 'form-check-input required',
-                                                           'role': 'switch'}))
+                             widget=forms.CheckboxInput(attrs={'class': 'form-check-input required',
+                                                               'role': 'switch'}))
     ps = forms.BooleanField(required=False,
-                            widget=forms.TextInput(attrs={'class': 'form-check-input required',
-                                                          'role': 'switch'}))
+                            widget=forms.CheckboxInput(attrs={'class': 'form-check-input required',
+                                                              'role': 'switch'}))
 
     email = forms.EmailField(required=False,
                              widget=forms.TextInput(attrs={'class': 'form-control',
