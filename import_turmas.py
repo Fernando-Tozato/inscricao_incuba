@@ -12,6 +12,7 @@ from database.models import Turma
 # Caminho para o arquivo CSV
 csv_file_path = 'turmas.csv'
 
+
 # Função para importar os dados
 def import_turmas_from_csv(csv_file_path):
     with open(csv_file_path, newline='', encoding='utf-8') as csvfile:
@@ -40,6 +41,7 @@ def import_turmas_from_csv(csv_file_path):
 
             # Salve a instância no banco de dados
             turma.save()
+
 
 # Chame a função para importar os dados
 import_turmas_from_csv(csv_file_path)

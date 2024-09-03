@@ -1,0 +1,62 @@
+{% extends 'bases/base_externo.html' %}
+
+{% block title %}Informática para Iniciantes{% endblock %}
+
+{% load static %}
+
+{% block content %}
+    <div class="container my-5 px-5">
+        <div class="row">
+            <div class="col-sm px-0 me-sm-3 mb-3 card bg-body-secondary">
+                <div class="card-body">
+                    <h1 class="card-title">Informática para Iniciantes e Melhor Idade</h1>
+                    <p class="card-text">Aprender desde como ligar um computador, passando por todo o processo de comunicação através das redes sociais, internet e outros.</p>
+                </div>
+            </div>
+            <div class="col-sm px-0 mb-3">
+                <img src="{% static 'img/info_melhor_idade.jpg' %}" alt="Informática para Iniciantes e Melhor Idade" class="img-fluid rounded">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm px-0 me-sm-3 card bg-body-secondary">
+                <div class="card-body">
+                    <h2 class="card-title">Requisitos:</h2>
+                    <p class="card-text mb-4">
+                        - Idade mínima: 12 anos. <br>
+                        - Escolaridade mínima: Ser Alfabetizado(a).
+                    </p>
+                </div>
+            </div>
+            <div class="col-sm px-0 me-sm-3 card bg-body-secondary">
+                <div class="card-body">
+                    <h2 class="card-title">Dias e Horários:</h2>
+                    <div class="row mb-3">
+                        <div class="col-md">
+                            <p class="card-text">Terça e quinta</p>
+                        </div>
+                        <div class="col-md">
+                            <p class="card-text">
+                                <a href="{% url 'resultado_id' 1 %}">08:40 - 10:40</a><br>
+                                <a href="{% url 'resultado_id' 2 %}">14:00 - 16:00</a><br>
+                                <a href="{% url 'resultado_id' 3 %}">16:00 - 18:20</a><br>
+                                <a href="{% url 'resultado_id' 4 %}">18:30 - 20:30</a>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md">
+                            <p class="card-text">Quarta e sexta</p>
+                        </div>
+                        <div class="col-md">
+                            <p class="card-text">
+                                <a href="{% url 'resultado_id' 5 %}">10:50 - 12:50</a><br>
+                                <a href="{% url 'resultado_id' 6 %}">16:10 - 18:10</a><br>
+                                <a href="{% url 'resultado_id' 7 %}">18:20 - 20:20</a> 
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

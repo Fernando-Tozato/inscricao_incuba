@@ -25,7 +25,7 @@ def sortear():
         if len(inscritos_cotas) <= vagas_cotas: # Caso o número de inscritos cotistas para a turma atual seja menor que o número de vagas para cotas da turma...
             sorteados_cotas = inscritos_cotas # ... define os sorteados cotistas para a turma atual como todos os inscritos para a turma atual
         else: # Se não...
-            sorteados_cotas = random.sample(inscritos_cotas, vagas_cotas) # ... sorteia os inscritos de acordo com o número de vagas
+            sorteados_cotas = random.sample(inscritos_cotas, vagas_cotas) # ... sorteia os inscritos conforme o número de vagas
         
         for sorteado in sorteados_cotas: # Itera sobre todos os sorteados cotistas da turma atual
             logger.info(f'{sorteado.nome_social if sorteado.nome_social else sorteado.nome} - Cota') # Mostra o nome civil ou social do sorteado no log
