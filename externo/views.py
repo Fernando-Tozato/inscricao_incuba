@@ -291,3 +291,36 @@ def download_1(request):
     response['Content-Disposition'] = f'attachment; filename={zip_filename}'
 
     return response
+
+
+def download_2(request):
+    planilhas_dir = os.path.join(settings.MEDIA_ROOT, 'edital_2024_2')
+
+    # Verificar se a pasta "planilhas" existe
+    if not os.path.exists(planilhas_dir):
+        raise Http404("A pasta 'planilhas' não foi encontrada")
+
+    # Listar todos os arquivos dentro da pasta "planilhas"
+    filenames = os.listdir(planilhas_dir)
+
+    zip_subdir = "edital_e_anexos_2024_2"
+    zip_filename = f"{zip_subdir}.zip"
+
+    buffer = BytesIO()
+
+    with zipfile.ZipFile(buffer, "w") as zf:
+        for filename in filenames:
+            file_path = os.path.join(planilhas_dir, filename)
+            if os.path.exists(file_path):
+                with open(file_path, 'rb') as f:
+                    zip_path = os.path.join(zip_subdir, filename)
+                    zf.writestr(zip_path, f.read())
+            else:
+                raise Http404(f"{filename} não encontrado")
+
+    buffer.seek(0)
+
+    response = HttpResponse(buffer, content_type="application/zip")
+    response['Content-Disposition'] = f'attachment; filename={zip_filename}'
+
+    return response
