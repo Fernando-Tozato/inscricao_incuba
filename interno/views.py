@@ -464,7 +464,7 @@ def planilhas(request):
 
     if not filenames:
         print('planilhas vazio')
-        gerar_planilhas()
+        criar_threads()
         filenames = os.listdir(planilhas_dir)
         if not filenames:
             print('planilhas não geradas')

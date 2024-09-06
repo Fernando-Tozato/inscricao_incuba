@@ -1,3 +1,5 @@
+import re
+
 import django
 import os
 import random
@@ -12,7 +14,7 @@ fake = Faker('pt_BR')
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'incubadora.settings')
 django.setup()
 
-from database.models import Inscrito, Turma
+from database.models import Inscrito, Turma, Aluno
 
 # Definindo algumas constantes
 NUM_TURMAS = 64
@@ -21,7 +23,8 @@ INSCRITOS_POR_TURMA = 100
 
 def generate_and_insert_data():
     for id_turma in range(1, NUM_TURMAS + 1):
-        for _ in range(INSCRITOS_POR_TURMA):
+        turma = get_object_or_404(Turma, id=id_turma)
+        for _ in range(turma.vagas):
             nome = fake.name()
             nome_pesquisa = unidecode(nome).upper()
             nascimento = fake.date_of_birth(minimum_age=12, maximum_age=80)
@@ -56,15 +59,13 @@ def generate_and_insert_data():
                 orgao_emissor = fake.random_element(elements=('SSP', 'DETRAN', 'IFP', 'OAB'))
                 uf_emissao = fake.estado_sigla()
 
-            turma = get_object_or_404(Turma, id=id_turma)
-
-            inscrito = Inscrito(
+            aluno = Aluno(
                 nome=nome,
                 nome_pesquisa=nome_pesquisa,
                 nome_social=nome_social,
                 nome_social_pesquisa=nome_social_pesquisa,
                 nascimento=nascimento,
-                cpf=cpf,
+                cpf=re.sub(r'\D', '', cpf),
                 rg=rg,
                 data_emissao=data_emissao,
                 orgao_emissor=orgao_emissor,
@@ -77,6 +78,7 @@ def generate_and_insert_data():
                 cep=cep,
                 rua=rua,
                 numero=numero,
+                complemento=None,
                 bairro=bairro,
                 cidade=cidade,
                 uf=uf,
@@ -86,9 +88,9 @@ def generate_and_insert_data():
             )
 
             try:
-                inscrito.save()
-            except:
-                continue
+                aluno.save()
+            except Exception as e:
+                print(e)
 
 
 if __name__ == '__main__':
