@@ -19,4 +19,5 @@ urlpatterns = [
     path('robotica/', robotica, name='robotica'),
     path('download_validadores', download_validadores, name='download_validadores'),
     path('download_1/', download_1, name='download_1'),
+    path('download_2/', download_2, name='download_2'),
 ]
