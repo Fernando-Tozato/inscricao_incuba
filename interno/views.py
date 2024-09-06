@@ -99,10 +99,6 @@ def busca_de_inscrito(request):
 
             inscritos = verificar_inscritos(request, inscritos)
 
-            if len(inscritos) == 0:
-                inscritos = {'erro': 'Nenhum inscrito encontrado.'}
-            else:
-                inscritos = inscritos.exclude(cpf__in=Aluno.objects.values_list('cpf', flat=True))
             context.update({'inscritos': inscritos})
         context.update({'form': form})
     else:
