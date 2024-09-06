@@ -19,9 +19,8 @@ class Presenca:
         self.ws = ws
         self.professor = professor
         self.curso = curso
-        self.generate()
 
-    def generate(self):
+    def generate(self) -> Worksheet:
         turmas: QuerySet[Turma] = Turma.objects.filter(Q(professor=self.professor) & Q(curso=self.curso))
 
         start_row: int = 1
@@ -51,6 +50,8 @@ class Presenca:
             self.formatar_espacamento(max_row)
 
             start_row = max_row + 1
+
+        return self.ws
 
     def gerar_legenda(self, start_row, start_col, name, char, color):
         self.ws.merge_cells(start_row=start_row, start_column=start_col, end_row=start_row, end_column=start_col + 1)

@@ -1,8 +1,11 @@
+import re
+import threading
+
+from django.utils import timezone
+from unidecode import unidecode
 import datetime
 import json
 import os
-import re
-import threading
 import time
 import zipfile
 from io import BytesIO
@@ -14,24 +17,19 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.tokens import default_token_generator
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMultiAlternatives
-from django.db.models import Sum
+from django.db.models import Sum, Q
 from django.db.utils import IntegrityError
 from django.http import HttpResponse, Http404
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
-from django.utils import timezone
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views.decorators.csrf import csrf_protect
-from unidecode import unidecode
 
 from externo.functions import get_turmas_as_json
 from .forms import *
+from .functions import verificar_inscritos, grupo_necessario
 from .tasks import *
-
-
-def grupo_necessario(user):
-    return user.groups.filter(Q(name='Coord_Ped') | Q(name='Admin')).exists()
 
 
 def loop(request):
@@ -98,6 +96,8 @@ def busca_de_inscrito(request):
                 busca = re.sub(r'\D', '', busca)
 
                 inscritos = Inscrito.objects.filter(cpf__contains=busca)
+
+            inscritos = verificar_inscritos(request, inscritos)
 
             if len(inscritos) == 0:
                 inscritos = {'erro': 'Nenhum inscrito encontrado.'}
@@ -464,7 +464,7 @@ def planilhas(request):
 
     if not filenames:
         print('planilhas vazio')
-        criar_threads()
+        gerar_planilhas()
         filenames = os.listdir(planilhas_dir)
         if not filenames:
             print('planilhas não geradas')
