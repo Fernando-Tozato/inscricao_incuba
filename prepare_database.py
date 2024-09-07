@@ -53,6 +53,7 @@ def import_controle_from_csv(csv_file_path):
         inscricao_fim = datetime.strptime(row['inscricao_fim'] + ' -0300', '%d/%m/%Y %H:%M:%S %z')
         sorteio_data = datetime.strptime(row['sorteio_data'] + ' -0300', '%d/%m/%Y %H:%M:%S %z')
         matricula_sorteados = datetime.strptime(row['matricula_sorteados'] + ' -0300', '%d/%m/%Y %H:%M:%S %z')
+        vagas_disponiveis = datetime.strptime(row['vagas_disponiveis'] + ' -0300', '%d/%m/%Y %H:%M:%S %z')
         matricula_geral = datetime.strptime(row['matricula_geral'] + ' -0300', '%d/%m/%Y %H:%M:%S %z')
         matricula_fim = datetime.strptime(row['matricula_fim'] + ' -0300', '%d/%m/%Y %H:%M:%S %z')
         aulas_inicio = datetime.strptime(row['aulas_inicio'] + ' -0300', '%d/%m/%Y %H:%M:%S %z')
@@ -64,6 +65,7 @@ def import_controle_from_csv(csv_file_path):
             inscricao_fim=inscricao_fim,
             sorteio_data=sorteio_data,
             matricula_sorteados=matricula_sorteados,
+            vagas_disponiveis=vagas_disponiveis,
             matricula_geral=matricula_geral,
             matricula_fim=matricula_fim,
             aulas_inicio=aulas_inicio,

@@ -14,8 +14,13 @@
                 <p>Você tem até {{ inscricao|date:"d/m/Y" }} às {{ inscricao|date:"H:i" }} para fazer sua inscrição.</p>
             </div>
         {% endif %}
-    
-    
+        
+        {% if matricula_fim %}
+            <div class="alert alert-info mb-5" role="alert">
+                <h4>Para se informar sobre as vagas remanescentes, entre em contato conosco.</h4>
+                <p>Você tem até {{ matricula_fim|date:"d/m/Y" }} às {{ matricula_fim|date:"H:i" }} para fazer sua matrícula.</p>
+            </div>
+        {% endif %}
     
         <div class="text-center display-1 border-bottom mb-5">Nossos Cursos</div>
         
