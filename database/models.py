@@ -89,6 +89,7 @@ class Controle(models.Model):
     inscricao_fim = models.DateTimeField()
     sorteio_data = models.DateTimeField()
     matricula_sorteados = models.DateTimeField()
+    vagas_disponiveis = models.DateTimeField()
     matricula_geral = models.DateTimeField()
     matricula_fim = models.DateTimeField()
     aulas_inicio = models.DateTimeField()

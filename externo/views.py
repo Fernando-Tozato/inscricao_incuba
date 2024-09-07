@@ -20,13 +20,18 @@ from externo.functions import *
 def home(request):
     agora = timezone.now()
     controle = Controle.objects.first()
-    inicio = timezone.localtime(controle.inscricao_inicio)
-    fim = timezone.localtime(controle.inscricao_fim)
+    inscricao_inicio = timezone.localtime(controle.inscricao_inicio)
+    inscricao_fim = timezone.localtime(controle.inscricao_fim)
+    vagas_disponiveis = timezone.localtime(controle.vagas_disponiveis)
+    matricula_fim = timezone.localtime(controle.matricula_fim)
 
     context = {}
 
-    if inicio <= agora <= fim:
-        context.update({'inscricao': fim})
+    if inscricao_inicio <= agora <= inscricao_fim:
+        context.update({'inscricao': inscricao_fim})
+
+    if vagas_disponiveis <= agora <= matricula_fim:
+        context.update({'matricula_fim': matricula_fim})
 
     return render(request, 'externo/home.html', context)
 
