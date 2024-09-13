@@ -13,7 +13,7 @@ from django.utils import timezone
 from unidecode import unidecode
 
 from database.models import *
-from externo.forms import InscricaoForm
+from externo.forms import InscricaoForm, ResultadoForm
 from externo.functions import *
 
 
@@ -152,15 +152,44 @@ def editais(request):
 
 
 def resultado(request):
-    agora = timezone.now()
-    controle = Controle.objects.first()
-    sorteio = timezone.localtime(controle.sorteio_data)  # type: ignore
+    turmas = get_turmas_as_json(['curso', 'dias', 'horario'])
+    context = {'turmas': turmas}
 
-    if agora < sorteio:
-        return render(request, 'externo/antes_resultado.html', {'data': sorteio})
+    if request.method == 'POST':
+        form = ResultadoForm(request.POST)
+        context.update({'form': form})
+        if form.is_valid():
+            curso = form.cleaned_data['curso']
+            dias = form.cleaned_data['dias']
+            horario = form.cleaned_data['horario']
 
-    cursos = Turma.objects.values_list('curso', flat=True).distinct()
-    return render(request, 'externo/resultado.html', {'cursos': cursos})
+            horario_entrada = horario[:5]
+            horario_saida = horario[8:]
+
+            id_turma = Turma.objects.filter(
+                Q(curso=curso) &
+                Q(dias=dias) &
+                Q(horario_entrada=horario_entrada) &
+                Q(horario_saida=horario_saida)
+            )[0]
+
+            sorteados = Inscrito.objects.filter(Q(id_turma=id_turma) & Q(ja_sorteado=True))
+            if len(sorteados) == 0:
+                context.update({'sorteados': -1})
+            else:
+                context.update({'sorteados':sorteados})
+
+    else:
+        agora = timezone.now()
+        controle = Controle.objects.first()
+        sorteio = timezone.localtime(controle.sorteio_data)  # type: ignore
+
+        if agora < sorteio:
+            return render(request, 'externo/antes_resultado.html', {'data': sorteio})
+
+        context.update({'form': ResultadoForm})
+
+    return render(request, 'externo/resultado.html', context)
 
 
 def resultado_id(request, id_turma):

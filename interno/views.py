@@ -411,7 +411,7 @@ def reset_password_view(request):
                         'protocol': 'http',
                     }
                     email_content = render_to_string(email_template_name, c)
-                    email_message = EmailMultiAlternatives(subject, '', 'incuba.robotica.auto@gmail.com', [user.email])
+                    email_message = EmailMultiAlternatives(subject, '', 'nao_responda@incubarobotica.com.br', [user.email])
                     email_message.attach_alternative(email_content, "text/html")
                     email_message.send()
                 return redirect('reset_password_sent')
@@ -493,3 +493,25 @@ def planilhas(request):
     response['Content-Disposition'] = f'attachment; filename={zip_filename}'
 
     return response
+
+
+def sorteio(request):
+    print('inicio sorteio')
+    sortear()
+    print('fim sorteio')
+
+    # inscritos = Inscrito.objects.exclude(email__isnull=True)
+    #
+    # sorteados = inscritos.filter(ja_sorteado=True)
+    # nao_sorteados = inscritos.filter(ja_sorteado=False)
+    #
+    # emails_sorteados = [sorteado.email for sorteado in sorteados]
+    # emails_nao_sorteados = [nao_sorteado.email for nao_sorteado in nao_sorteados]
+    #
+    # print(emails_sorteados)
+    # print(emails_nao_sorteados)
+    #
+    # avisar_sorteados(request, emails_sorteados, True)
+    # avisar_sorteados(request, emails_nao_sorteados, False)
+
+    return redirect('resultado')
