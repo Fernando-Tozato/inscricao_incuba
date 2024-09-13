@@ -20,4 +20,5 @@ urlpatterns = [
     path('reset/<uidb64>/<token>/', reset_password_confirm_view, name='password_reset_confirm'),
     path('reset_password_complete/', reset_password_complete_view, name='reset_password_complete'),
     path('planilhas/', planilhas, name='planilhas'),
+    path('sorteio/', sorteio, name='sorteio'),
 ]

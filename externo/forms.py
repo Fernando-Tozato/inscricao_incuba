@@ -73,3 +73,15 @@ class InscricaoForm(forms.Form):
     horario = forms.CharField(widget=forms.Select(choices=[('', 'Selecione...')],
                                                   attrs={'class': 'form-select required',
                                                          'disabled': 'true'}))
+
+
+class ResultadoForm(forms.Form):
+    curso = forms.CharField(widget=forms.Select(choices=[('', 'Selecione...')],
+                                                attrs={'class': 'form-select required',
+                                                       'disabled': 'false'}))
+    dias = forms.CharField(widget=forms.Select(choices=[('', 'Selecione...')],
+                                               attrs={'class': 'form-select required',
+                                                      'disabled': 'true'}))
+    horario = forms.CharField(widget=forms.Select(choices=[('', 'Selecione...')],
+                                                  attrs={'class': 'form-select required',
+                                                         'disabled': 'true'}))

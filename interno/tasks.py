@@ -3,7 +3,7 @@ import random
 from datetime import timedelta
 
 from django.contrib.sites.shortcuts import get_current_site
-from django.core.mail import EmailMessage
+from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.db.models import Q
 from django.db.models.functions import Coalesce
 from django.template.loader import render_to_string
@@ -18,8 +18,10 @@ from database.models import *
 def avisar_sorteados(request, emails, sorteado=False):
     controle = Controle.objects.first()
 
+    subject = 'Incubadora de Robótica'
+
     if sorteado:
-        email_template_name = "aviso_sorteado.html"
+        email_template_name = "emails/aviso_sorteado.html"
         c = {
             'domain': get_current_site(request).domain,
             'protocol': 'http',
@@ -30,7 +32,7 @@ def avisar_sorteados(request, emails, sorteado=False):
         email_content = render_to_string(email_template_name, c)
 
     else:
-        email_template_name = 'aviso_nao_sorteado.html'
+        email_template_name = 'emails/aviso_nao_sorteado.html'
         c = {
             'domain': get_current_site(request).domain,
             'protocol': 'http',
@@ -40,22 +42,19 @@ def avisar_sorteados(request, emails, sorteado=False):
         }
         email_content = render_to_string(email_template_name, c)
 
-    email = EmailMessage(
-        'Incubadora de Robótica',
-        email_content,
-        'nao-responda@incubarobotica.com.br',
-        emails,
-    )
-    email.content_subtype = 'html'
-    email.send()
+
+    email_message = EmailMultiAlternatives(subject, '', 'nao_responda@incubarobotica.com.br', emails)
+    email_message.attach_alternative(email_content, "text/html")
 
     try:
-        email.send()
+        email_message.send()
         print('enviado')
     except Exception as e:
         print(e)
 
     print('Fim')
+
+
 
 
 def ajustar_colunas(ws):
