@@ -1,5 +1,5 @@
 function renderizar_turma() {
-    let id_turma = document.getElementById('id_turma').value - 1;
+    let id_turma = document.getElementById('id_turma').value - 112;
     let turma = window.turmas[id_turma];
 
     let select_curso = document.getElementById('id_curso')
