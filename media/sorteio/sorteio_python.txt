@@ -1,4 +1,4 @@
-def sortear():
+    def sortear():
     """
     Realiza o sorteio de inscritos em turmas conforme as regras especificadas.
     
