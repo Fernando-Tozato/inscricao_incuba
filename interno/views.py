@@ -28,7 +28,7 @@ from django.views.decorators.csrf import csrf_protect
 
 from externo.functions import get_turmas_as_json
 from .forms import *
-from .functions import verificar_inscritos, grupo_necessario
+from .functions import *
 from .tasks import *
 
 
@@ -187,14 +187,18 @@ def matricula(request, inscrito_id=None):
                 id_turma=id_turma
             )
 
-            id_turma.num_alunos += 1
-
             try:
-                aluno.full_clean()
-                aluno.save()
+                if matricula_valida(request, aluno, id_turma):
+                    id_turma.num_alunos += 1
 
-                id_turma.full_clean()
-                id_turma.save()
+                    aluno.full_clean()
+                    aluno.save()
+
+                    id_turma.full_clean()
+                    id_turma.save()
+                else:
+                    messages.error(request, 'Turma cheia.')
+                    return render(request, 'interno/matricula.html', context)
             except ValidationError as e:
                 messages.error(request, f'Aluno já matriculado.')
             except IntegrityError as e:

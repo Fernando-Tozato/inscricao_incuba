@@ -108,3 +108,10 @@ def verificar_inscritos(request, inscritos):
             return {'erro': 'O período de matrícula já terminou.'}
 
     return inscritos
+
+
+def matricula_valida(request, inscrito, turma):
+    print(turma.num_alunos, turma.vagas)
+    if turma.num_alunos >= turma.vagas:
+        return False
+    return True
