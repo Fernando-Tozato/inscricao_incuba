@@ -28,7 +28,7 @@ from django.views.decorators.csrf import csrf_protect
 
 from externo.functions import get_turmas_as_json
 from .forms import *
-from .functions import verificar_inscritos, grupo_necessario, enviar_email_senha
+from .functions import *
 from .tasks import *
 
 
@@ -99,10 +99,6 @@ def busca_de_inscrito(request):
 
             inscritos = verificar_inscritos(request, inscritos)
 
-            if len(inscritos) == 0:
-                inscritos = {'erro': 'Nenhum inscrito encontrado.'}
-            else:
-                inscritos = inscritos.exclude(cpf__in=Aluno.objects.values_list('cpf', flat=True))
             context.update({'inscritos': inscritos})
         context.update({'form': form})
     else:
@@ -191,14 +187,18 @@ def matricula(request, inscrito_id=None):
                 id_turma=id_turma
             )
 
-            id_turma.num_alunos += 1
-
             try:
-                aluno.full_clean()
-                aluno.save()
+                if matricula_valida(request, aluno, id_turma):
+                    id_turma.num_alunos += 1
 
-                id_turma.full_clean()
-                id_turma.save()
+                    aluno.full_clean()
+                    aluno.save()
+
+                    id_turma.full_clean()
+                    id_turma.save()
+                else:
+                    messages.error(request, 'Turma cheia.')
+                    return render(request, 'interno/matricula.html', context)
             except ValidationError as e:
                 messages.error(request, f'Aluno já matriculado.')
             except IntegrityError as e:
@@ -411,7 +411,7 @@ def reset_password_view(request):
                         'protocol': 'http',
                     }
                     email_content = render_to_string(email_template_name, c)
-                    email_message = EmailMultiAlternatives(subject, '', 'incuba.robotica.auto@gmail.com', [user.email])
+                    email_message = EmailMultiAlternatives(subject, '', 'nao_responda@incubarobotica.com.br', [user.email])
                     email_message.attach_alternative(email_content, "text/html")
                     email_message.send()
                 return redirect('reset_password_sent')
@@ -493,3 +493,25 @@ def planilhas(request):
     response['Content-Disposition'] = f'attachment; filename={zip_filename}'
 
     return response
+
+
+def sorteio(request):
+    print('inicio sorteio')
+    sortear()
+    print('fim sorteio')
+
+    # inscritos = Inscrito.objects.exclude(email__isnull=True)
+    #
+    # sorteados = inscritos.filter(ja_sorteado=True)
+    # nao_sorteados = inscritos.filter(ja_sorteado=False)
+    #
+    # emails_sorteados = [sorteado.email for sorteado in sorteados]
+    # emails_nao_sorteados = [nao_sorteado.email for nao_sorteado in nao_sorteados]
+    #
+    # print(emails_sorteados)
+    # print(emails_nao_sorteados)
+    #
+    # avisar_sorteados(request, emails_sorteados, True)
+    # avisar_sorteados(request, emails_nao_sorteados, False)
+
+    return redirect('resultado')

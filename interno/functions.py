@@ -134,3 +134,10 @@ def enviar_email_senha(request, user):
     email_message = EmailMultiAlternatives(subject, plain_message, 'nao_responda@incubarobotica.com.br', [user.email])
     email_message.attach_alternative(email_content, "text/html")
     email_message.send()
+
+
+def matricula_valida(request, inscrito, turma):
+    print(turma.num_alunos, turma.vagas)
+    if turma.num_alunos >= turma.vagas:
+        return False
+    return True
