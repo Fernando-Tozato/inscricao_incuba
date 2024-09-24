@@ -1,10 +1,17 @@
+from django.contrib.auth.tokens import default_token_generator
+from django.contrib.sites.shortcuts import get_current_site
+from django.core.mail import EmailMultiAlternatives
 from django.db.models import Q
+from django.template.loader import render_to_string
 from django.utils import timezone
+from django.utils.encoding import force_bytes
+from django.utils.html import strip_tags
+from django.utils.http import urlsafe_base64_encode
 
 from database.models import *
 
 
-def grupo_necessario(user):
+def is_allowed(user):
     return user.groups.filter(Q(name='Coord_Ped') | Q(name='Admin')).exists()
 
 
@@ -87,6 +94,9 @@ def verificar_inscritos(request, inscritos):
     if len(inscritos) == 0:
         return {'erro': 'Nenhum inscrito encontrado.'}
 
+    if is_allowed(request.user):
+        return inscritos
+
     inscritos = inscritos.exclude(cpf__in=Aluno.objects.values_list('cpf', flat=True))
 
     agora = timezone.now()
@@ -102,16 +112,35 @@ def verificar_inscritos(request, inscritos):
         return inscritos.filter(ja_sorteado=True)
 
     if agora > matricula_fim:
-        if grupo_necessario(request.user):
-            return inscritos
-        else:
-            return {'erro': 'O período de matrícula já terminou.'}
+        return {'erro': 'O período de matrícula já terminou.'}
 
     return inscritos
 
 
-def matricula_valida(request, inscrito, turma):
-    print(turma.num_alunos, turma.vagas)
+def enviar_email_senha(request, user):
+    subject = "Alteração de Senha"
+    email_template_name = "emails/password_reset_email.html"
+    c = {
+        "email": user.email,
+        'domain': get_current_site(request).domain,
+        'site_name': 'Incubadora de Robótica',
+        "uid": urlsafe_base64_encode(force_bytes(user.pk)),
+        "user": user,
+        'token': default_token_generator.make_token(user),
+        'protocol': 'http',
+    }
+    email_content = render_to_string(email_template_name, c)
+    plain_message = strip_tags(email_content)
+    email_message = EmailMultiAlternatives(subject, plain_message, 'nao_responda@incubarobotica.com.br', [user.email])
+    email_message.attach_alternative(email_content, "text/html")
+    email_message.send()
+
+
+def matricula_valida(request, turma):
+    if is_allowed(request.user):
+        return True
+
     if turma.num_alunos >= turma.vagas:
         return False
+
     return True
