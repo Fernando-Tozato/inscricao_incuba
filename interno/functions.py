@@ -11,7 +11,7 @@ from django.utils.http import urlsafe_base64_encode
 from database.models import *
 
 
-def grupo_necessario(user):
+def is_allowed(user):
     return user.groups.filter(Q(name='Coord_Ped') | Q(name='Admin')).exists()
 
 
@@ -94,6 +94,9 @@ def verificar_inscritos(request, inscritos):
     if len(inscritos) == 0:
         return {'erro': 'Nenhum inscrito encontrado.'}
 
+    if is_allowed(request.user):
+        return inscritos
+
     inscritos = inscritos.exclude(cpf__in=Aluno.objects.values_list('cpf', flat=True))
 
     agora = timezone.now()
@@ -109,10 +112,7 @@ def verificar_inscritos(request, inscritos):
         return inscritos.filter(ja_sorteado=True)
 
     if agora > matricula_fim:
-        if grupo_necessario(request.user):
-            return inscritos
-        else:
-            return {'erro': 'O período de matrícula já terminou.'}
+        return {'erro': 'O período de matrícula já terminou.'}
 
     return inscritos
 
@@ -136,8 +136,11 @@ def enviar_email_senha(request, user):
     email_message.send()
 
 
-def matricula_valida(request, inscrito, turma):
-    print(turma.num_alunos, turma.vagas)
+def matricula_valida(request, turma):
+    if is_allowed(request.user):
+        return True
+
     if turma.num_alunos >= turma.vagas:
         return False
+
     return True

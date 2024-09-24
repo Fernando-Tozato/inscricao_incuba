@@ -221,19 +221,19 @@ def enviado(request):
     return render(request, 'interno/enviado_int.html')
 
 
-@user_passes_test(grupo_necessario)
+@user_passes_test(is_allowed)
 @login_required
 def turma(request):
     return render(request, 'interno/turma.html', {'turmas': Turma.objects.all()})
 
 
-@user_passes_test(grupo_necessario)
+@user_passes_test(is_allowed)
 @login_required
 def turma_novo(request):
     return render(request, 'interno/turma_novo.html')
 
 
-@user_passes_test(grupo_necessario)
+@user_passes_test(is_allowed)
 @login_required
 def turma_editar(request, turma_id):
     turma = get_object_or_404(Turma, id=turma_id)
@@ -313,7 +313,7 @@ def turma_view_editar(request):
         return JsonResponse({'error': 'Método não permitido'}, status=400)
 
 
-@user_passes_test(grupo_necessario)
+@user_passes_test(is_allowed)
 @login_required
 def controle(request):
     controle = Controle.objects.first()
