@@ -188,7 +188,7 @@ def matricula(request, inscrito_id=None):
             )
 
             try:
-                if matricula_valida(request, aluno, id_turma):
+                if matricula_valida(request, id_turma):
                     id_turma.num_alunos += 1
 
                     aluno.full_clean()
