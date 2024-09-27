@@ -83,6 +83,9 @@ class Aluno(models.Model):
     observacoes = models.TextField(null=True, default=None, blank=True)
     id_turma = models.ForeignKey(Turma, on_delete=models.CASCADE, related_name='inscrito_turma')
 
+    def cpf_formatado(self):
+        return f"{self.cpf[:3]}.{self.cpf[3:6]}.{self.cpf[6:9]}-{self.cpf[9:]}"
+
 
 class Controle(models.Model):
     inscricao_inicio = models.DateTimeField()

@@ -1,116 +1,88 @@
-let url_dias = '/inscricao/busca_dias/';
-let url_horarios = '/inscricao/busca_horarios/';
-let csrftoken;
-let id_turma;
+let turmas;
+let select_curso;
+let select_dias;
+let select_horario;
 
-function habilitar_dias(selected){
-    const select_dias = document.getElementById('dias');
-    const select_horario = document.getElementById('horario');
-    curso = selected.value;
+document.addEventListener('DOMContentLoaded', function () {
+    turmas = window.turmas;
+    select_curso = document.getElementById('id_curso');
+    select_dias = document.getElementById('id_dias');
+    select_horario = document.getElementById('id_horario');
 
-    select_dias.innerHTML = '<option selected disabled hidden></option>'
-    select_horario.innerHTML = '<option selected disabled hidden></option>'
-    select_dias.disabled = true;
-    select_horario.disabled = true;
+    definir_cursos();
 
-    const dados = {'curso': curso}
+    select_curso.addEventListener('change', () => {
+        let curso = select_curso.value;
+        let dias = [];
 
-    fetch(url_dias, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': csrftoken,
-        },
-        body: JSON.stringify(dados)
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Erro ao carregar o arquivo JSON');
+        if(curso==='') {
+            select_curso.classList.add('is-invalid');
+            invalid_message(select_curso, 'Curso  é um campo obrigatório.');
+            return;
         }
-        return response.json();
-    })
-    .then(data => {
-        const dias = data.dias;
-        dias.forEach(dia => {
-            let new_opt = document.createElement("option");
-            new_opt.text = dia;
-            new_opt.value = dia;
-            select_dias.appendChild(new_opt);
-        });
-        select_dias.disabled = false;
-    })
-    .catch(error => {
-        console.error('Erro:', error);
-    });
-}
 
-function habilitar_horarios(selected){
-    const select_horario = document.getElementById('horario');
-    let horarios = [];
-    dias = selected.value;
+        for (let i = 0; i < turmas.length; i++) {
+            let turma = turmas[i];
+            if (curso === turma['curso']) {
+                let dia = turma['dias'];
 
-    select_horario.innerHTML = '<option selected disabled hidden></option>'
-    select_horario.disabled = true;
-
-    const dados = {
-        'curso': curso,
-        'dias': dias
-    }
-
-    fetch(url_horarios, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': csrftoken,
-        },
-        body: JSON.stringify(dados)
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Erro ao carregar o arquivo JSON');
+                if(!dias.includes(dia)){
+                    dias.push(dia);
+                }
+            }
         }
-        return response.json();
-    })
-    .then(data => {
-        const horarios = data.horarios;
-        const ids = data.ids;
-
-        for(let i = 0; i<ids.length; i++) {
-            let new_opt = document.createElement("option");
-            new_opt.text = horarios[i];
-            new_opt.value = horarios[i];
-            new_opt.id = ids[i];
-            select_horario.appendChild(new_opt);
-        }
-        select_horario.disabled = false;
-    })
-    .catch(error => {
-        console.error('Erro:', error);
+        add_options(select_dias, dias);
     });
 
-    horarios.forEach(horario => {
-        let new_opt = document.createElement("option");
-        new_opt.text = horario;
-        new_opt.value = horario;
-        select_horario.appendChild(new_opt);
-    });
-    select_horario.disabled = false;
-}
+    select_dias.addEventListener('change', () => {
+        let curso = select_curso.value;
+        let dias = select_dias.value;
+        let horarios = [];
 
-function set_horario(selected){
-    id_turma = selected.options[selected.selectedIndex].id;
-}
-
-function buscar(){
-    if (id_turma) {
-        if (window.location.pathname == '/resultado/'){
-            window.location.href += `${id_turma}/`
-        } else {
-            window.location.pathname = `/resultado/${id_turma}/`
+        if(dias==='') {
+            select_dias.classList.add('is-invalid');
+            invalid_message(select_dias, 'Dias  é um campo obrigatório.');
+            return;
         }
-    }
-}
 
-document.addEventListener('DOMContentLoaded', function() {
-    csrftoken = document.getElementById('token').children[0].value;
+        for (let i = 0; i < turmas.length; i++) {
+            let turma = turmas[i];
+            if (curso === turma['curso']) {
+                if (dias === turma['dias']) {
+                    let horario = turma['horario'];
+
+                    if(!horarios.includes(horario)){
+                        horarios.push(horario);
+                    }
+                }
+            }
+        }
+        add_options(select_horario, horarios);
+    });
 });
+
+function definir_cursos(){
+    let cursos = [];
+
+    for (let i = 0; i < turmas.length; i++) {
+        let turma = turmas[i];
+        let curso = turma['curso'];
+
+        if(!cursos.includes(curso)){
+            cursos.push(curso);
+        }
+    }
+    add_options(select_curso, cursos);
+}
+
+function add_options(select, options){
+    select.innerHTML = '<option value selected>Selecione...</option>';
+    for(let i = 0; i < options.length; i++) {
+        let option = options[i];
+        let new_opt = document.createElement('option');
+        new_opt.text = option;
+        new_opt.value = option;
+        select.appendChild(new_opt);
+    }
+    select.disabled = false;
+}

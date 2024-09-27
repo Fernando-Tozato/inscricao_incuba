@@ -11,17 +11,12 @@ function renderizar_turma() {
     let horario = turma.horario
 
     select_curso.value = curso
-    console.log(select_curso.value)
 
     select_curso.dispatchEvent(new Event('change'))
-    console.log(select_dias.children)
 
     select_dias.value = dias
-    console.log(select_dias.value)
 
     select_dias.dispatchEvent(new Event('change'))
-    console.log(select_horario.children)
 
     select_horario.value = horario
-    console.log(select_horario.value)
 }
