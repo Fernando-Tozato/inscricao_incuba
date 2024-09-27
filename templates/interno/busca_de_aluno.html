@@ -1,0 +1,62 @@
+{% extends 'bases/base_interno.html' %}
+
+{% block title %}Busca de inscritos{% endblock %}
+
+{% load static %}
+
+{% block content %}
+    <div class="container my-5 px-5">
+        <div class="p-4 mb-5 border bg-body-secondary text-body-secondary rounded">
+            <form method="post">
+                {% csrf_token %}
+                <div class="row g-3">
+                    <div class="input-group col-auto w-75">
+                        <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+                        <div class="form-floating">
+                            {{ form.busca }}
+                            <label for="{{ form.busca.id_for_label }}">Digite o nome ou CPF</label>
+                        </div>
+                    </div>
+                    <div class="col-auto w-25 position-relative">
+                         <button class="btn btn-lg btn-primary position-absolute top-50 start-50 translate-middle" type="submit">Buscar</button>
+                    </div>
+                </div>
+                <div class="form-text row">Caso tenha nome social, busque pelo nome social e não pelo civil. Se a busca for efetuada por CPF, não digite os pontos e traço.</div>
+            </form>
+        </div>
+        <div class="p-4 mb-5 border bg-body-secondary text-body-secondary rounded">
+            {% if alunos %}
+                {% if alunos.erro %}
+                    <h3>{{ alunos.erro }}</h3>
+                {% else %}    
+                    <ul class="justify-content-center list-group" id="resultado_pesquisa">
+                        {% for aluno in alunos %}
+                            <li class="list-group-item">
+                                <a href="/interno/editar_aluno/{{ aluno.id }}/" style="text-decoration: none;" class="text-body-secondary">
+                                    {% if aluno.nome_social %}
+                                        <h1>{{ aluno.nome_social }}</h1>
+                                    {% else %}
+                                        <h1>{{ aluno.nome }}</h1>
+                                    {% endif %}
+                                    <div class="row">
+                                        <div class="col-md">
+                                            <h4>{{ aluno.filiacao }}</h4>
+                                        </div>
+                                        <div class="col-md">
+                                            <h4>{{ aluno.cpf_formatado }}</h4>
+                                        </div>
+                                        <div class="col-md">
+                                            <h4>{{ aluno.nascimento }}</h4>
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}    
+            {% else %}
+                <h3>Faça uma busca para começar a mostrar resultados.</h3>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

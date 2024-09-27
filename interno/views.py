@@ -223,6 +223,94 @@ def enviado(request):
 
 @user_passes_test(is_allowed)
 @login_required
+def busca_de_aluno(request):
+    context = {}
+
+    if request.method == 'POST':
+        form = BuscaForm(request.POST)
+        if form.is_valid():
+            busca = form.cleaned_data['busca']
+
+            if any(char.isalpha() for char in busca):
+                busca = unidecode(busca.upper())
+                resultados_nome_social = Aluno.objects.filter(nome_social_pesquisa__contains=busca)
+                resultados_nome = (Aluno.objects.filter(nome_pesquisa__contains=busca)
+                                   .filter(Q(nome_social='') | Q(nome_social__isnull=True)))
+                alunos = resultados_nome_social | resultados_nome
+            else:
+                busca = re.sub(r'\D', '', busca)
+
+                alunos = Aluno.objects.filter(cpf__contains=busca)
+
+            context.update({'alunos': alunos})
+        context.update({'form': form})
+    else:
+        context.update({'form': BuscaForm})
+    return render(request, 'interno/busca_de_aluno.html', context)
+
+
+@user_passes_test(is_allowed)
+@login_required
+def editar_aluno(request, aluno_id=None):
+    turmas: str = get_turmas_as_json(['curso', 'dias', 'horario', 'idade', 'escolaridade'])
+    context: dict[str: str | MatriculaForm] = {'turmas': turmas}
+
+    if request.method == 'POST':
+        form = MatriculaForm(request.POST,
+                             inscrito=get_object_or_404(Aluno, id=aluno_id) if aluno_id else None)
+        context.update({'form': form})
+
+        if form.is_valid():
+            try:
+                # Atualizando os dados do aluno com os valores do form
+                aluno = form.save(commit=False)
+
+                # Verificando os dados da turma
+                curso = form.cleaned_data['curso']
+                dias = form.cleaned_data['dias']
+                horario = form.cleaned_data['horario']
+                horario_entrada = horario[:5]
+                horario_saida = horario[8:]
+                id_turma = Turma.objects.filter(
+                    Q(curso=curso) &
+                    Q(dias=dias) &
+                    Q(horario_entrada=horario_entrada) &
+                    Q(horario_saida=horario_saida)
+                ).first()
+
+                # Verificando se a nova turma é válida
+                if id_turma and matricula_valida(request, aluno, id_turma):
+                    aluno.id_turma = id_turma
+                    aluno.full_clean()  # Validação completa do aluno
+                    aluno.save()
+
+                    id_turma.num_alunos += 1
+                    id_turma.full_clean()  # Validação completa da turma
+                    id_turma.save()
+
+                    messages.success(request, 'Dados do aluno atualizados com sucesso!')
+                    return render(request, 'interno/enviado_int.html')
+                else:
+                    messages.error(request, 'Turma cheia ou dados inválidos.')
+            except ValidationError as e:
+                messages.error(request, f'Erro de validação: {e}')
+            except IntegrityError as e:
+                messages.error(request, f'Erro de integridade: {e}')
+            except Exception as e:
+                messages.error(request, f'Erro ao salvar dados: {e}')
+        else:
+            messages.error(request, 'Formulário inválido. Verifique os erros abaixo.')
+            print(form.errors)
+    else:
+        # Preencher o formulário com os dados do aluno existente
+        form = MatriculaForm(inscrito=get_object_or_404(Aluno, id=aluno_id) if aluno_id else None)
+        context.update({'form': form})
+
+    return render(request, 'interno/editar_aluno.html', context)
+
+
+@user_passes_test(is_allowed)
+@login_required
 def turma(request):
     return render(request, 'interno/turma.html', {'turmas': Turma.objects.all()})
 
