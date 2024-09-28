@@ -1,4 +1,4 @@
-import logging
+import logging, os
 import random
 from datetime import timedelta
 
@@ -13,6 +13,15 @@ from openpyxl.styles import Font, Alignment, PatternFill
 from openpyxl.utils import get_column_letter
 
 from database.models import *
+
+import os
+from datetime import timedelta
+from django.db.models import Q, F, Value
+from django.db.models.functions import Coalesce
+from openpyxl import Workbook
+from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
+from openpyxl.utils import get_column_letter
+from openpyxl.formatting.rule import CellIsRule
 
 
 def avisar_sorteados(request, emails, sorteado=False):
@@ -55,207 +64,266 @@ def avisar_sorteados(request, emails, sorteado=False):
     print('Fim')
 
 
-
-
 def ajustar_colunas(ws):
+    """
+    Ajusta a largura das colunas com base no conteúdo.
+    """
     for col in ws.columns:
         max_length = 0
         column = get_column_letter(col[0].column)  # Obtém a letra da coluna
         for cell in col:
             try:
-                if len(str(cell.value)) > max_length:
-                    max_length = len(str(cell.value))
+                if cell.value:
+                    cell_length = len(str(cell.value))
+                    if cell_length > max_length:
+                        max_length = cell_length
             except:
                 pass
-        adjusted_width = (max_length + 2)
+        adjusted_width = max_length + 2
         ws.column_dimensions[column].width = adjusted_width
 
 
+def criar_folha_presenca(wb, turmas, aulas_inicio, aulas_fim):
+    """
+    Cria a folha de presença no workbook.
+    """
+    ws_presenca = wb.create_sheet(title='Presença')
+
+    # Definir estilos para a linha escura
+    dark_fill = PatternFill(start_color="4F4F4F", end_color="4F4F4F", fill_type="solid")
+
+    start_row = 1
+    sabados = []
+    domingos = []
+
+    # Cabeçalhos Gerais
+    headers = [
+        ('Presente', 'P', '6aa84f'),
+        ('Faltoso', 'F', 'cc0000'),
+        ('Faltas Justificadas', 'J', 'ff9900'),  # Nova legenda 'J'
+        ('Fim de Semana', 'S/D', '3d85c6'),
+        ('Feriado', 'H', '8e7cc3')
+    ]
+
+    current_column = 3  # Começando da coluna 3
+    for header, short, color in headers:
+        ws_presenca.merge_cells(start_row=start_row, start_column=current_column, end_row=start_row,
+                                end_column=current_column + 1)
+        ws_presenca.cell(row=start_row, column=current_column).value = header
+        ws_presenca.cell(row=start_row, column=current_column).font = Font(bold=True)
+        ws_presenca.cell(row=start_row, column=current_column).alignment = Alignment(horizontal="center")
+
+        ws_presenca.cell(row=start_row, column=current_column + 2).value = short
+        ws_presenca.cell(row=start_row, column=current_column + 2).font = Font(bold=True)
+        ws_presenca.cell(row=start_row, column=current_column + 2).alignment = Alignment(horizontal="center")
+        ws_presenca.cell(row=start_row, column=current_column + 2).fill = PatternFill(start_color=color,
+                                                                                      end_color=color,
+                                                                                      fill_type="solid")
+
+        current_column += 4  # Avança para a próxima seção
+
+    # Títulos de Coluna
+    ws_presenca.cell(row=start_row + 1, column=1).value = 'ID'
+    ws_presenca.cell(row=start_row + 1, column=2).value = 'Nome'
+
+    total_aulas = (aulas_fim - aulas_inicio).days + 1  # Inclusivo
+    data_aulas = [aulas_inicio + timedelta(days=i) for i in range(total_aulas)]
+
+    dia_coluna_map = {}
+
+    for i, dia_aula in enumerate(data_aulas, start=3):
+        ws_presenca.cell(row=start_row + 1, column=i).value = dia_aula.strftime('%d/%m')
+        ws_presenca.cell(row=start_row + 1, column=i).font = Font(bold=True)
+        ws_presenca.cell(row=start_row + 1, column=i).alignment = Alignment(horizontal="center")
+
+        if dia_aula.weekday() == 5:  # Sábado
+            sabados.append(i)
+        elif dia_aula.weekday() == 6:  # Domingo
+            domingos.append(i)
+
+    # Formatação de Cabeçalho
+    for col in range(1, 3 + total_aulas):
+        cell = ws_presenca.cell(row=start_row + 1, column=col)
+        cell.font = Font(bold=True)
+        cell.alignment = Alignment(horizontal="center")
+
+    # Regras de Formatação Condicional
+    range_str = f"C3:{get_column_letter(ws_presenca.max_column)}1000"  # Ajuste o número de linhas conforme necessário
+
+    # Definir as cores para as legendas
+    red_fill = PatternFill(start_color="cc0000", end_color="cc0000", fill_type="solid")
+    green_fill = PatternFill(start_color="6aa84f", end_color="6aa84f", fill_type="solid")
+    orange_fill = PatternFill(start_color="ff9900", end_color="ff9900", fill_type="solid")
+    blue_fill = PatternFill(start_color="3d85c6", end_color="3d85c6", fill_type="solid")
+    purple_fill = PatternFill(start_color="8e7cc3", end_color="8e7cc3", fill_type="solid")
+
+    bold_font = Font(bold=True)
+
+    # Regras para 'F', 'P', 'J'
+    ws_presenca.conditional_formatting.add(range_str,
+                                           CellIsRule(operator='equal', formula=['"F"'], fill=red_fill, font=bold_font))
+    ws_presenca.conditional_formatting.add(range_str,
+                                           CellIsRule(operator='equal', formula=['"P"'], fill=green_fill, font=bold_font))
+    ws_presenca.conditional_formatting.add(range_str,
+                                           CellIsRule(operator='equal', formula=['"J"'], fill=orange_fill, font=bold_font))
+    ws_presenca.conditional_formatting.add(range_str,
+                                           CellIsRule(operator='equal', formula=['"S"'], fill=blue_fill, font=bold_font))
+    ws_presenca.conditional_formatting.add(range_str,
+                                           CellIsRule(operator='equal', formula=['"D"'], fill=blue_fill, font=bold_font))
+    ws_presenca.conditional_formatting.add(range_str,
+                                           CellIsRule(operator='equal', formula=['"H"'], fill=purple_fill, font=bold_font))
+
+    # Adicionar bordas grossas para a linha escura
+    thin_border = Border(left=Side(style='thin'),
+                         right=Side(style='thin'),
+                         top=Side(style='thin'),
+                         bottom=Side(style='thin'))
+
+    # Preenchimento das Turmas
+    current_row = start_row + 2
+    for turma in turmas:
+        # Título da Turma
+        header = f'{turma.dias} {turma.horario()}'
+        ws_presenca.merge_cells(start_row=current_row, start_column=1, end_row=current_row, end_column=2)
+        ws_presenca.cell(row=current_row, column=1).value = header
+        ws_presenca.cell(row=current_row, column=1).font = bold_font
+        ws_presenca.cell(row=current_row, column=1).alignment = Alignment(horizontal="center")
+        current_row += 1
+
+        # Alunos da Turma
+        alunos = Aluno.objects.filter(id_turma=turma).annotate(
+            nome_ordenacao=Coalesce('nome_social', 'nome')).order_by('nome_ordenacao')
+
+        for aluno in alunos:
+            ws_presenca.cell(row=current_row, column=1).value = aluno.pk
+            ws_presenca.cell(row=current_row, column=2).value = aluno.nome_social if aluno.nome_social else aluno.nome
+            ws_presenca.cell(row=current_row, column=1).alignment = Alignment(horizontal="center")
+            ws_presenca.cell(row=current_row, column=2).alignment = Alignment(horizontal="left")
+
+            # Inicializa as células de presença
+            for col in range(3, 3 + total_aulas):
+                ws_presenca.cell(row=current_row, column=col).value = ""
+                ws_presenca.cell(row=current_row, column=col).alignment = Alignment(horizontal="center")
+
+            current_row += 1
+
+        # Inserir uma linha escura após a turma
+        ws_presenca.append([])  # Adiciona uma linha vazia
+        for col in range(1, 3 + total_aulas):
+            cell = ws_presenca.cell(row=current_row, column=col)
+            cell.fill = dark_fill
+            cell.border = thin_border
+        current_row += 1
+
+    ajustar_colunas(ws_presenca)
+    return ws_presenca
+
+
+def criar_folha_alunos(wb, turmas):
+    """
+    Cria a folha de alunos no workbook.
+    """
+    ws_alunos = wb.create_sheet(title='Alunos')
+    headers = ['ID', 'Nome', 'CPF', 'Celular', 'Rua', 'Número', 'Bairro', 'Cidade', 'UF', 'É PCD?']
+    for col_num, header in enumerate(headers, start=1):
+        ws_alunos.cell(row=1, column=col_num).value = header
+        ws_alunos.cell(row=1, column=col_num).font = Font(bold=True)
+        ws_alunos.cell(row=1, column=col_num).alignment = Alignment(horizontal="center")
+
+    alunos = Aluno.objects.filter(id_turma__in=turmas).annotate(
+        nome_ordenacao=Coalesce('nome_social', 'nome')).order_by('nome_ordenacao')
+
+    for row_num, aluno in enumerate(alunos, start=2):
+        ws_alunos.cell(row=row_num, column=1).value = aluno.pk
+        ws_alunos.cell(row=row_num, column=2).value = aluno.nome_social if aluno.nome_social else aluno.nome
+        ws_alunos.cell(row=row_num, column=3).value = aluno.cpf_formatado()
+        ws_alunos.cell(row=row_num, column=4).value = aluno.celular
+        ws_alunos.cell(row=row_num, column=5).value = aluno.rua
+        ws_alunos.cell(row=row_num, column=6).value = aluno.numero
+        ws_alunos.cell(row=row_num, column=7).value = aluno.bairro
+        ws_alunos.cell(row=row_num, column=8).value = aluno.cidade
+        ws_alunos.cell(row=row_num, column=9).value = aluno.uf
+        ws_alunos.cell(row=row_num, column=10).value = 'PCD' if aluno.pcd else ''
+
+        # Alinhamento das células
+        for col in range(1, 11):
+            ws_alunos.cell(row=row_num, column=col).alignment = Alignment(horizontal="left")
+
+    ajustar_colunas(ws_alunos)
+    return ws_alunos
+
+
 def gerar_planilhas():
-    aulas_inicio = Controle.objects.first().aulas_inicio  # type: ignore
-    aulas_fim = Controle.objects.first().aulas_fim  # type: ignore
+    """
+    Gera planilhas Excel para cada professor e curso ministrado.
+    Cada planilha contém duas folhas: Presença e Alunos.
+    """
+    try:
+        controle = Controle.objects.first()
+        if not controle:
+            print("Nenhum controle encontrado.")
+            return
 
-    curso_arq = {
-        'Informática para Iniciantes e Melhor Idade': 'info_melhor_idade',
-        'Informática Básica': 'info_basica',
-        'Excel': 'excel',
-        'Montagem e Manutenção de Computadores': 'montagem',
-        'Robótica e Automação: Módulo 01': 'robotica_01',
-        'Robótica e Automação: Módulo 02': 'robotica_02',
-        'Robótica e Automação: Módulo 03': 'robotica_03',
-        'Design e Modelagem 3D: Módulo 01': 'design_01',
-        'Design e Modelagem 3D: Módulo 02': 'design_02',
-        'Gestão de Pessoas': 'gestao_pessoas',
-        'Educação Financeira': 'educ_finan',
-        'Marketing Digital': 'mark_digital',
-        'Marketing Empreendedor': 'mark_emp'
-    }
+        aulas_inicio = controle.aulas_inicio
+        aulas_fim = controle.aulas_fim
 
-    turmas = Turma.objects.all()
-    professores = [turma.professor for turma in turmas]
+        curso_arq = {
+            'Informática para Iniciantes e Melhor Idade': 'info_melhor_idade',
+            'Informática Básica': 'info_basica',
+            'Excel': 'excel',
+            'Montagem e Manutenção de Computadores': 'montagem',
+            'Robótica e Automação: Módulo 01': 'robotica_01',
+            'Robótica e Automação: Módulo 02': 'robotica_02',
+            'Robótica e Automação: Módulo 03': 'robotica_03',
+            'Design e Modelagem 3D: Módulo 01': 'design_01',
+            'Design e Modelagem 3D: Módulo 02': 'design_02',
+            'Gestão de Pessoas': 'gestao_pessoas',
+            'Educação Financeira': 'educ_finan',
+            'Marketing Digital': 'mark_digital',
+            'Marketing Empreendedor': 'mark_emp'
+        }
 
-    for professor in professores:
-        cursos = [(turma.curso if turma.professor == professor else None) for turma in turmas]
+        turmas = Turma.objects.all()
+        professores = set(turma.professor for turma in turmas)  # Elimina duplicatas
 
-        for curso in cursos:
-            if not curso:
-                del cursos[cursos.index(curso)]
-                continue
+        for professor in professores:
+            # Filtra turmas do professor
+            turmas_professor = turmas.filter(professor=professor)
+            cursos = set(turma.curso for turma in turmas_professor)  # Elimina duplicatas
 
-            wb = Workbook()
-            ws_presenca = wb.create_sheet(title='Presença')
+            for curso in cursos:
+                if curso not in curso_arq:
+                    print(f"Curso '{curso}' não mapeado em curso_arq. Pulando...")
+                    continue  # Pula cursos que não estão mapeados
 
-            turmas_aux = Turma.objects.filter(Q(professor=professor) & Q(curso=curso))
+                # Filtra turmas específicas do curso e professor
+                turmas_aux = turmas_professor.filter(curso=curso)
 
-            start_row = 1
-            for turma in turmas_aux:
-                sabados = []
-                domingos = []
+                if not turmas_aux.exists():
+                    continue  # Pula se não houver turmas
 
-                # Título da Turma
-                header = f'{turma.dias} {turma.horario()}'
-                ws_presenca.merge_cells(start_row=start_row, start_column=1, end_row=start_row, end_column=2)
-                ws_presenca.cell(row=start_row, column=1).value = header
-                ws_presenca.cell(row=start_row, column=1).font = Font(bold=True)
-                ws_presenca.cell(row=start_row, column=1).alignment = Alignment(horizontal="center")
+                wb = Workbook()
+                # Remove a folha padrão criada pelo Workbook
+                default_sheet = wb.active
+                wb.remove(default_sheet)
 
-                # LEGENDA
-                # Presente
-                ws_presenca.merge_cells(start_row=start_row, start_column=3, end_row=start_row, end_column=4)
-                ws_presenca.cell(row=start_row, column=3).value = 'Presente'
-                ws_presenca.cell(row=start_row, column=3).font = Font(bold=True)
-                ws_presenca.cell(row=start_row, column=3).alignment = Alignment(horizontal="center")
-                ws_presenca.cell(row=start_row, column=5).value = 'P'
-                ws_presenca.cell(row=start_row, column=5).font = Font(bold=True)
-                ws_presenca.cell(row=start_row, column=5).alignment = Alignment(horizontal="center")
-                ws_presenca.cell(row=start_row, column=5).fill = PatternFill(start_color="6aa84f", end_color="6aa84f",
-                                                                             fill_type="solid")
+                # Cria as folhas necessárias
+                criar_folha_presenca(wb, turmas_aux, aulas_inicio, aulas_fim)
+                criar_folha_alunos(wb, turmas_aux)
 
-                # Faltoso
-                ws_presenca.merge_cells(start_row=start_row, start_column=7, end_row=start_row, end_column=8)
-                ws_presenca.cell(row=start_row, column=7).value = 'Faltoso'
-                ws_presenca.cell(row=start_row, column=7).font = Font(bold=True)
-                ws_presenca.cell(row=start_row, column=7).alignment = Alignment(horizontal="center")
-                ws_presenca.cell(row=start_row, column=9).value = 'F'
-                ws_presenca.cell(row=start_row, column=9).font = Font(bold=True)
-                ws_presenca.cell(row=start_row, column=9).alignment = Alignment(horizontal="center")
-                ws_presenca.cell(row=start_row, column=9).fill = PatternFill(start_color="cc0000", end_color="cc0000",
-                                                                             fill_type="solid")
+                # Definir caminho e nome do arquivo
+                nome_arquivo = f"presenca_{professor}_{curso_arq[curso]}.xlsx"
+                caminho_arquivo = os.path.join('media', 'planilhas', nome_arquivo)
 
-                # Fim de Semana
-                ws_presenca.merge_cells(start_row=start_row, start_column=11, end_row=start_row, end_column=12)
-                ws_presenca.cell(row=start_row, column=11).value = 'Fim de Semana'
-                ws_presenca.cell(row=start_row, column=11).font = Font(bold=True)
-                ws_presenca.cell(row=start_row, column=11).alignment = Alignment(horizontal="center")
-                ws_presenca.cell(row=start_row, column=13).value = 'S/D'
-                ws_presenca.cell(row=start_row, column=13).font = Font(bold=True)
-                ws_presenca.cell(row=start_row, column=13).alignment = Alignment(horizontal="center")
-                ws_presenca.cell(row=start_row, column=13).fill = PatternFill(start_color="3d85c6", end_color="3d85c6",
-                                                                              fill_type="solid")
+                # Garantir que o diretório exista
+                os.makedirs(os.path.dirname(caminho_arquivo), exist_ok=True)
 
-                # Feriado
-                ws_presenca.merge_cells(start_row=start_row, start_column=15, end_row=start_row, end_column=16)
-                ws_presenca.cell(row=start_row, column=15).value = 'Feriado'
-                ws_presenca.cell(row=start_row, column=15).font = Font(bold=True)
-                ws_presenca.cell(row=start_row, column=15).alignment = Alignment(horizontal="center")
-                ws_presenca.cell(row=start_row, column=17).value = 'H'
-                ws_presenca.cell(row=start_row, column=17).font = Font(bold=True)
-                ws_presenca.cell(row=start_row, column=17).alignment = Alignment(horizontal="center")
-                ws_presenca.cell(row=start_row, column=17).fill = PatternFill(start_color="f1c232", end_color="f1c232",
-                                                                              fill_type="solid")
+                # Salvar o workbook
+                wb.save(caminho_arquivo)
+                print(f"Planilha salva: {caminho_arquivo}")
 
-                # Títulos de coluna
-                ws_presenca.cell(row=start_row + 1, column=1).value = 'ID'
-                ws_presenca.cell(row=start_row + 1, column=2).value = 'Nome'
-
-                for col in range(3, (aulas_fim - aulas_inicio).days + 4):
-                    dia_aula = aulas_inicio + timedelta(days=col - 3)
-                    ws_presenca.cell(row=start_row + 1, column=col).value = dia_aula.strftime('%d/%m')
-                    if dia_aula.weekday() == 5:
-                        sabados.append(col)
-                    elif dia_aula.weekday() == 6:
-                        domingos.append(col)
-
-                for col in range(1, ws_presenca.max_column + 1):
-                    cell = ws_presenca.cell(row=start_row + 1, column=col)
-                    cell.font = Font(bold=True)
-                    cell.alignment = Alignment(horizontal="center")
-
-                # Alunos
-                alunos = Aluno.objects.filter(id_turma=turma).annotate(
-                    nome_ordenacao=Coalesce('nome_social', 'nome')).order_by('nome_ordenacao')
-
-                idx = 0
-
-                for idx, aluno in enumerate(alunos):
-                    ws_presenca.cell(row=idx + start_row + 2, column=1).value = aluno.pk
-                    ws_presenca.cell(row=idx + start_row + 2,
-                                     column=2).value = aluno.nome_social if aluno.nome_social else aluno.nome
-                    for col in sabados + domingos:
-                        ws_presenca.cell(row=idx + start_row + 2, column=col).font = Font(bold=True)
-                        ws_presenca.cell(row=idx + start_row + 2, column=col).alignment = Alignment(horizontal="center")
-                        ws_presenca.cell(row=idx + start_row + 2, column=col).fill = PatternFill(start_color="3d85c6",
-                                                                                                 end_color="3d85c6",
-                                                                                                 fill_type="solid")
-                        if col in sabados:
-                            ws_presenca.cell(row=idx + start_row + 2, column=col).value = 'S'
-                        else:
-                            ws_presenca.cell(row=idx + start_row + 2, column=col).value = 'D'
-
-                # Formatação Condicional
-                range_str = f"C{start_row + 2}:{get_column_letter(ws_presenca.max_column)}{idx + start_row + 2}"
-                red_fill = PatternFill(start_color="cc0000", end_color="cc0000", fill_type="solid")
-                green_fill = PatternFill(start_color="6aa84f", end_color="6aa84f", fill_type="solid")
-                yellow_fill = PatternFill(start_color="f1c232", end_color="f1c232", fill_type="solid")
-
-                ws_presenca.conditional_formatting.add(range_str,
-                                                       CellIsRule(operator='equal', formula=['"F"'], fill=red_fill))
-                ws_presenca.conditional_formatting.add(range_str,
-                                                       CellIsRule(operator='equal', formula=['"P"'], fill=green_fill))
-                ws_presenca.conditional_formatting.add(range_str,
-                                                       CellIsRule(operator='equal', formula=['"H"'], fill=yellow_fill))
-
-                # Espaçamento
-                max_row = idx + start_row + 3
-                for col in range(1, ws_presenca.max_column + 1):
-                    ws_presenca.cell(row=max_row, column=col).fill = PatternFill(start_color="000000",
-                                                                                 end_color="000000", fill_type="solid")
-
-                start_row = max_row + 1
-
-            ajustar_colunas(ws_presenca)
-
-            ws_alunos = wb.create_sheet(title='Alunos')
-            ws_alunos.cell(row=1, column=1).value = 'ID'
-            ws_alunos.cell(row=1, column=2).value = 'Nome'
-            ws_alunos.cell(row=1, column=3).value = 'CPF'
-            ws_alunos.cell(row=1, column=4).value = 'Celular'
-            ws_alunos.cell(row=1, column=5).value = 'Rua'
-            ws_alunos.cell(row=1, column=6).value = 'Número'
-            ws_alunos.cell(row=1, column=7).value = 'Bairro'
-            ws_alunos.cell(row=1, column=8).value = 'Cidade'
-            ws_alunos.cell(row=1, column=9).value = 'UF'
-            ws_alunos.cell(row=1, column=10).value = 'É PCD?'
-
-            alunos = Aluno.objects.filter(id_turma__in=turmas_aux).annotate(
-                nome_ordenacao=Coalesce('nome_social', 'nome')).order_by('nome_ordenacao')
-
-            for row, aluno in enumerate(alunos, start=2):
-                ws_alunos.cell(row=row, column=1).value = aluno.pk
-                ws_alunos.cell(row=row, column=2).value = aluno.nome_social if aluno.nome_social else aluno.nome
-                ws_alunos.cell(row=row, column=3).value = aluno.cpf
-                ws_alunos.cell(row=row, column=4).value = aluno.celular
-                ws_alunos.cell(row=row, column=5).value = aluno.rua
-                ws_alunos.cell(row=row, column=6).value = aluno.numero
-                ws_alunos.cell(row=row, column=7).value = aluno.bairro
-                ws_alunos.cell(row=row, column=8).value = aluno.cidade
-                ws_alunos.cell(row=row, column=9).value = aluno.uf
-                ws_alunos.cell(row=row, column=10).value = 'PCD' if aluno.pcd else ''
-
-            ajustar_colunas(ws_alunos)
-
-            filename = f"media/planilhas/presenca_{professor}_{curso_arq[curso]}.xlsx"
-            wb.save(filename)
+    except Exception as e:
+        print(f"Ocorreu um erro durante a geração das planilhas: {e}")
 
 
 # Configuração do log
