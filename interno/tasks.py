@@ -78,18 +78,17 @@ def gerar_planilhas():
     curso_arq = {
         'Informática para Iniciantes e Melhor Idade': 'info_melhor_idade',
         'Informática Básica': 'info_basica',
-        'Excel Intermediário': 'excel_int',
-        'Excel Avançado': 'excel_ava',
+        'Excel': 'excel',
         'Montagem e Manutenção de Computadores': 'montagem',
         'Robótica e Automação: Módulo 01': 'robotica_01',
         'Robótica e Automação: Módulo 02': 'robotica_02',
         'Robótica e Automação: Módulo 03': 'robotica_03',
         'Design e Modelagem 3D: Módulo 01': 'design_01',
         'Design e Modelagem 3D: Módulo 02': 'design_02',
-        'Gestão de Pessoas': 'gestao',
+        'Gestão de Pessoas': 'gestao_pessoas',
         'Educação Financeira': 'educ_finan',
-        'Marketing Digital e Empreendedor': 'mark_digital_emp',
-        'Ferramentas do Marketing Digital': 'fer_mark_digital'
+        'Marketing Digital': 'mark_digital',
+        'Marketing Empreendedor': 'mark_emp'
     }
 
     turmas = Turma.objects.all()
