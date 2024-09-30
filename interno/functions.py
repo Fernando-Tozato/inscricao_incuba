@@ -136,11 +136,7 @@ def enviar_email_senha(request, user):
     email_message.send()
 
 
-def matricula_valida(request, turma):
+def matricula_valida(request):
     if is_allowed(request.user):
         return True
-
-    if turma.num_alunos >= turma.vagas:
-        return False
-
-    return True
+    return False

@@ -188,7 +188,7 @@ def matricula(request, inscrito_id=None):
             )
 
             try:
-                if matricula_valida(request, id_turma):
+                if matricula_valida(request):
                     id_turma.num_alunos += 1
 
                     aluno.full_clean()
@@ -221,7 +221,6 @@ def enviado(request):
     return render(request, 'interno/enviado_int.html')
 
 
-@user_passes_test(is_allowed)
 @login_required
 def busca_de_aluno(request):
     context = {}
@@ -249,13 +248,14 @@ def busca_de_aluno(request):
     return render(request, 'interno/busca_de_aluno.html', context)
 
 
-@user_passes_test(is_allowed)
 @login_required
 def editar_aluno(request, aluno_id=None):
     turmas: str = get_turmas_as_json(['curso', 'dias', 'horario', 'idade', 'escolaridade'])
     context: dict[str: str | MatriculaForm] = {'turmas': turmas}
 
     aluno = get_object_or_404(Aluno, id=aluno_id) if aluno_id else None
+
+    turma_old = aluno.id_turma
 
     if request.method == 'POST':
         form = MatriculaForm(request.POST, inscrito=aluno)
@@ -304,22 +304,30 @@ def editar_aluno(request, aluno_id=None):
                     Q(horario_saida=horario_saida)
                 ).first()
 
-                if id_turma and matricula_valida(request, id_turma):
+                if id_turma and matricula_valida(request):
                     aluno.id_turma = id_turma
 
-                    # Salvar o objeto Aluno após as atualizações
-                    aluno.full_clean()  # Validação completa do aluno
+                    aluno.full_clean()
                     aluno.save()
+
+                    print(f'\n\n\n\nold: {turma_old.pk}\nnew: {id_turma.pk}')
+                    if turma_old != id_turma:
+                        print("diferente")
+                        turma_old.num_alunos -= 1
+                        print(f'old: {turma_old.num_alunos}')
+                        turma_old.full_clean()
+                        turma_old.save()
 
                     # Atualizar a turma
                     id_turma.num_alunos += 1
-                    id_turma.full_clean()  # Validação completa da turma
+                    print(f'new: {id_turma.num_alunos}')
+                    id_turma.full_clean()
                     id_turma.save()
 
                     messages.success(request, 'Dados do aluno atualizados com sucesso!')
                     return render(request, 'interno/enviado_int.html')
                 else:
-                    messages.error(request, 'Turma cheia ou dados inválidos.')
+                    messages.error(request, 'Você não tem permissão para executar essa ação.')
             except ValidationError as e:
                 messages.error(request, f'Erro de validação: {e}')
             except IntegrityError as e:
@@ -336,7 +344,6 @@ def editar_aluno(request, aluno_id=None):
     return render(request, 'interno/editar_aluno.html', context)
 
 
-@user_passes_test(is_allowed)
 @login_required
 def turma(request):
     return render(request, 'interno/turma.html', {'turmas': Turma.objects.all()})
