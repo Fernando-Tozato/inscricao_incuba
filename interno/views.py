@@ -30,7 +30,7 @@ from externo.functions import get_turmas_as_json
 from .forms import *
 from .functions import *
 from .tasks import *
-
+from .criar_planilhas_coord import *
 
 def loop(request):
     while True:
@@ -637,3 +637,46 @@ def sorteio(request):
     # avisar_sorteados(request, emails_nao_sorteados, False)
 
     return redirect('resultado')
+
+
+def planilha_coord(request):
+    planilhas_dir = os.path.join(settings.MEDIA_ROOT, 'planilha_coord')
+
+    if not os.path.exists(planilhas_dir):
+        print('planilha_coord não existe')
+        raise Http404("A pasta 'planilha_coord' não foi encontrada")
+    print('planilha_coord existe')
+
+    filenames = os.listdir(planilhas_dir)
+
+    if not filenames:
+        print('planilha_coord vazio')
+        gerar_planilha_coord()
+        filenames = os.listdir(planilhas_dir)
+        if not filenames:
+            print('planilha_coord não gerada')
+            raise Http404("Não foi possível gerar a planilha")
+        print('planilha_coord criadas')
+    print('planilha_coord não vazio')
+
+    zip_subdir = "planilha_coord"
+    zip_filename = f"{zip_subdir}.zip"
+
+    buffer = BytesIO()
+
+    with zipfile.ZipFile(buffer, "w") as zf:
+        for filename in filenames:
+            file_path = os.path.join(planilhas_dir, filename)
+            if os.path.exists(file_path):
+                with open(file_path, 'rb') as f:
+                    zip_path = os.path.join(zip_subdir, filename)
+                    zf.writestr(zip_path, f.read())
+            else:
+                raise Http404(f"{filename} não encontrado")
+
+    buffer.seek(0)
+
+    response = HttpResponse(buffer, content_type="application/zip")
+    response['Content-Disposition'] = f'attachment; filename={zip_filename}'
+
+    return response
