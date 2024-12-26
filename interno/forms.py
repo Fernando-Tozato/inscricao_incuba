@@ -1,7 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, PasswordResetForm, SetPasswordForm
 from django.contrib.auth.models import User
-from django.shortcuts import get_object_or_404
 
 from database.models import Inscrito, Turma
 from incubadora.constants import *
@@ -138,3 +137,47 @@ class CustomPasswordResetForm(PasswordResetForm):
 class CustomSetPasswordForm(SetPasswordForm):
     senha = forms.CharField(widget=forms.PasswordInput)
     confirmacao_senha = forms.CharField(widget=forms.PasswordInput)
+
+
+class TurmaForm(forms.Form):
+    curso = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control required',
+                                                         'placeholder': 'Curso'}))
+
+    professor = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control required',
+                                                         'placeholder': 'Professor'}))
+
+    dias = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control required',
+                                                         'placeholder': 'Dias da semana'}))
+
+    horario_entrada = forms.TimeField(widget=forms.TimeInput(format='%H:%M',
+                                                             attrs={'class': 'form-control required',
+                                                                    'placeholder': 'Horário entrada'}))
+
+    horario_saida = forms.TimeField(widget=forms.TimeInput(format='%H:%M',
+                                                           attrs={'class': 'form-control required',
+                                                                  'placeholder': 'Horário saída'}))
+
+    vagas = forms.IntegerField(widget=forms.NumberInput(attrs={'class': 'form-control required',
+                                                             'placeholder': 'Vagas'}))
+
+    idade = forms.IntegerField(widget=forms.NumberInput(attrs={'class': 'form-control required',
+                                                             'placeholder': 'Idade'}))
+
+    escolaridade = forms.ChoiceField(choices=ESCOLARIDADE_OPTIONS,
+                                     widget=forms.Select(attrs={'class': 'form-select required'}),
+                                     initial='')
+
+    is_blank = True
+
+    def __init__(self, *args, **kwargs):
+        turma: Turma | None = kwargs.pop('turma', None)
+        super(TurmaForm, self).__init__(*args, **kwargs)
+
+        if turma is not None:
+            self.fields['curso'].initial = turma.curso
+            self.fields['professor'].initial = turma.professor
+            self.fields['dias'].initial = turma.dias
+            self.fields['vagas'].initial = turma.vagas
+            self.fields['idade'].initial = turma.idade
+            self.fields['escolaridade'].initial = turma.escolaridade
+            self.is_blank = False

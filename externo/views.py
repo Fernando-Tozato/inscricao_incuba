@@ -15,6 +15,7 @@ from unidecode import unidecode
 from database.models import *
 from externo.forms import InscricaoForm, ResultadoForm
 from externo.functions import *
+from incubadora.functions import load_form_to_object, get_turma_from_form
 
 
 def home(request):
@@ -44,75 +45,7 @@ def inscricao(request):
         form = InscricaoForm(request.POST)
         context.update({'form': form})
         if form.is_valid():
-            nome = form.cleaned_data['nome']
-            nome_pesquisa = unidecode(form.cleaned_data['nome'].upper())
-            nome_social = form.cleaned_data['nome_social']
-            nome_social_pesquisa = unidecode(form.cleaned_data['nome_social'].upper())
-            nascimento = form.cleaned_data['nascimento']
-            cpf = form.cleaned_data['cpf']
-            rg = form.cleaned_data['rg']
-            data_emissao = form.cleaned_data['data_emissao']
-            orgao_emissor = form.cleaned_data['orgao_emissor']
-            uf_emissao = form.cleaned_data['uf_emissao']
-            filiacao = form.cleaned_data['filiacao']
-            escolaridade = form.cleaned_data['escolaridade']
-            email = form.cleaned_data['email']
-            telefone = form.cleaned_data['telefone']
-            celular = form.cleaned_data['celular']
-            cep = form.cleaned_data['cep']
-            rua = form.cleaned_data['rua']
-            numero = form.cleaned_data['numero']
-            complemento = form.cleaned_data['complemento']
-            bairro = form.cleaned_data['bairro']
-            cidade = form.cleaned_data['cidade']
-            uf = form.cleaned_data['uf']
-            pcd = form.cleaned_data['pcd']
-            ps = form.cleaned_data['ps']
-            curso = form.cleaned_data['curso']
-            dias = form.cleaned_data['dias']
-            horario = form.cleaned_data['horario']
-
-            horario_entrada = horario[:5]
-            horario_saida = horario[8:]
-
-            id_turma = Turma.objects.filter(
-                Q(curso=curso) &
-                Q(dias=dias) &
-                Q(horario_entrada=horario_entrada) &
-                Q(horario_saida=horario_saida)
-            )[0]
-
-            numero_inscricao = gerar_numero_inscricao(nome, cpf, nascimento)
-
-            inscrito = Inscrito(
-                nome=nome,
-                nome_pesquisa=nome_pesquisa,
-                nome_social=nome_social if nome_social != '' else None,
-                nome_social_pesquisa=nome_social_pesquisa if nome_social_pesquisa != '' else None,
-                nascimento=datetime.datetime.strptime(nascimento, '%d/%m/%Y'),
-                cpf=re.sub(r'\D', '', cpf),
-                rg=rg if rg != '' else None,
-                data_emissao=datetime.datetime.strptime(data_emissao, '%d/%m/%Y') if data_emissao != '' else None,
-                orgao_emissor=orgao_emissor if orgao_emissor != '' else None,
-                uf_emissao=uf_emissao if uf_emissao != '' else None,
-                filiacao=filiacao,
-                escolaridade=escolaridade,
-                email=email if email != '' else None,
-                telefone=telefone if telefone != '' else None,
-                celular=celular if celular != '' else None,
-                cep=cep,
-                rua=rua,
-                numero=numero,
-                complemento=complemento if complemento != '' else None,
-                bairro=bairro,
-                cidade=cidade,
-                uf=uf,
-                pcd=pcd,
-                ps=ps,
-                ja_sorteado=False,
-                id_turma=id_turma,
-                numero_inscricao=numero_inscricao
-            )
+            inscrito = load_form_to_object(form, Inscrito)
 
             try:
                 inscrito.full_clean()
@@ -124,7 +57,7 @@ def inscricao(request):
             except Exception as e:
                 messages.error(request, f'Erro: {e}')
             else:
-                return render(request, 'externo/enviado_ext.html', {'inscricao': numero_inscricao})
+                return render(request, 'externo/enviado_ext.html', {'inscricao': inscrito.numero_inscricao})
 
     else:
         agora = timezone.now()
@@ -159,19 +92,7 @@ def resultado(request):
         form = ResultadoForm(request.POST)
         context.update({'form': form})
         if form.is_valid():
-            curso = form.cleaned_data['curso']
-            dias = form.cleaned_data['dias']
-            horario = form.cleaned_data['horario']
-
-            horario_entrada = horario[:5]
-            horario_saida = horario[8:]
-
-            id_turma = Turma.objects.filter(
-                Q(curso=curso) &
-                Q(dias=dias) &
-                Q(horario_entrada=horario_entrada) &
-                Q(horario_saida=horario_saida)
-            )[0]
+            id_turma = get_turma_from_form(form)
 
             sorteados = Inscrito.objects.filter(Q(id_turma=id_turma) & Q(ja_sorteado=True))
             if len(sorteados) == 0:

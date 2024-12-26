@@ -1,21 +1,11 @@
-import logging
+from logging import Logger
 import random
 
-from django.db.models import Q
+from django.db.models import Q, QuerySet
 
 from database.models import Turma, Inscrito
 
-logger = logging.getLogger(__name__)
-handler = logging.FileHandler('media/sorteio/sorteio.log', encoding='utf-8')
-formatter = logging.Formatter('%(asctime)s - %(message)s')
-handler.setFormatter(formatter)
-logger.addHandler(handler)
-logger.setLevel(logging.INFO)
-turmas = Turma.objects.all()
-inscritos = Inscrito.objects.all()
-
-
-def sortear():
+def sortear(logger: Logger, turmas: QuerySet[Turma], inscritos: QuerySet[Inscrito]):
     """
     Realiza o sorteio de inscritos em turmas conforme as regras especificadas.
 

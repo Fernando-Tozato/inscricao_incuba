@@ -1,11 +1,6 @@
-import re
-import threading
-
-from django.utils import timezone
-from unidecode import unidecode
-import datetime
 import json
-import os
+import logging
+import threading
 import time
 import zipfile
 from io import BytesIO
@@ -14,23 +9,22 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth.tokens import default_token_generator
 from django.core.exceptions import ValidationError
-from django.core.mail import EmailMultiAlternatives
-from django.db.models import Sum, Q
+from django.db.models import Sum
 from django.db.utils import IntegrityError
 from django.http import HttpResponse, Http404
 from django.http import JsonResponse
-from django.shortcuts import render, redirect
-from django.utils.encoding import force_bytes
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.shortcuts import render, redirect, get_object_or_404
+from django.utils.http import urlsafe_base64_decode
 from django.views.decorators.csrf import csrf_protect
 
 from externo.functions import get_turmas_as_json
+from incubadora.functions import load_form_to_object
+from .criar_planilhas_coord import *
 from .forms import *
 from .functions import *
 from .tasks import *
-from .criar_planilhas_coord import *
+
 
 def loop(request):
     while True:
@@ -118,84 +112,17 @@ def matricula(request, inscrito_id=None):
         print(request.POST)
 
         if form.is_valid():
-
-            nome = form.cleaned_data['nome']
-            nome_pesquisa = unidecode(form.cleaned_data['nome'].upper())
-            nome_social = form.cleaned_data['nome_social']
-            nome_social_pesquisa = unidecode(form.cleaned_data['nome_social'].upper())
-            nascimento = form.cleaned_data['nascimento']
-            cpf = form.cleaned_data['cpf']
-            rg = form.cleaned_data['rg']
-            data_emissao = form.cleaned_data['data_emissao']
-            orgao_emissor = form.cleaned_data['orgao_emissor']
-            uf_emissao = form.cleaned_data['uf_emissao']
-            filiacao = form.cleaned_data['filiacao']
-            escolaridade = form.cleaned_data['escolaridade']
-            observacoes = form.cleaned_data['observacoes']
-            email = form.cleaned_data['email']
-            telefone = form.cleaned_data['telefone']
-            celular = form.cleaned_data['celular']
-            cep = form.cleaned_data['cep']
-            rua = form.cleaned_data['rua']
-            numero = form.cleaned_data['numero']
-            complemento = form.cleaned_data['complemento']
-            bairro = form.cleaned_data['bairro']
-            cidade = form.cleaned_data['cidade']
-            uf = form.cleaned_data['uf']
-            pcd = form.cleaned_data['pcd']
-            ps = form.cleaned_data['ps']
-            curso = form.cleaned_data['curso']
-            dias = form.cleaned_data['dias']
-            horario = form.cleaned_data['horario']
-
-            horario_entrada = horario[:5]
-            horario_saida = horario[8:]
-
-            id_turma = Turma.objects.filter(
-                Q(curso=curso) &
-                Q(dias=dias) &
-                Q(horario_entrada=horario_entrada) &
-                Q(horario_saida=horario_saida)
-            )[0]
-
-            aluno = Aluno(
-                nome=nome,
-                nome_pesquisa=nome_pesquisa,
-                nome_social=nome_social if nome_social != '' else None,
-                nome_social_pesquisa=nome_social_pesquisa if nome_social_pesquisa != '' else None,
-                nascimento=datetime.datetime.strptime(nascimento, '%d/%m/%Y'),
-                cpf=re.sub(r'\D', '', cpf),
-                rg=rg if rg != '' else None,
-                data_emissao=datetime.datetime.strptime(data_emissao, '%d/%m/%Y') if data_emissao != '' else None,
-                orgao_emissor=orgao_emissor if orgao_emissor != '' else None,
-                uf_emissao=uf_emissao if uf_emissao != '' else None,
-                filiacao=filiacao,
-                escolaridade=escolaridade,
-                observacoes=observacoes if observacoes != '' else None,
-                email=email if email != '' else None,
-                telefone=telefone if telefone != '' else None,
-                celular=celular if celular != '' else None,
-                cep=cep,
-                rua=rua,
-                numero=numero,
-                complemento=complemento if complemento != '' else None,
-                bairro=bairro,
-                cidade=cidade,
-                uf=uf,
-                pcd=pcd,
-                ps=ps,
-                id_turma=id_turma
-            )
+            aluno = load_form_to_object(form, Aluno)
 
             try:
                 if matricula_valida(request):
-                    id_turma.num_alunos += 1
+                    aluno.id_turma.num_alunos += 1
 
                     aluno.full_clean()
                     aluno.save()
 
-                    id_turma.full_clean()
-                    id_turma.save()
+                    aluno.id_turma.full_clean()
+                    aluno.id_turma.save()
                 else:
                     messages.error(request, 'Turma cheia.')
                     return render(request, 'interno/matricula.html', context)
@@ -352,14 +279,75 @@ def turma(request):
 @user_passes_test(is_allowed)
 @login_required
 def turma_novo(request):
-    return render(request, 'interno/turma_novo.html')
+    context = {}
+
+    if request.method == 'POST':
+        form = TurmaForm(request.POST)
+        context.update({'form': form})
+        if form.is_valid():
+            turma = load_form_to_object(form, Turma)
+
+            try:
+                turma.full_clean()
+                turma.save()
+            except IntegrityError as e:
+                messages.error(request,
+                               f'Houve um problema com os dados inseridos. Contate a equipe de desenvolvimento.')
+            except Exception as e:
+                messages.error(request, f'Erro: {e}')
+            else:
+                return redirect('turma')
+
+    else:
+        context.update({'form': TurmaForm})
+
+    return render(request, 'interno/turma_form.html', context)
 
 
 @user_passes_test(is_allowed)
 @login_required
-def turma_editar(request, turma_id):
-    turma = get_object_or_404(Turma, id=turma_id)
-    return render(request, 'interno/turma_editar.html', {'turma': turma})
+def turma_editar(request, turma_id=None):
+    context = {}
+
+    turma = get_object_or_404(Turma, id=turma_id) if turma_id else None
+
+    if request.method == 'POST':
+        form = TurmaForm(request.POST, turma=turma)
+        context.update({'form': form})
+
+        if form.is_valid():
+            try:
+                turma.curso = form.cleaned_data['curso']
+                turma.professor = form.cleaned_data['professor']
+                turma.dias = form.cleaned_data['dias']
+                turma.horario_entrada = form.cleaned_data['horario_entrada']
+                turma.horario_saida = form.cleaned_data['horario_saida']
+                turma.vagas = form.cleaned_data['vagas']
+                turma.idade = form.cleaned_data['idade']
+                turma.escolaridade = form.cleaned_data['escolaridade']
+
+                if is_allowed(request):
+                    turma.full_clean()
+                    turma.save()
+
+                    messages.success(request, 'Dados da turma atualizados com sucesso!')
+                    return render(request, 'interno/enviado_int.html')
+                else:
+                    messages.error(request, 'Você não tem permissão para executar essa ação.')
+            except ValidationError as e:
+                messages.error(request, f'Erro de validação: {e}')
+            except IntegrityError as e:
+                messages.error(request, f'Erro de integridade: {e}')
+            except Exception as e:
+                messages.error(request, f'Erro ao salvar dados: {e}')
+        else:
+            messages.error(request, 'Formulário inválido. Verifique os erros abaixo.')
+    else:
+        # Preencher o formulário com os dados do aluno existente
+        form = TurmaForm(turma=turma)
+        context.update({'form': form})
+
+    return render(request, 'interno/turma_form.html', context)
 
 
 @csrf_protect
@@ -618,8 +606,17 @@ def planilhas(request):
 
 
 def sorteio(request):
+    logger = logging.getLogger(__name__)
+    handler = logging.FileHandler('media/sorteio/sorteio.log', encoding='utf-8')
+    formatter = logging.Formatter('%(asctime)s - %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
+    turmas = Turma.objects.all()
+    inscritos = Inscrito.objects.all()
+
     print('inicio sorteio')
-    sortear()
+    sortear(logger, turmas, inscritos)
     print('fim sorteio')
 
     # inscritos = Inscrito.objects.exclude(email__isnull=True)

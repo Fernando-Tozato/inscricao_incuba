@@ -1,4 +1,6 @@
 /*global DateTimeShortcuts, SelectFilter*/
+// noinspection GrazieInspection
+
 /**
  * Django admin inlines
  *

@@ -1,4 +1,6 @@
 /*global gettext, interpolate, ngettext, Actions*/
+// noinspection SpellCheckingInspection
+
 'use strict';
 {
     function show(selector) {

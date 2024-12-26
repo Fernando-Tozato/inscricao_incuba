@@ -1,14 +1,12 @@
-function muda_footer() {
-    const viewportHeight = window.innerHeight;
-    const pageHeight = document.documentElement.scrollHeight;
-    const footer = document.getElementById('footer');
+let input_entrada;
+let input_saida;
+let select_escolaridade;
 
-    if (pageHeight > viewportHeight) {
-        footer.classList.remove('fixed-bottom');
-    } else {
-        footer.classList.add('fixed-bottom');
-    }
-}
+document.addEventListener('DOMContentLoaded', function() {
+    input_entrada = document.getElementById('id_horario_entrada');
+    input_saida = document.getElementById('id_horario_saida');
+    select_escolaridade = document.getElementById('id_escolaridade');
 
-window.onload = muda_footer;
-window.onresize = muda_footer;
+    adicionar_mascaras(true)
+
+});

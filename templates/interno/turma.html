@@ -14,7 +14,7 @@
 
             <div class="border-top p-3"></div>
 
-            {% if turmas %}
+            {% if turmas.count >= 1 %}
                 <ul class="justify-content-center list-group">
                     {% for turma in turmas %}
                         <li class="list-group-item">
@@ -69,6 +69,8 @@
                         </li>
                     {% endfor %}
                 </ul>
+            {%  else %}
+                <h3>Nenhuma turma foi cadastrada no sistema.</h3>
             {% endif %}
         </div>
         <div class="container align-items-center float-end">

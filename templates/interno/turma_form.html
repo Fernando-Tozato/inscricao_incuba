@@ -1,0 +1,83 @@
+{% extends 'bases/base_interno.html' %}
+
+{% block title %} {% if form.is_blank %}
+	Adicionar turma
+{% else %}
+    Editar turma
+{% endif %}  {% endblock %}
+
+{% load static %}
+
+{% block content %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/inputmask/4.0.9/inputmask/inputmask.min.js" integrity="sha512-DVfS/GbZzLMmxBL/CW92N84eHP2Fq9d+r9RKbvctcvzISVfu+WvD+MCvbK9j8I6nVLrntGo3UUVrNFUDX0ukBw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="{% static 'js/mascaras.js' %}"></script>
+    <script src="{% static 'js/validacao.js' %}"></script>
+    <script src="{% static 'js/turma.js' %}"></script>
+
+    <div class="container my-5 px-5">
+        <form method="post" class="needs-validation">
+            {% csrf_token %}
+
+            {% if messages %}
+            	<div class="messages">
+                {% for message in messages %}
+                	<div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="p-5 mb-5 border bg-body-secondary text-body-secondary rounded">
+                <h2>Turma</h2>
+
+                <div class="row">
+                    <div class="col-sm mt-3 form-floating">
+                        {{ form.curso }}
+                        <label for="{{ form.curso.id_for_label }}" class="ms-2">Curso <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
+                    </div>
+                    <div class="col-sm mt-3 form-floating">
+                        {{ form.professor }}
+                        <label for="{{ form.professor.id_for_label }}" class="ms-2">Professor <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm mt-3 form-floating">
+                        {{ form.dias }}
+                        <label for="{{ form.dias.id_for_label }}" class="ms-2">Dias da semana <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
+                    </div>
+                    <div class="col-sm-1"></div>
+                    <div class="col-sm mt-3 form-floating">
+                        {{ form.horario_entrada }}
+                        <label for="{{ form.horario_entrada.id_for_label }}" class="ms-2">Horário de entrada <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
+                    </div>
+                    <div class="col-sm-1"></div>
+                    <div class="col-sm mt-3 form-floating">
+                        {{ form.horario_saida }}
+                        <label for="{{ form.horario_saida.id_for_label }}" class="ms-2">Horário de saída <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm mt-3 form-floating">
+                        {{ form.vagas }}
+                        <label for="{{ form.vagas.id_for_label }}" class="ms-2">Vagas <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
+                    </div>
+                    <div class="col-sm-1"></div>
+                    <div class="col-sm mt-3 form-floating">
+                        {{ form.idade }}
+                        <label for="{{ form.idade.id_for_label }}" class="ms-2">Idade mínima <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
+                    </div>
+                    <div class="col-sm-1"></div>
+                    <div class="col-sm mt-3 form-floating">
+                        {{ form.escolaridade }}
+                        <label for="{{ form.escolaridade.id_for_label }}" class="ms-2">Escolaridade mínima <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
+                        <div class="invalid-feedback" id="{{ form.escolaridade.id_for_label }}_feedback"></div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}

@@ -1,27 +1,19 @@
-import logging, os
+import os
 import random
 from datetime import timedelta
+from logging import Logger
 
 from django.contrib.sites.shortcuts import get_current_site
-from django.core.mail import EmailMessage, EmailMultiAlternatives
-from django.db.models import Q
+from django.core.mail import EmailMultiAlternatives
+from django.db.models import Q, QuerySet
 from django.db.models.functions import Coalesce
 from django.template.loader import render_to_string
 from openpyxl import Workbook
 from openpyxl.formatting.rule import CellIsRule
-from openpyxl.styles import Font, Alignment, PatternFill
+from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 from openpyxl.utils import get_column_letter
 
 from database.models import *
-
-import os
-from datetime import timedelta
-from django.db.models import Q, F, Value
-from django.db.models.functions import Coalesce
-from openpyxl import Workbook
-from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
-from openpyxl.utils import get_column_letter
-from openpyxl.formatting.rule import CellIsRule
 
 
 def avisar_sorteados(request, emails, sorteado=False):
@@ -326,18 +318,7 @@ def gerar_planilhas():
         print(f"Ocorreu um erro durante a geração das planilhas: {e}")
 
 
-# Configuração do log
-logger = logging.getLogger(__name__)
-handler = logging.FileHandler('media/sorteio/sorteio.log', encoding='utf-8')
-formatter = logging.Formatter('%(asctime)s - %(message)s')
-handler.setFormatter(formatter)
-logger.addHandler(handler)
-logger.setLevel(logging.INFO)
-turmas = Turma.objects.all()
-inscritos = Inscrito.objects.all()
-
-
-def sortear():
+def sortear(logger: Logger, turmas: QuerySet[Turma], inscritos: QuerySet[Inscrito]):
     """
     Realiza o sorteio de inscritos em turmas conforme as regras especificadas.
 

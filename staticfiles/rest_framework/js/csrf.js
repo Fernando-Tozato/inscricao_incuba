@@ -1,3 +1,5 @@
+// noinspection GrazieInspection
+
 function getCookie(name) {
   var cookieValue = null;
 
