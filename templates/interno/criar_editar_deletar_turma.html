@@ -82,16 +82,47 @@
 
             <div class="container align-items-center my-3">
                 <div class="row">
-                    <div class="col-xl-10 col-md-8 col-6 mt-3 form-check">
+                    <div class="col-xl-8 col-md-6 col-4 mt-3 form-check">
                         <input class="form-check-input required" type="checkbox" id="termos" required>
                         <label class="form-check-label" for="termos">Marque para confirmar as informações. <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
                         <div class="invalid-feedback">Você deve aceitar os termos para prosseguir.</div>
                     </div>
-                    <div class="col-xl-2 col-md-4 col-6 mt-3">
+
+                    {% if not form.is_blank %}
+                        <div class="col-xl-2 col-md-3 col-4 mt-3">
+                            <button class="btn btn-danger float-center" type="button" data-bs-toggle="modal" data-bs-target="#delete_modal">Excluir</button>
+                        </div>
+                    {% endif %}
+
+                    <div class="col-xl-2 col-md-3 col-4 mt-3">
                         <button class="btn btn-primary float-end" type="submit">Enviar</button>
                     </div>
                 </div>
             </div>
         </form>
+
+        {% if not form.is_blank %}
+        <div class="modal fade" id="delete_modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="delete_modal_label">Tem certeza?</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Tem certeza de que deseja excluir esta turma?</p>
+                        <p>Essa ação é <span class="text-danger"><strong>IRREVERSÍVEL</strong></span>!</p>
+                    </div>
+                    <div class="modal-footer">
+                        <form method="post" action="{% url 'turma_excluir' form.id_turma %}" class="container">
+                            {% csrf_token %}
+                            <button type="button" class="float-start btn btn-primary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="float-end btn btn-danger">Excluir</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
     </div>
 {% endblock %}

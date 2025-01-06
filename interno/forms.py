@@ -182,6 +182,7 @@ class TurmaForm(forms.Form):
         super(TurmaForm, self).__init__(*args, **kwargs)
 
         if turma is not None:
+            self.id_turma = turma.id
             self.fields['curso'].initial = turma.curso
             self.fields['professor'].initial = turma.professor
             self.fields['dias'].initial = turma.dias

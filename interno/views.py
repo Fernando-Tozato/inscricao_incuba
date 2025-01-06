@@ -273,12 +273,12 @@ def editar_aluno(request, aluno_id=None):
 
 @login_required
 def turma(request):
-    return render(request, 'interno/turma.html', {'turmas': Turma.objects.all()})
+    return render(request, 'interno/ver_turmas.html', {'turmas': Turma.objects.all()})
 
 
 @user_passes_test(is_allowed)
 @login_required
-def turma_novo(request):
+def turma_criar(request):
     context = {}
 
     if request.method == 'POST':
@@ -301,7 +301,7 @@ def turma_novo(request):
     else:
         context.update({'form': TurmaForm})
 
-    return render(request, 'interno/turma_form.html', context)
+    return render(request, 'interno/criar_editar_deletar_turma.html', context)
 
 
 @user_passes_test(is_allowed)
@@ -347,80 +347,18 @@ def turma_editar(request, turma_id=None):
         form = TurmaForm(turma=turma)
         context.update({'form': form})
 
-    return render(request, 'interno/turma_form.html', context)
+    return render(request, 'interno/criar_editar_deletar_turma.html', context)
 
 
-@csrf_protect
-def turma_criar(request):
+@user_passes_test(is_allowed)
+@login_required
+def turma_excluir(request, turma_id=None):
+    turma = get_object_or_404(Turma, id=turma_id) if turma_id else None
+
     if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-
-            curso = data['curso']
-            dias = data['dias']
-            entrada = datetime.strptime(data['entrada'], '%H:%M')
-            saida = datetime.strptime(data['saida'], '%H:%M')
-            vagas = data['vagas']
-            escolaridade = data['escolaridade']
-            idade = data['idade']
-            professor = data['professor']
-
-            turma = Turma(
-                curso=curso,
-                dias=dias,
-                horario_entrada=entrada,
-                horario_saida=saida,
-                vagas=vagas,
-                escolaridade=escolaridade,
-                idade=idade,
-                professor=professor
-            )
-
-            try:
-                turma.full_clean()
-                turma.save()
-                return JsonResponse({'success': 'Sucesso no envio'}, status=200)
-            except ValidationError as e:
-                return JsonResponse({'error': e.message_dict}, status=400)
-        except json.JSONDecodeError:
-            return JsonResponse({'error': 'Dados JSON inválidos'}, status=400)
-    else:
-        return JsonResponse({'error': 'Método não permitido'}, status=405)
-
-
-@csrf_protect
-def turma_view_editar(request):
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-        except json.JSONDecodeError:
-            return JsonResponse({'error': 'Dados JSON inválidos'}, status=400)
-
-        turma_id = data.get('id')
-        if not turma_id:
-            return JsonResponse({'error': 'ID inválido'}, status=400)
-
-        try:
-            turma = Turma.objects.get(id=turma_id)
-        except Turma.DoesNotExist:
-            return JsonResponse({'error': 'Turma não encontrada'}, status=404)
-
-        updated_fields = []
-        for field, value in data.items():
-            if field == 'id':
-                continue
-            if hasattr(turma, field) and getattr(turma, field) != value:
-                setattr(turma, field, value)
-                updated_fields.append(field)
-
-        if not updated_fields:
-            return JsonResponse({'Sucesso': 'Sem mudanças detectadas'}, status=200)
-
-        turma.save(update_fields=updated_fields)
-
-        return JsonResponse({'Sucesso': 'Sucesso na atualização'}, status=200)
-    else:
-        return JsonResponse({'error': 'Método não permitido'}, status=400)
+        turma.delete()
+        return redirect('turma')
+    return redirect('turma_edit', turma_id=turma.id)
 
 
 @user_passes_test(is_allowed)
