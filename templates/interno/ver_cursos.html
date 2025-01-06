@@ -1,66 +1,53 @@
 {% extends 'bases/base_interno.html' %}
 
-{% block title %}Turmas{% endblock %}
+{% block title %}Cursos{% endblock %}
 
 {% load static %}
 
 {% block content %}
     <div class="container my-5 px-5">
         <div class="p-5 mb-5 border bg-body-secondary text-body-secondary rounded">
-            <h1>Turmas:</h1>
-
+            <h1>Cursos:</h1>
 
             <div class="border-top p-3"></div>
 
-            {% if turmas.count >= 1 %}
+            {% if cursos.count >= 1 %}
                 <ul class="justify-content-center list-group">
-                    {% for turma in turmas %}
+                    {% for curso in cursos %}
                         <li class="list-group-item">
-                            <a href="{% url 'turma_editar' turma.id %}" style="text-decoration: none;" class="text-body-secondary">
-                                <h1>{{ turma.curso }}</h1>
+                            <a href="{% url 'curso_editar' curso.id %}" style="text-decoration: none;" class="text-body-secondary">
+                                <h1>{{ curso.nome }}</h1>
                                 <div class="row">
                                     <div class="col-md">
-                                        <h4>{{ turma.professor }}</h4>
-                                    </div>
-                                    <div class="col-md">
-                                        <h4>{{ turma.dias }}</h4>
-                                    </div>
-                                    <div class="col-md">
-                                        <h4>{{ turma.horario }}</h4>
-                                    </div>
-                                    <div class="col-md">
-                                        <h4>Vagas: {{ turma.vagas }}</h4>
+                                        <h4>{{ curso.unidades }}</h4>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md">
-                                        {% if turma.escolaridade == 1 %}
+                                        {% if curso.escolaridade == 1 %}
                                             <h4>Escolaridade: Não alfabetizado(a)</h4>
                                         {% endif %}
-                                        {% if turma.escolaridade == 2 %}
+                                        {% if curso.escolaridade == 2 %}
                                             <h4>Escolaridade: Alfabetizado(a)</h4>
                                         {% endif %}
-                                        {% if turma.escolaridade == 3 %}
+                                        {% if curso.escolaridade == 3 %}
                                             <h4>Escolaridade: Ensino Fundamental I completo (terminou o 5º ano)</h4>
                                         {% endif %}
-                                        {% if turma.escolaridade == 4 %}
+                                        {% if curso.escolaridade == 4 %}
                                             <h4>Escolaridade: Ensino Fundamental II completo (terminou o 9º ano)</h4>
                                         {% endif %}
-                                        {% if turma.escolaridade == 5 %}
+                                        {% if curso.escolaridade == 5 %}
                                             <h4>Escolaridade: Ensino Médio completo</h4>
                                         {% endif %}
-                                        {% if turma.escolaridade == 6 %}
+                                        {% if curso.escolaridade == 6 %}
                                             <h4>Escolaridade: Graduação completa</h4>
                                         {% endif %}
-                                        {% if turma.escolaridade == 7 %}
+                                        {% if curso.escolaridade == 7 %}
                                             <h4>Escolaridade: Pós-graduação completa</h4>
                                         {% endif %}
                                     </div>
                                     <div class="col-md">
-                                        <h4>Idade: {{ turma.idade }}</h4>
-                                    </div>
-                                    <div class="col-md">
-                                        <h4>Alunos: {{ turma.num_alunos }}</h4>
+                                        <h4>Idade: {{ curso.idade }}</h4>
                                     </div>
                                 </div>
                             </a>
@@ -68,11 +55,11 @@
                     {% endfor %}
                 </ul>
             {%  else %}
-                <h3>Nenhuma turma foi cadastrada no sistema.</h3>
+                <h3>Nenhum curso foi cadastrado no sistema.</h3>
             {% endif %}
         </div>
         <div class="container align-items-center float-end">
-            <button class="btn btn-primary float-end" id="btn" type="button" onclick="window.location.href = '{% url 'turma_criar' %}'">Nova turma</button>
+            <button class="btn btn-primary float-end" id="btn" type="button" onclick="window.location.href = '{% url 'curso_criar' %}'">Novo curso</button>
         </div>
     </div>
 {% endblock %}

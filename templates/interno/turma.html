@@ -15,6 +15,10 @@
     <script src="{% static 'js/mascaras.js' %}"></script>
     <script src="{% static 'js/validacao.js' %}"></script>
     <script src="{% static 'js/turma.js' %}"></script>
+    <script type="text/javascript">
+        window.cursos = {{ cursos|safe }};
+        window.unidades = {{ unidades|safe }};
+    </script>
 
     <div class="container my-5 px-5">
         <form method="post" class="needs-validation">
@@ -38,10 +42,6 @@
                     <div class="col-sm mt-3 form-floating">
                         {{ form.curso }}
                         <label for="{{ form.curso.id_for_label }}" class="ms-2">Curso <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
-                    </div>
-                    <div class="col-sm mt-3 form-floating">
-                        {{ form.professor }}
-                        <label for="{{ form.professor.id_for_label }}" class="ms-2">Professor <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
                     </div>
                 </div>
                 <div class="row">
@@ -67,14 +67,13 @@
                     </div>
                     <div class="col-sm-1"></div>
                     <div class="col-sm mt-3 form-floating">
-                        {{ form.idade }}
-                        <label for="{{ form.idade.id_for_label }}" class="ms-2">Idade mínima <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
+                        {{ form.professor }}
+                        <label for="{{ form.professor.id_for_label }}" class="ms-2">Professor <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
                     </div>
                     <div class="col-sm-1"></div>
                     <div class="col-sm mt-3 form-floating">
-                        {{ form.escolaridade }}
-                        <label for="{{ form.escolaridade.id_for_label }}" class="ms-2">Escolaridade mínima <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
-                        <div class="invalid-feedback" id="{{ form.escolaridade.id_for_label }}_feedback"></div>
+                        {{ form.unidade }}
+                        <label for="{{ form.unidade.id_for_label }}" class="ms-2">Unidade <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
                     </div>
                 </div>
                 <span class="mt-4 badge text-bg-danger" id="danger_badge">Os itens marcados com <i class="fa-solid fa-asterisk" style="color: #ffffff;"></i> são obrigatórios!</span>

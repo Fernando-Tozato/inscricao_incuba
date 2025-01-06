@@ -7,41 +7,30 @@ from datetime import datetime
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'incubadora.settings')
 django.setup()
 
-from database.models import Turma, Controle
+from database.models import Unidade, Controle
 
 # Caminho para o arquivo CSV
-csv_file_path_turmas = 'turmas.csv'
+csv_file_path_unidades = 'unidades.csv'
 csv_file_path_controle = 'controle.csv'
 
 
 # Função para importar os dados
-def import_turmas_from_csv(csv_file_path):
+def import_unidades_from_csv(csv_file_path):
     with open(csv_file_path, newline='', encoding='utf-8') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
-            curso = row['curso']
-            dias = row['dias']
-            horario_entrada = datetime.strptime(row['horario_entrada'], '%H:%M').time()
-            horario_saida = datetime.strptime(row['horario_saida'], '%H:%M').time()
-            vagas = int(row['vagas'])
-            escolaridade = int(row['escolaridade'])
-            idade = int(row['idade'])
-            professor = row['professor']
+            nome = row['nome']
+            endereco1 = row['endereco1']
+            endereco2 = row['endereco2']
 
-            # Crie uma nova instância de Turma
-            turma = Turma(
-                curso=curso,
-                dias=dias,
-                horario_entrada=horario_entrada,
-                horario_saida=horario_saida,
-                vagas=vagas,
-                escolaridade=escolaridade,
-                idade=idade,
-                professor=professor
+            unidade = Unidade(
+                nome=nome,
+                endereco1=endereco1,
+                endereco2=endereco2,
             )
 
             # Salve a instância no banco de dados
-            turma.save()
+            unidade.save()
 
 
 def import_controle_from_csv(csv_file_path):
@@ -78,7 +67,7 @@ def import_controle_from_csv(csv_file_path):
 
 # Chame a função para importar os dados
 if __name__ == '__main__':
-    Turma.objects.all().delete()
+    Unidade.objects.all().delete()
     Controle.objects.all().delete()
-    import_turmas_from_csv(csv_file_path_turmas)
+    import_unidades_from_csv(csv_file_path_unidades)
     import_controle_from_csv(csv_file_path_controle)

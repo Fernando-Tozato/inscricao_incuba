@@ -1,16 +1,36 @@
 from django.db import models
 
+class Unidade(models.Model):
+    nome = models.CharField(max_length=100)
+    endereco1 = models.CharField(max_length=200)
+    endereco2 = models.CharField(max_length=200, null=True, blank=True)
+
+    def __str__(self):
+        return self.nome
+
+
+class Curso(models.Model):
+    nome = models.CharField(max_length=100)
+    descricao = models.TextField()
+    requisitos = models.TextField()
+    imagem = models.ImageField(upload_to='cursos/', default='cursos/default.jpg')
+    unidades = models.ManyToManyField('Unidade')
+    escolaridade = models.IntegerField()
+    idade = models.IntegerField()
+
+    def __str__(self):
+        return self.nome
+
 
 class Turma(models.Model):
-    curso = models.CharField(max_length=100)
+    curso = models.ForeignKey('Curso', on_delete=models.CASCADE)
     dias = models.CharField(max_length=20)
     horario_entrada = models.TimeField()
     horario_saida = models.TimeField()
     vagas = models.IntegerField()
-    escolaridade = models.IntegerField()
-    idade = models.IntegerField()
     professor = models.CharField(max_length=100)
     num_alunos = models.IntegerField(default=0)
+    unidade = models.ForeignKey('Unidade', on_delete=models.CASCADE)
     
     def horario(self):
         return f'{self.horario_entrada.strftime("%H:%M")} - {self.horario_saida.strftime("%H:%M")}'

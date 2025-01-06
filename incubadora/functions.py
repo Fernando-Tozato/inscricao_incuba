@@ -1,10 +1,13 @@
 import datetime
+import json
 import re
 
-from django.db.models import Q
+from django.core.serializers.json import DjangoJSONEncoder
+from django.db import models
+from django.db.models import Q, QuerySet
 from unidecode import unidecode
 
-from database.models import Turma, Aluno, Inscrito
+from database.models import Turma, Aluno, Inscrito, Curso, Unidade
 from externo.functions import gerar_numero_inscricao
 
 def get_turma_from_form(form):
@@ -117,28 +120,99 @@ def load_form_to_object(form, obj):
                 numero_inscricao=numero_inscricao
             )
             return inscrito
-    else:
+
+    elif type(obj) == Turma:
         curso = form.cleaned_data['curso']
-        professor = form.cleaned_data['professor']
         dias = form.cleaned_data['dias']
         horario_entrada = form.cleaned_data['horario_entrada']
         horario_saida = form.cleaned_data['horario_saida']
         vagas = form.cleaned_data['vagas']
-        idade = form.cleaned_data['idade']
-        escolaridade = form.cleaned_data['escolaridade']
+        professor = form.cleaned_data['professor']
+        unidade = form.cleaned_data['unidade']
 
         print(horario_entrada, horario_saida)
         print(type(horario_entrada), type(horario_saida))
 
         turma = Turma(
             curso=curso,
-            professor=professor,
             dias=dias,
             horario_entrada=horario_entrada,
             horario_saida=horario_saida,
             vagas=vagas,
-            idade=idade,
-            escolaridade=escolaridade
+            professor=professor,
+            unidade=unidade
         )
 
         return turma
+
+    elif type(obj) == Curso:
+        nome = form.cleaned_data['nome']
+        descricao = form.cleaned_data['descricao']
+        requisitos = form.cleaned_data['requisitos']
+        image = form.cleaned_data['image']
+        unidades = form.cleaned_data['unidades']
+        escolaridade = form.cleaned_data['escolaridade']
+        idade = form.cleaned_data['idade']
+
+        curso = Curso(
+            nome=nome,
+            descricao=descricao,
+            requisitos=requisitos,
+            image=image,
+            unidades=unidades,
+            escolaridade=escolaridade,
+            idade=idade
+        )
+
+        return curso
+
+    elif type(obj) == Unidade:
+        nome = form.cleaned_data['nome']
+        endereco1 = form.cleaned_data['endereco1']
+        endereco2 = form.cleaned_data['endereco2']
+
+        unidade = Unidade(
+            nome=nome,
+            endereco1=endereco1,
+            endereco2=endereco2
+        )
+
+        return unidade
+
+def get_unidade_as_json():
+    unidades: QuerySet[Unidade] = Unidade.objects.all()
+    unidades_list: list[dict] = []
+
+    campos = ['nome', 'endereco1', 'endereco2']
+
+    for unidade in unidades:
+        turma_dict: dict[str: str | int] = {}
+
+        for campo in campos:
+            if hasattr(unidade, campo):
+                valor = getattr(unidade, campo)
+                if callable(valor):  # Se o atributo for um método, chama-o
+                    valor = valor() # Formatação para campos de horário
+                turma_dict[campo] = valor
+
+        unidades_list.append(turma_dict)
+
+    return json.dumps(unidades_list, cls=DjangoJSONEncoder)
+
+def get_curso_as_json():
+    cursos: QuerySet[Curso] = Curso.objects.all()
+    cursos_list: list[dict] = []
+
+    campos = ['nome', 'descricao', 'requisitos', 'imagem', 'unidades', 'escolaridade', 'idade']
+
+    for curso in cursos:
+        turma_dict: dict[str: str | int] = {}
+
+        for campo in campos:
+            if hasattr(curso, campo):
+                valor = getattr(curso, campo)
+                turma_dict[campo] = valor
+
+        cursos_list.append(turma_dict)
+
+    return json.dumps(cursos_list, cls=DjangoJSONEncoder)

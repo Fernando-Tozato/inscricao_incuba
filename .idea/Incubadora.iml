@@ -30,6 +30,7 @@
     <orderEntry type="library" name="jquery" level="application" />
     <orderEntry type="library" name="inputmask" level="application" />
     <orderEntry type="library" name="moment.js" level="application" />
+    <orderEntry type="library" name="b87058db00" level="application" />
   </component>
   <component name="PackageRequirementsSettings">
     <option name="versionSpecifier" value="Don't specify version" />

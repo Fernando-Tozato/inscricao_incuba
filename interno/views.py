@@ -10,16 +10,15 @@ from django.contrib import messages
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.exceptions import ValidationError
+from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models import Sum
 from django.db.utils import IntegrityError
 from django.http import HttpResponse, Http404
-from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.http import urlsafe_base64_decode
-from django.views.decorators.csrf import csrf_protect
 
 from externo.functions import get_turmas_as_json
-from incubadora.functions import load_form_to_object
+from incubadora.functions import load_form_to_object, get_unidade_as_json, get_curso_as_json
 from .criar_planilhas_coord import *
 from .forms import *
 from .functions import *
@@ -272,6 +271,178 @@ def editar_aluno(request, aluno_id=None):
 
 
 @login_required
+def unidade(request):
+    return render(request, 'interno/ver_unidades.html', {'unidades': Unidade.objects.all()})
+
+
+@user_passes_test(is_allowed)
+@login_required
+def unidade_criar(request):
+    context = {}
+
+    if request.method == 'POST':
+        form = UnidadeForm(request.POST)
+        context.update({'form': form})
+        if form.is_valid():
+            unidade = load_form_to_object(form, Unidade)
+
+            try:
+                unidade.full_clean()
+                unidade.save()
+            except IntegrityError as e:
+                messages.error(request,
+                               f'Houve um problema com os dados inseridos. Contate a equipe de suporte.\n\nErro: {e}')
+            except Exception as e:
+                messages.error(request, f'Erro: {e}')
+            else:
+                return redirect('unidade')
+
+    else:
+        context.update({'form': UnidadeForm})
+
+    return render(request, 'interno/unidade.html', context)
+
+
+@user_passes_test(is_allowed)
+@login_required
+def unidade_editar(request, unidade_id=None):
+    context = {}
+
+    unidade = get_object_or_404(Unidade, id=unidade_id) if unidade_id else None
+
+    if request.method == 'POST':
+        form = UnidadeForm(request.POST, unidade=unidade)
+        context.update({'form': form})
+
+        if form.is_valid():
+            try:
+                unidade.nome = form.cleaned_data['nome']
+                unidade.endereco1 = form.cleaned_data['endereco1']
+                unidade.endereco2 = form.cleaned_data['endereco2']
+
+                if is_allowed(request):
+                    unidade.full_clean()
+                    unidade.save()
+
+                    messages.success(request, 'Dados da unidade atualizados com sucesso!')
+                    return render(request, 'interno/enviado_int.html')
+                else:
+                    messages.error(request, 'Você não tem permissão para executar essa ação.')
+            except ValidationError as e:
+                messages.error(request, f'Erro de validação: {e}')
+            except IntegrityError as e:
+                messages.error(request, f'Erro de integridade: {e}')
+            except Exception as e:
+                messages.error(request, f'Erro ao salvar dados: {e}')
+        else:
+            messages.error(request, 'Formulário inválido. Verifique os erros abaixo.')
+    else:
+        form = UnidadeForm(unidade=unidade)
+        context.update({'form': form})
+
+    return render(request, 'interno/unidade.html', context)
+
+
+@user_passes_test(is_allowed)
+@login_required
+def unidade_excluir(request, unidade_id=None):
+    unidade = get_object_or_404(Unidade, id=unidade_id) if unidade_id else None
+
+    if request.method == 'POST':
+        unidade.delete()
+        return redirect('unidade')
+    return redirect('unidade_editar', unidade_id=unidade.id)
+
+
+@login_required
+def curso(request):
+    return render(request, 'interno/ver_cursos.html', {'cursos': Curso.objects.all()})
+
+
+@user_passes_test(is_allowed)
+@login_required
+def curso_criar(request):
+    context = {}
+
+    if request.method == 'POST':
+        form = CursoForm(request.POST)
+        context.update({'form': form})
+        if form.is_valid():
+            curso = load_form_to_object(form, Curso)
+
+            try:
+                curso.full_clean()
+                curso.save()
+            except IntegrityError as e:
+                messages.error(request,
+                               f'Houve um problema com os dados inseridos. Contate a equipe de suporte.\n\nErro: {e}')
+            except Exception as e:
+                messages.error(request, f'Erro: {e}')
+            else:
+                return redirect('curso')
+
+    else:
+        context.update({'form': CursoForm})
+
+    return render(request, 'interno/curso.html', context)
+
+
+@user_passes_test(is_allowed)
+@login_required
+def curso_editar(request, curso_id=None):
+    context = {}
+
+    curso = get_object_or_404(Curso, id=curso_id) if curso_id else None
+
+    if request.method == 'POST':
+        form = CursoForm(request.POST, curso=curso)
+        context.update({'form': form})
+
+        if form.is_valid():
+            try:
+                curso.nome = form.cleaned_data['nome']
+                curso.descricao = form.cleaned_data['descricao']
+                curso.requisitos = form.cleaned_data['requisitos']
+                curso.imagem = form.cleaned_data['imagem']
+                curso.unidades = form.cleaned_data['unidades']
+                curso.escolaridade = form.cleaned_data['escolaridade']
+                curso.idade = form.cleaned_data['idade']
+
+                if is_allowed(request):
+                    curso.full_clean()
+                    curso.save()
+
+                    messages.success(request, 'Dados da curso atualizados com sucesso!')
+                    return render(request, 'interno/enviado_int.html')
+                else:
+                    messages.error(request, 'Você não tem permissão para executar essa ação.')
+            except ValidationError as e:
+                messages.error(request, f'Erro de validação: {e}')
+            except IntegrityError as e:
+                messages.error(request, f'Erro de integridade: {e}')
+            except Exception as e:
+                messages.error(request, f'Erro ao salvar dados: {e}')
+        else:
+            messages.error(request, 'Formulário inválido. Verifique os erros abaixo.')
+    else:
+        form = CursoForm(curso=curso)
+        context.update({'form': form})
+
+    return render(request, 'interno/curso.html', context)
+
+
+@user_passes_test(is_allowed)
+@login_required
+def curso_excluir(request, curso_id=None):
+    curso = get_object_or_404(Curso, id=curso_id) if curso_id else None
+
+    if request.method == 'POST':
+        curso.delete()
+        return redirect('curso')
+    return redirect('curso_editar', curso_id=curso.id)
+
+
+@login_required
 def turma(request):
     return render(request, 'interno/ver_turmas.html', {'turmas': Turma.objects.all()})
 
@@ -279,7 +450,8 @@ def turma(request):
 @user_passes_test(is_allowed)
 @login_required
 def turma_criar(request):
-    context = {}
+    context = {"cursos": list(Curso.objects.all().values('id', 'unidades__id')),
+               'unidades': list(Unidade.objects.all().values('id', 'nome'))}
 
     if request.method == 'POST':
         form = TurmaForm(request.POST)
@@ -292,7 +464,7 @@ def turma_criar(request):
                 turma.save()
             except IntegrityError as e:
                 messages.error(request,
-                               f'Houve um problema com os dados inseridos. Contate a equipe de desenvolvimento.')
+                               f'Houve um problema com os dados inseridos. Contate a equipe de suporte.\n\nErro: {e}')
             except Exception as e:
                 messages.error(request, f'Erro: {e}')
             else:
@@ -301,13 +473,16 @@ def turma_criar(request):
     else:
         context.update({'form': TurmaForm})
 
-    return render(request, 'interno/criar_editar_deletar_turma.html', context)
+    return render(request, 'interno/turma.html', context)
 
 
 @user_passes_test(is_allowed)
 @login_required
 def turma_editar(request, turma_id=None):
-    context = {}
+    cursos = list(Curso.objects.all().values('id', 'unidades__id'))
+    unidades = list(Unidade.objects.all().values('id', 'nome'))
+    context = {"cursos": json.dumps(cursos, cls=DjangoJSONEncoder),
+               "unidades": json.dumps(unidades, cls=DjangoJSONEncoder)}
 
     turma = get_object_or_404(Turma, id=turma_id) if turma_id else None
 
@@ -318,13 +493,12 @@ def turma_editar(request, turma_id=None):
         if form.is_valid():
             try:
                 turma.curso = form.cleaned_data['curso']
-                turma.professor = form.cleaned_data['professor']
                 turma.dias = form.cleaned_data['dias']
                 turma.horario_entrada = form.cleaned_data['horario_entrada']
                 turma.horario_saida = form.cleaned_data['horario_saida']
                 turma.vagas = form.cleaned_data['vagas']
-                turma.idade = form.cleaned_data['idade']
-                turma.escolaridade = form.cleaned_data['escolaridade']
+                turma.professor = form.cleaned_data['professor']
+                turma.unidade = form.cleaned_data['unidade']
 
                 if is_allowed(request):
                     turma.full_clean()
@@ -347,7 +521,7 @@ def turma_editar(request, turma_id=None):
         form = TurmaForm(turma=turma)
         context.update({'form': form})
 
-    return render(request, 'interno/criar_editar_deletar_turma.html', context)
+    return render(request, 'interno/turma.html', context)
 
 
 @user_passes_test(is_allowed)
@@ -358,7 +532,7 @@ def turma_excluir(request, turma_id=None):
     if request.method == 'POST':
         turma.delete()
         return redirect('turma')
-    return redirect('turma_edit', turma_id=turma.id)
+    return redirect('turma_editar', turma_id=turma.id)
 
 
 @user_passes_test(is_allowed)

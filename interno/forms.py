@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, PasswordResetForm, SetPasswordForm
 from django.contrib.auth.models import User
 
-from database.models import Inscrito, Turma
+from database.models import Inscrito, Turma, Curso, Unidade
 from incubadora.constants import *
 
 
@@ -139,12 +139,77 @@ class CustomSetPasswordForm(SetPasswordForm):
     confirmacao_senha = forms.CharField(widget=forms.PasswordInput)
 
 
-class TurmaForm(forms.Form):
-    curso = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control required',
-                                                         'placeholder': 'Curso'}))
+class UnidadeForm(forms.Form):
+    nome = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control required',
+                                                         'placeholder': 'Nome'}))
 
-    professor = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control required',
-                                                         'placeholder': 'Professor'}))
+    endereco1 = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control required',
+                                                              'placeholder': 'Endereço principal'}))
+
+    endereco2 = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control',
+                                                              'placeholder': 'Endereço secundário'}))
+
+    is_blank = True
+
+    def __init__(self, *args, **kwargs):
+        unidade: Unidade | None = kwargs.pop('unidade', None)
+        super(UnidadeForm, self).__init__(*args, **kwargs)
+
+        if unidade is not None:
+            self.id_unidade = unidade.id
+            self.fields['nome'].initial = unidade.nome
+            self.fields['endereco1'].initial = unidade.endereco1
+            self.fields['endereco2'].initial = unidade.endereco2
+            self.is_blank = False
+
+
+class CursoForm(forms.Form):
+    nome = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control required',
+                                                         'placeholder': 'Nome'}))
+
+    descricao = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control required',
+                                                             'placeholder': 'Descrição'}))
+
+    requisitos = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control required',
+                                                              'placeholder': 'Requisitos'}))
+
+    imagem = forms.ImageField(widget=forms.FileInput(attrs={'class': 'form-control',
+                                                           'placeholder': 'Imagem'}))
+
+    unidades = forms.ModelMultipleChoiceField(queryset=Unidade.objects.all(),
+                                              widget=forms.SelectMultiple(attrs={'class': 'form-select required'}),
+                                              required=True,
+                                              label='Unidades disponíveis')
+
+    escolaridade = forms.ChoiceField(choices=ESCOLARIDADE_OPTIONS,
+                                     widget=forms.Select(attrs={'class': 'form-select required'}),
+                                     initial='')
+
+    idade = forms.IntegerField(widget=forms.NumberInput(attrs={'class': 'form-control required',
+                                                             'placeholder': 'Idade'}))
+
+    is_blank = True
+
+    def __init__(self, *args, **kwargs):
+        curso: Curso | None = kwargs.pop('curso', None)
+        super(CursoForm, self).__init__(*args, **kwargs)
+
+        if curso is not None:
+            self.id_turma = curso.id
+            self.fields['nome'].initial = curso.nome
+            self.fields['descricao'].initial = curso.descricao
+            self.fields['requisitos'].initial = curso.requisitos
+            self.fields['imagem'].initial = curso.imagem
+            self.fields['unidades'].initial = curso.unidades
+            self.fields['escolaridade'].initial = curso.escolaridade
+            self.fields['idade'].initial = curso.idade
+            self.is_blank = False
+
+
+class TurmaForm(forms.Form):
+    curso = forms.ModelChoiceField(queryset=Curso.objects.all(),
+                                   widget=forms.Select(attrs={'class': 'form-select required',
+                                                              'placeholder': 'Curso'}))
 
     dias = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control required',
                                                          'placeholder': 'Dias da semana'}))
@@ -152,28 +217,22 @@ class TurmaForm(forms.Form):
     horario_entrada = forms.TimeField(widget=forms.TimeInput(format='%H:%M',
                                                              attrs={'class': 'form-control required',
                                                                     'placeholder': 'Horário entrada',
-                                                                    'type': 'time'}),
-                                      input_formats=['%H:%M'],
-                                      label='Horário entrada',
-                                      help_text='00:00')
+                                                                    'type': 'time'}))
 
     horario_saida = forms.TimeField(widget=forms.TimeInput(format='%H:%M',
                                                            attrs={'class': 'form-control required',
                                                                   'placeholder': 'Horário saída',
-                                                                  'type': 'time'}),
-                                      input_formats=['%H:%M'],
-                                      label='Horário saída',
-                                      help_text='00:00')
+                                                                  'type': 'time'}))
 
     vagas = forms.IntegerField(widget=forms.NumberInput(attrs={'class': 'form-control required',
                                                              'placeholder': 'Vagas'}))
 
-    idade = forms.IntegerField(widget=forms.NumberInput(attrs={'class': 'form-control required',
-                                                             'placeholder': 'Idade'}))
+    professor = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control required',
+                                                              'placeholder': 'Professor'}))
 
-    escolaridade = forms.ChoiceField(choices=ESCOLARIDADE_OPTIONS,
-                                     widget=forms.Select(attrs={'class': 'form-select required'}),
-                                     initial='')
+    unidade = forms.CharField(widget=forms.Select(choices=[('', 'Selecione...')],
+                                                  attrs={'class': 'form-select required',
+                                                         'disabled': 'true'}))
 
     is_blank = True
 
@@ -184,11 +243,10 @@ class TurmaForm(forms.Form):
         if turma is not None:
             self.id_turma = turma.id
             self.fields['curso'].initial = turma.curso
-            self.fields['professor'].initial = turma.professor
             self.fields['dias'].initial = turma.dias
             self.fields['horario_entrada'].initial = turma.horario_entrada
             self.fields['horario_saida'].initial = turma.horario_saida
             self.fields['vagas'].initial = turma.vagas
-            self.fields['idade'].initial = turma.idade
-            self.fields['escolaridade'].initial = turma.escolaridade
+            self.fields['professor'].initial = turma.professor
+            self.fields['unidade'].initial = turma.unidade
             self.is_blank = False
