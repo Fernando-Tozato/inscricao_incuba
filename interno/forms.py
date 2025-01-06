@@ -151,11 +151,19 @@ class TurmaForm(forms.Form):
 
     horario_entrada = forms.TimeField(widget=forms.TimeInput(format='%H:%M',
                                                              attrs={'class': 'form-control required',
-                                                                    'placeholder': 'Horário entrada'}))
+                                                                    'placeholder': 'Horário entrada',
+                                                                    'type': 'time'}),
+                                      input_formats=['%H:%M'],
+                                      label='Horário entrada',
+                                      help_text='00:00')
 
     horario_saida = forms.TimeField(widget=forms.TimeInput(format='%H:%M',
                                                            attrs={'class': 'form-control required',
-                                                                  'placeholder': 'Horário saída'}))
+                                                                  'placeholder': 'Horário saída',
+                                                                  'type': 'time'}),
+                                      input_formats=['%H:%M'],
+                                      label='Horário saída',
+                                      help_text='00:00')
 
     vagas = forms.IntegerField(widget=forms.NumberInput(attrs={'class': 'form-control required',
                                                              'placeholder': 'Vagas'}))
@@ -177,6 +185,8 @@ class TurmaForm(forms.Form):
             self.fields['curso'].initial = turma.curso
             self.fields['professor'].initial = turma.professor
             self.fields['dias'].initial = turma.dias
+            self.fields['horario_entrada'].initial = turma.horario_entrada
+            self.fields['horario_saida'].initial = turma.horario_saida
             self.fields['vagas'].initial = turma.vagas
             self.fields['idade'].initial = turma.idade
             self.fields['escolaridade'].initial = turma.escolaridade

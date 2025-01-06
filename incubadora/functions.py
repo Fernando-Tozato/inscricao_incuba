@@ -127,6 +127,9 @@ def load_form_to_object(form, obj):
         idade = form.cleaned_data['idade']
         escolaridade = form.cleaned_data['escolaridade']
 
+        print(horario_entrada, horario_saida)
+        print(type(horario_entrada), type(horario_saida))
+
         turma = Turma(
             curso=curso,
             professor=professor,

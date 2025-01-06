@@ -77,6 +77,20 @@
                         <div class="invalid-feedback" id="{{ form.escolaridade.id_for_label }}_feedback"></div>
                     </div>
                 </div>
+                <span class="mt-4 badge text-bg-danger" id="danger_badge">Os itens marcados com <i class="fa-solid fa-asterisk" style="color: #ffffff;"></i> são obrigatórios!</span>
+            </div>
+
+            <div class="container align-items-center my-3">
+                <div class="row">
+                    <div class="col-xl-10 col-md-8 col-6 mt-3 form-check">
+                        <input class="form-check-input required" type="checkbox" id="termos" required>
+                        <label class="form-check-label" for="termos">Marque para confirmar as informações. <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
+                        <div class="invalid-feedback">Você deve aceitar os termos para prosseguir.</div>
+                    </div>
+                    <div class="col-xl-2 col-md-4 col-6 mt-3">
+                        <button class="btn btn-primary float-end" type="submit">Enviar</button>
+                    </div>
+                </div>
             </div>
         </form>
     </div>
