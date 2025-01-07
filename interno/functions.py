@@ -141,6 +141,4 @@ def enviar_email_senha(request, user):
 
 
 def matricula_valida(request):
-    if is_allowed(request.user):
-        return True
-    return False
+    return is_allowed(request.user)

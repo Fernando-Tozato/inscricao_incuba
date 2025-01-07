@@ -18,7 +18,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.http import urlsafe_base64_decode
 
 from externo.functions import get_turmas_as_json
-from incubadora.functions import load_form_to_object, get_unidade_as_json, get_curso_as_json
+from incubadora.functions import load_form_to_object
 from .criar_planilhas_coord import *
 from .forms import *
 from .functions import *
@@ -42,13 +42,13 @@ def loop(request):
             # num_threads = 10
             # num_inscritos_por_thread = len(inscritos) // num_threads
             # threads = []
-
+            #
             # for i in range(num_threads): thread = threading.Thread(target=avisar_sorteados, args=[request,
             # inscritos[num_inscritos_por_thread * i: num_inscritos_por_thread * (i + 1)]]) threads.append(thread)
-
+            #
             # if i + 1 == num_threads: thread = threading.Thread(target=avisar_sorteados, args=[request, inscritos[
             # num_inscritos_por_thread * (i + 1):]]) threads.append(thread)
-
+            #
             # for thread in threads:
             #     thread.daemon = True
             #     thread.start()
@@ -70,7 +70,7 @@ def loop(request):
 
 @login_required
 def busca_de_inscrito(request):
-    vagas = Turma.objects.values('curso').annotate(vagas=(Sum('vagas') - Sum('num_alunos')))
+    vagas = Turma.objects.values('curso__nome').annotate(vagas=(Sum('vagas') - Sum('num_alunos')))
 
     context = {'vagas': vagas}
 
@@ -114,7 +114,7 @@ def matricula(request, inscrito_id=None):
             aluno = load_form_to_object(form, Aluno)
 
             try:
-                if matricula_valida(request):
+                if is_allowed(request.user):
                     aluno.id_turma.num_alunos += 1
 
                     aluno.full_clean()
@@ -230,7 +230,7 @@ def editar_aluno(request, aluno_id=None):
                     Q(horario_saida=horario_saida)
                 ).first()
 
-                if id_turma and matricula_valida(request):
+                if id_turma and is_allowed(request.user):
                     aluno.id_turma = id_turma
 
                     aluno.full_clean()
@@ -284,11 +284,8 @@ def unidade_criar(request):
         form = UnidadeForm(request.POST)
         context.update({'form': form})
         if form.is_valid():
-            unidade = load_form_to_object(form, Unidade)
-
             try:
-                unidade.full_clean()
-                unidade.save()
+                form.save()
             except IntegrityError as e:
                 messages.error(request,
                                f'Houve um problema com os dados inseridos. Contate a equipe de suporte.\n\nErro: {e}')
@@ -309,23 +306,18 @@ def unidade_editar(request, unidade_id=None):
     context = {}
 
     unidade = get_object_or_404(Unidade, id=unidade_id) if unidade_id else None
+    context.update({'id_unidade': unidade.id})
 
     if request.method == 'POST':
-        form = UnidadeForm(request.POST, unidade=unidade)
+        form = UnidadeForm(request.POST, instance=unidade)
         context.update({'form': form})
 
         if form.is_valid():
             try:
-                unidade.nome = form.cleaned_data['nome']
-                unidade.endereco1 = form.cleaned_data['endereco1']
-                unidade.endereco2 = form.cleaned_data['endereco2']
+                if is_allowed(request.user):
+                    form.save()
 
-                if is_allowed(request):
-                    unidade.full_clean()
-                    unidade.save()
-
-                    messages.success(request, 'Dados da unidade atualizados com sucesso!')
-                    return render(request, 'interno/enviado_int.html')
+                    return redirect('unidade')
                 else:
                     messages.error(request, 'Você não tem permissão para executar essa ação.')
             except ValidationError as e:
@@ -337,7 +329,7 @@ def unidade_editar(request, unidade_id=None):
         else:
             messages.error(request, 'Formulário inválido. Verifique os erros abaixo.')
     else:
-        form = UnidadeForm(unidade=unidade)
+        form = UnidadeForm(instance=unidade)
         context.update({'form': form})
 
     return render(request, 'interno/unidade.html', context)
@@ -368,11 +360,9 @@ def curso_criar(request):
         form = CursoForm(request.POST)
         context.update({'form': form})
         if form.is_valid():
-            curso = load_form_to_object(form, Curso)
 
             try:
-                curso.full_clean()
-                curso.save()
+                form.save()
             except IntegrityError as e:
                 messages.error(request,
                                f'Houve um problema com os dados inseridos. Contate a equipe de suporte.\n\nErro: {e}')
@@ -393,24 +383,17 @@ def curso_editar(request, curso_id=None):
     context = {}
 
     curso = get_object_or_404(Curso, id=curso_id) if curso_id else None
+    context.update({'id_curso': curso.id})
 
     if request.method == 'POST':
-        form = CursoForm(request.POST, curso=curso)
+        form = CursoForm(request.POST, instance=curso)
         context.update({'form': form})
 
         if form.is_valid():
             try:
-                curso.nome = form.cleaned_data['nome']
-                curso.descricao = form.cleaned_data['descricao']
-                curso.requisitos = form.cleaned_data['requisitos']
-                curso.imagem = form.cleaned_data['imagem']
-                curso.unidades = form.cleaned_data['unidades']
-                curso.escolaridade = form.cleaned_data['escolaridade']
-                curso.idade = form.cleaned_data['idade']
-
-                if is_allowed(request):
-                    curso.full_clean()
-                    curso.save()
+                if is_allowed(request.user):
+                    form.save()
+                    form.save_m2m()
 
                     messages.success(request, 'Dados da curso atualizados com sucesso!')
                     return render(request, 'interno/enviado_int.html')
@@ -425,7 +408,7 @@ def curso_editar(request, curso_id=None):
         else:
             messages.error(request, 'Formulário inválido. Verifique os erros abaixo.')
     else:
-        form = CursoForm(curso=curso)
+        form = CursoForm(instance=curso)
         context.update({'form': form})
 
     return render(request, 'interno/curso.html', context)
@@ -457,11 +440,8 @@ def turma_criar(request):
         form = TurmaForm(request.POST)
         context.update({'form': form})
         if form.is_valid():
-            turma = load_form_to_object(form, Turma)
-
             try:
-                turma.full_clean()
-                turma.save()
+                form.save()
             except IntegrityError as e:
                 messages.error(request,
                                f'Houve um problema com os dados inseridos. Contate a equipe de suporte.\n\nErro: {e}')
@@ -485,24 +465,16 @@ def turma_editar(request, turma_id=None):
                "unidades": json.dumps(unidades, cls=DjangoJSONEncoder)}
 
     turma = get_object_or_404(Turma, id=turma_id) if turma_id else None
+    context.update({'id_turma': turma.id})
 
     if request.method == 'POST':
-        form = TurmaForm(request.POST, turma=turma)
+        form = TurmaForm(request.POST, instance=turma)
         context.update({'form': form})
 
         if form.is_valid():
             try:
-                turma.curso = form.cleaned_data['curso']
-                turma.dias = form.cleaned_data['dias']
-                turma.horario_entrada = form.cleaned_data['horario_entrada']
-                turma.horario_saida = form.cleaned_data['horario_saida']
-                turma.vagas = form.cleaned_data['vagas']
-                turma.professor = form.cleaned_data['professor']
-                turma.unidade = form.cleaned_data['unidade']
-
-                if is_allowed(request):
-                    turma.full_clean()
-                    turma.save()
+                if is_allowed(request.user):
+                    form.save()
 
                     messages.success(request, 'Dados da turma atualizados com sucesso!')
                     return render(request, 'interno/enviado_int.html')
@@ -518,7 +490,7 @@ def turma_editar(request, turma_id=None):
             messages.error(request, 'Formulário inválido. Verifique os erros abaixo.')
     else:
         # Preencher o formulário com os dados do aluno existente
-        form = TurmaForm(turma=turma)
+        form = TurmaForm(instance=turma)
         context.update({'form': form})
 
     return render(request, 'interno/turma.html', context)

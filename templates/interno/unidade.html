@@ -1,6 +1,6 @@
 {% extends 'bases/base_interno.html' %}
 
-{% block title %} {% if form.is_blank %}
+{% block title %} {% if id_unidade %}
 	Adicionar unidade
 {% else %}
     Editar unidade
@@ -63,7 +63,7 @@
                         <div class="invalid-feedback">Você deve aceitar os termos para prosseguir.</div>
                     </div>
 
-                    {% if not form.is_blank %}
+                    {% if id_unidade %}
                         <div class="col-xl-2 col-md-3 col-4 mt-3">
                             <button class="btn btn-danger float-center" type="button" data-bs-toggle="modal" data-bs-target="#delete_modal">Excluir</button>
                         </div>
@@ -76,7 +76,7 @@
             </div>
         </form>
 
-        {% if not form.is_blank %}
+        {% if id_unidade %}
         <div class="modal fade" id="delete_modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -89,7 +89,7 @@
                         <p>Essa ação é <span class="text-danger"><strong>IRREVERSÍVEL</strong></span>!</p>
                     </div>
                     <div class="modal-footer">
-                        <form method="post" action="{% url 'unidade_excluir' form.id_unidade %}" class="container">
+                        <form method="post" action="{% url 'unidade_excluir' id_unidade %}" class="container">
                             {% csrf_token %}
                             <button type="button" class="float-start btn btn-primary" data-bs-dismiss="modal">Cancelar</button>
                             <button type="submit" class="float-end btn btn-danger">Excluir</button>
