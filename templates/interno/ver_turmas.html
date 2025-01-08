@@ -34,30 +34,10 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-md">
-                                        {% if turma.escolaridade == 1 %}
-                                            <h4>Escolaridade: Não alfabetizado(a)</h4>
-                                        {% endif %}
-                                        {% if turma.escolaridade == 2 %}
-                                            <h4>Escolaridade: Alfabetizado(a)</h4>
-                                        {% endif %}
-                                        {% if turma.escolaridade == 3 %}
-                                            <h4>Escolaridade: Ensino Fundamental I completo (terminou o 5º ano)</h4>
-                                        {% endif %}
-                                        {% if turma.escolaridade == 4 %}
-                                            <h4>Escolaridade: Ensino Fundamental II completo (terminou o 9º ano)</h4>
-                                        {% endif %}
-                                        {% if turma.escolaridade == 5 %}
-                                            <h4>Escolaridade: Ensino Médio completo</h4>
-                                        {% endif %}
-                                        {% if turma.escolaridade == 6 %}
-                                            <h4>Escolaridade: Graduação completa</h4>
-                                        {% endif %}
-                                        {% if turma.escolaridade == 7 %}
-                                            <h4>Escolaridade: Pós-graduação completa</h4>
-                                        {% endif %}
+                                        <h4>{{ turma.curso.get_escolaridade_display }}</h4>
                                     </div>
                                     <div class="col-md">
-                                        <h4>Idade: {{ turma.idade }}</h4>
+                                        <h4>Idade: {{ turma.curso.idade }}</h4>
                                     </div>
                                     <div class="col-md">
                                         <h4>Alunos: {{ turma.num_alunos }}</h4>

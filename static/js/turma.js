@@ -55,7 +55,7 @@ function add_options(select, options){
     }
 
     if (options.length === 1) {
-        select.childNodes[-1].selected = true;
+        select.lastElementChild.selected = true;
     }
 
     select.disabled = false;

@@ -2,11 +2,15 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, PasswordResetForm, SetPasswordForm
 from django.contrib.auth.models import User
 
-from database.models import Inscrito, Turma, Curso, Unidade
+from database.models import Inscrito, Turma, Curso, Unidade, Aluno
 from incubadora.constants import *
 
 
-class MatriculaForm(forms.Form):
+class MatriculaForm(forms.ModelForm):
+    class Meta:
+        model = Aluno
+        exclude = []
+
     nome = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control required',
                                                          'placeholder': 'Nome'}))
     nome_social = forms.CharField(required=False,
@@ -166,7 +170,7 @@ class CursoForm(forms.ModelForm):
                                                 'placeholder': 'Requisitos'}),
             "imagem": forms.FileInput(attrs={'class': 'form-control required',
                                              'placeholder': 'Imagem'}),
-            # "unidades": ,
+            "unidades": forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input',}),
             "escolaridade": forms.Select(attrs={'class': 'form-select required',
                                                 'placeholder': 'Escolaridade'}),
             "idade": forms.NumberInput(attrs={'class': 'form-control required',

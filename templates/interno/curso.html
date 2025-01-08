@@ -65,9 +65,18 @@
                         {{ form.escolaridade }}
                         <label for="{{ form.escolaridade.id_for_label }}" class="ms-2">Escolaridade mínima <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
                     </div>
-                    <div class="col-sm mt-3 form-floating">
-                        {{ form.unidades }}
-                        <label for="{{ form.unidades.id_for_label }}" class="ms-2">Unidades disponíveis <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
+                    <div class="col-sm mt-3">
+                        <div class="bg-white border rounded px-2">
+                            <label for="id_unidades" class="form-label">Unidades disponíveis <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
+                            <div id="id_unidades" class="d-flex flex-wrap gap-3">
+                                {% for checkbox in form.unidades %}
+                                    <div class="form-check">
+                                        {{ checkbox.tag }}
+                                        <label for="{{ checkbox.id_for_label }}" class="form-check-label">{{ checkbox.choice_label }}</label>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <span class="mt-4 badge text-bg-danger" id="danger_badge">Os itens marcados com <i class="fa-solid fa-asterisk" style="color: #ffffff;"></i> são obrigatórios!</span>

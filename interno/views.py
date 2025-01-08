@@ -101,8 +101,22 @@ def busca_de_inscrito(request):
 
 @login_required
 def matricula(request, inscrito_id=None):
-    turmas: str = get_turmas_as_json(['curso', 'dias', 'horario', 'idade', 'escolaridade'])
-    context: dict[str: str | MatriculaForm] = {'turmas': turmas}
+    turmas = Turma.objects.select_related('unidade', 'curso').all()
+    dados = []
+    for turma in turmas:
+        dados.append({
+            'unidade_id': turma.unidade.id,
+            'unidade_nome': turma.unidade.nome,
+            'curso_id': turma.curso.id,
+            'curso_nome': turma.curso.nome,
+            'curso_idade': turma.curso.idade,
+            'curso_escolaridade': turma.curso.escolaridade,
+            'turma_id': turma.id,
+            'turma_dias': turma.dias,
+            'turma_horario': turma.horario
+        })
+
+    context = {'dados': dados}
 
     if request.method == 'POST':
         form = MatriculaForm(request.POST, inscrito=get_object_or_404(Inscrito, id=inscrito_id) if inscrito_id else None)
