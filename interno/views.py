@@ -102,6 +102,7 @@ def busca_de_inscrito(request):
 @login_required
 def matricula(request, inscrito_id=None):
     turmas = Turma.objects.select_related('unidade', 'curso').all()
+
     dados = []
     for turma in turmas:
         dados.append({
@@ -119,23 +120,16 @@ def matricula(request, inscrito_id=None):
     context = {'dados': dados}
 
     if request.method == 'POST':
-        form = MatriculaForm(request.POST, inscrito=get_object_or_404(Inscrito, id=inscrito_id) if inscrito_id else None)
+        inscrito = get_object_or_404(Inscrito, id=inscrito_id) if inscrito_id else None
+        form = MatriculaForm(request.POST, instance=inscrito)
         context.update({'form': form})
 
-        print(request.POST)
-
         if form.is_valid():
-            aluno = load_form_to_object(form, Aluno)
-
             try:
                 if is_allowed(request.user):
-                    aluno.id_turma.num_alunos += 1
-
-                    aluno.full_clean()
-                    aluno.save()
-
-                    aluno.id_turma.full_clean()
-                    aluno.id_turma.save()
+                    form.id_turma.num_alunos += 1
+                    form.save()
+                    form.id_turma.save()
                 else:
                     messages.error(request, 'Turma cheia.')
                     return render(request, 'interno/matricula.html', context)
