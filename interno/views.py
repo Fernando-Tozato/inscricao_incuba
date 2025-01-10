@@ -128,8 +128,6 @@ def busca_de_inscrito(request):
 
 @login_required
 def matricula(request, inscrito_id=None):
-    print('matricula', inscrito_id)
-
     turmas = Turma.objects.select_related('unidade', 'curso').all()
 
     dados = []

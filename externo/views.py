@@ -8,7 +8,7 @@ from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.db.utils import IntegrityError
 from django.http import HttpResponse, Http404
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
 
 from database.models import *
@@ -96,21 +96,38 @@ def editais(request):
     return render(request, 'externo/editais.html')
 
 
-def resultado(request):
-    turmas = get_turmas_as_json(['curso', 'dias', 'horario'])
-    context = {'turmas': turmas}
+def resultado(request, turma_id=None):
+    turmas = Turma.objects.select_related('unidade', 'curso').all()
+
+    dados = []
+    for turma in turmas:
+        dados.append({
+            'unidade_id': turma.unidade.id,
+            'unidade_nome': turma.unidade.nome,
+            'curso_id': turma.curso.id,
+            'curso_nome': turma.curso.nome,
+            'curso_idade': turma.curso.idade,
+            'curso_escolaridade': turma.curso.escolaridade,
+            'turma_id': turma.id,
+            'turma_dias': turma.dias,
+            'turma_horario': turma.horario()
+        })
+
+    context = {'dados': dados}
+
+    turma = get_object_or_404(Turma, id=turma_id) if turma_id else None
+
+    if turma:
+        sorteados = Inscrito.objects.filter(Q(id_turma=turma) & Q(ja_sorteado=True))
+        context.update({'sorteados': sorteados})
 
     if request.method == 'POST':
-        form = ResultadoForm(request.POST)
+        form = ResultadoForm(request.POST, turma=turma)
         context.update({'form': form})
         if form.is_valid():
-            id_turma = get_turma_from_form(form)
+            id_turma = form.cleaned_data['id_turma']
 
-            sorteados = Inscrito.objects.filter(Q(id_turma=id_turma) & Q(ja_sorteado=True))
-            if len(sorteados) == 0:
-                context.update({'sorteados': -1})
-            else:
-                context.update({'sorteados':sorteados})
+            return redirect('resultado_id', turma_id=int(id_turma.id))
 
     else:
         agora = timezone.now()
@@ -120,7 +137,7 @@ def resultado(request):
         if agora < sorteio:
             return render(request, 'externo/antes_resultado.html', {'data': sorteio})
 
-        context.update({'form': ResultadoForm})
+        context.update({'form': ResultadoForm(turma=turma)})
 
     return render(request, 'externo/resultado.html', context)
 

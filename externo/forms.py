@@ -1,6 +1,6 @@
 from django import forms
 
-from database.models import Inscrito
+from database.models import Inscrito, Turma
 
 
 class InscricaoForm(forms.ModelForm):
@@ -45,12 +45,12 @@ class InscricaoForm(forms.ModelForm):
 
 
 class ResultadoForm(forms.Form):
-    curso = forms.CharField(widget=forms.Select(choices=[('', 'Selecione...')],
-                                                attrs={'class': 'form-select required',
-                                                       'disabled': 'false'}))
-    dias = forms.CharField(widget=forms.Select(choices=[('', 'Selecione...')],
-                                               attrs={'class': 'form-select required',
-                                                      'disabled': 'true'}))
-    horario = forms.CharField(widget=forms.Select(choices=[('', 'Selecione...')],
-                                                  attrs={'class': 'form-select required',
-                                                         'disabled': 'true'}))
+    id_turma = forms.ModelChoiceField(queryset=Turma.objects.all(),
+                                      widget=forms.Select(attrs={'class': 'd-none', 'id': 'id_turma'}))
+
+    def __init__(self, *args, **kwargs):
+        turma = kwargs.pop('turma', None)
+        super().__init__(*args, **kwargs)
+
+        if turma:
+            self.fields['id_turma'].initial = turma

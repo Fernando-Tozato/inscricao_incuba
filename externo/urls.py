@@ -6,6 +6,7 @@ urlpatterns = [
     path('inscricao/', inscricao, name='inscricao'),
     path('editais/', editais, name='editais'),
     path('resultado/', resultado, name='resultado'),
+    path('resultado/<int:turma_id>/', resultado, name='resultado_id'),
     path('design/', design, name='design'),
     path('educacao/', educacao, name='educacao'),
     path('excel/', excel, name='excel'),
