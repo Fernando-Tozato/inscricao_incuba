@@ -2,7 +2,9 @@ from django.urls import path
 from .views import *
 
 urlpatterns = [
-    path('', busca_de_inscrito, name='busca_de_inscrito'),
+    path('', estatisticas, name='estatisticas'),
+    path('get_estatisticas', get_estatisticas, name='get_estatisticas'),
+    path('busca_inscrito/', busca_de_inscrito, name='busca_de_inscrito'),
     path('matricula/', matricula, name='matricula'),
     path('matricula/<int:inscrito_id>/', matricula, name='matricula_inscrito'),
     path('enviado/', enviado, name='enviado_int'),

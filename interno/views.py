@@ -13,12 +13,12 @@ from django.core.exceptions import ValidationError
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models import Sum
 from django.db.utils import IntegrityError
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, Http404, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.http import urlsafe_base64_decode
+from django.db.models.functions import TruncDate
+from django.db.models import Count
 
-from externo.functions import get_turmas_as_json
-from incubadora.functions import load_form_to_object
 from .criar_planilhas_coord import *
 from .forms import *
 from .functions import *
@@ -69,6 +69,32 @@ def loop(request):
 
 
 @login_required
+def estatisticas(request):
+    return render(request, 'interno/estatisticas.html')
+
+
+def get_estatisticas(request):
+    inscritos = Inscrito.objects.all() \
+        .annotate(date=TruncDate('data_inscricao')) \
+        .values('date') \
+        .annotate(count=Count('id')) \
+        .order_by('date')
+
+    alunos = Aluno.objects.all() \
+        .annotate(date=TruncDate('data_matricula')) \
+        .values('date') \
+        .annotate(count=Count('id')) \
+        .order_by('date')
+
+    data = {
+        'inscritos': list(inscritos),
+        'alunos': list(alunos)
+    }
+
+    return JsonResponse(data)
+
+
+@login_required
 def busca_de_inscrito(request):
     vagas = Turma.objects.values('curso__nome').annotate(vagas=(Sum('vagas') - Sum('num_alunos')))
 
@@ -79,16 +105,17 @@ def busca_de_inscrito(request):
         if form.is_valid():
             busca = form.cleaned_data['busca']
 
-            if any(char.isalpha() for char in busca):
+            if any(char.isdigit() for char in busca):
+                busca = re.sub(r'\D', '', busca)
+                resultado_cpf = Inscrito.objects.filter(cpf__contains=busca)
+                resultado_inscricao = Inscrito.objects.filter(numero_inscricao__contains=busca)
+                inscritos = resultado_cpf | resultado_inscricao
+            else:
                 busca = unidecode(busca.upper())
                 resultados_nome_social = Inscrito.objects.filter(nome_social_pesquisa__contains=busca)
                 resultados_nome = (Inscrito.objects.filter(nome_pesquisa__contains=busca)
                                    .filter(Q(nome_social='') | Q(nome_social__isnull=True)))
                 inscritos = resultados_nome_social | resultados_nome
-            else:
-                busca = re.sub(r'\D', '', busca)
-
-                inscritos = Inscrito.objects.filter(cpf__contains=busca)
 
             inscritos = verificar_inscritos(request, inscritos)
 
@@ -101,6 +128,8 @@ def busca_de_inscrito(request):
 
 @login_required
 def matricula(request, inscrito_id=None):
+    print('matricula', inscrito_id)
+
     turmas = Turma.objects.select_related('unidade', 'curso').all()
 
     dados = []
@@ -114,39 +143,36 @@ def matricula(request, inscrito_id=None):
             'curso_escolaridade': turma.curso.escolaridade,
             'turma_id': turma.id,
             'turma_dias': turma.dias,
-            'turma_horario': turma.horario
+            'turma_horario': turma.horario()
         })
 
     context = {'dados': dados}
 
+    inscrito = get_object_or_404(Inscrito, id=inscrito_id) if inscrito_id else None
+
     if request.method == 'POST':
-        inscrito = get_object_or_404(Inscrito, id=inscrito_id) if inscrito_id else None
-        form = MatriculaForm(request.POST, instance=inscrito)
+        form = MatriculaForm(request.POST, inscrito=inscrito.dict_for_matricula() if inscrito_id else None)
         context.update({'form': form})
 
         if form.is_valid():
             try:
-                if is_allowed(request.user):
-                    form.id_turma.num_alunos += 1
-                    form.save()
-                    form.id_turma.save()
-                else:
-                    messages.error(request, 'Turma cheia.')
-                    return render(request, 'interno/matricula.html', context)
+                aluno = form.save()
             except ValidationError as e:
-                messages.error(request, f'Aluno já matriculado.')
+                messages.error(request, f'Aluno já matriculado.\n{e}')
             except IntegrityError as e:
-                messages.error(request, f'Erro de integridade: {e}')
+                messages.error(request, f'Aluno já matriculado.\n{e}')
             except Exception as e:
-                messages.error(request, f'Erro: {e}')
+                messages.error(request, f'Erro:\n{e}')
             else:
+                aluno.id_turma.num_alunos += 1
+                aluno.id_turma.save()
                 return render(request, 'interno/enviado_int.html')
 
         else:
             print('invalid')
             print(form.errors)
     else:
-        context.update({'form': MatriculaForm(inscrito=get_object_or_404(Inscrito, id=inscrito_id) if inscrito_id else None)})
+        context.update({'form': MatriculaForm(inscrito=inscrito.dict_for_matricula() if inscrito_id else None)})
     return render(request, 'interno/matricula.html', context)
 
 
@@ -184,82 +210,38 @@ def busca_de_aluno(request):
 
 @login_required
 def editar_aluno(request, aluno_id=None):
-    turmas: str = get_turmas_as_json(['curso', 'dias', 'horario', 'idade', 'escolaridade'])
-    context: dict[str: str | MatriculaForm] = {'turmas': turmas}
+    turmas = Turma.objects.select_related('unidade', 'curso').all()
+
+    dados = []
+    for turma in turmas:
+        dados.append({
+            'unidade_id': turma.unidade.id,
+            'unidade_nome': turma.unidade.nome,
+            'curso_id': turma.curso.id,
+            'curso_nome': turma.curso.nome,
+            'curso_idade': turma.curso.idade,
+            'curso_escolaridade': turma.curso.escolaridade,
+            'turma_id': turma.id,
+            'turma_dias': turma.dias,
+            'turma_horario': turma.horario()
+        })
+
+    context = {'dados': dados}
 
     aluno = get_object_or_404(Aluno, id=aluno_id) if aluno_id else None
 
-    turma_old = aluno.id_turma
+    if aluno:
+        aluno.id_turma.num_alunos -= 1
+        aluno.id_turma.save()
 
     if request.method == 'POST':
-        form = MatriculaForm(request.POST, inscrito=aluno)
+        form = MatriculaForm(request.POST, instance=aluno)
         context.update({'form': form})
 
         if form.is_valid():
             try:
-                # Atualizar manualmente os campos do objeto Aluno
-                aluno.nome = form.cleaned_data['nome']
-                aluno.nome_social = form.cleaned_data['nome_social']
-                aluno.nascimento = datetime.datetime.strptime(form.cleaned_data['nascimento'], '%d/%m/%Y')
-                aluno.cpf = re.sub(r'\D', '', form.cleaned_data['cpf'])
-                aluno.rg = form.cleaned_data['rg']
-                aluno.data_emissao = datetime.datetime.strptime(form.cleaned_data['data_emissao'], '%d/%m/%Y') if \
-                form.cleaned_data['data_emissao'] else None
-                aluno.orgao_emissor = form.cleaned_data['orgao_emissor']
-                aluno.uf_emissao = form.cleaned_data['uf_emissao']
-                aluno.filiacao = form.cleaned_data['filiacao']
-                aluno.escolaridade = form.cleaned_data['escolaridade']
-                aluno.observacoes = form.cleaned_data['observacoes']
-                aluno.email = form.cleaned_data['email']
-                aluno.telefone = form.cleaned_data['telefone']
-                aluno.celular = form.cleaned_data['celular']
-                aluno.cep = form.cleaned_data['cep']
-                aluno.rua = form.cleaned_data['rua']
-                aluno.numero = form.cleaned_data['numero']
-                aluno.complemento = form.cleaned_data['complemento']
-                aluno.bairro = form.cleaned_data['bairro']
-                aluno.cidade = form.cleaned_data['cidade']
-                aluno.uf = form.cleaned_data['uf']
-                aluno.pcd = form.cleaned_data['pcd']
-                aluno.ps = form.cleaned_data['ps']
-
-                # Verificando os dados da turma
-                curso = form.cleaned_data['curso']
-                dias = form.cleaned_data['dias']
-                horario = form.cleaned_data['horario']
-                horario_entrada = horario[:5]
-                horario_saida = horario[8:]
-
-                # Buscar a turma com base nos critérios
-                id_turma = Turma.objects.filter(
-                    Q(curso=curso) &
-                    Q(dias=dias) &
-                    Q(horario_entrada=horario_entrada) &
-                    Q(horario_saida=horario_saida)
-                ).first()
-
-                if id_turma and is_allowed(request.user):
-                    aluno.id_turma = id_turma
-
-                    aluno.full_clean()
-                    aluno.save()
-
-                    print(f'\n\n\n\nold: {turma_old.pk}\nnew: {id_turma.pk}')
-                    if turma_old != id_turma:
-                        print("diferente")
-                        turma_old.num_alunos -= 1
-                        print(f'old: {turma_old.num_alunos}')
-                        turma_old.full_clean()
-                        turma_old.save()
-
-                    # Atualizar a turma
-                    id_turma.num_alunos += 1
-                    print(f'new: {id_turma.num_alunos}')
-                    id_turma.full_clean()
-                    id_turma.save()
-
-                    messages.success(request, 'Dados do aluno atualizados com sucesso!')
-                    return render(request, 'interno/enviado_int.html')
+                if is_allowed(request.user):
+                    aluno = form.save()
                 else:
                     messages.error(request, 'Você não tem permissão para executar essa ação.')
             except ValidationError as e:
@@ -268,11 +250,14 @@ def editar_aluno(request, aluno_id=None):
                 messages.error(request, f'Erro de integridade: {e}')
             except Exception as e:
                 messages.error(request, f'Erro ao salvar dados: {e}')
+            else:
+                aluno.id_turma.num_alunos += 1
+                aluno.id_turma.save()
+                return redirect('busca_de_aluno')
         else:
             messages.error(request, 'Formulário inválido. Verifique os erros abaixo.')
     else:
-        # Preencher o formulário com os dados do aluno existente
-        form = MatriculaForm(inscrito=aluno)
+        form = MatriculaForm(instance=aluno)
         context.update({'form': form})
 
     return render(request, 'interno/editar_aluno.html', context)

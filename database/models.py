@@ -1,4 +1,11 @@
+import hashlib
+import re
+import uuid
+from datetime import datetime
+
 from django.db import models
+from unidecode import unidecode
+
 
 class UfChoices(models.TextChoices):
     AC = 'AC'
@@ -88,9 +95,9 @@ class Turma(models.Model):
 
 class Inscrito(models.Model):
     nome = models.CharField(max_length=100)
-    nome_pesquisa = models.CharField(max_length=100)
+    nome_pesquisa = models.CharField(max_length=100) # nome do inscrito sem acentos e maiúsculo
     nome_social = models.CharField(max_length=100, null=True, default=None, blank=True)
-    nome_social_pesquisa = models.CharField(max_length=100, null=True, default=None, blank=True)
+    nome_social_pesquisa = models.CharField(max_length=100, null=True, default=None, blank=True) # nome social do inscrito sem acentos e maiúsculo
     nascimento = models.DateField()
     cpf = models.CharField(max_length=14, unique=True)
     rg = models.CharField(max_length=14, null=True, default=None, blank=True)
@@ -111,19 +118,63 @@ class Inscrito(models.Model):
     uf = models.CharField(max_length=2, choices=UfChoices.choices)
     pcd = models.BooleanField(default=False)
     ps = models.BooleanField(default=False)
-    ja_sorteado = models.BooleanField(default=False)
+    ja_sorteado = models.BooleanField(default=False) # inicialmente False, podendo ser alterado para True posteriormente
     id_turma = models.ForeignKey(Turma, on_delete=models.CASCADE)
-    numero_inscricao = models.CharField(max_length=14)
+    numero_inscricao = models.CharField(max_length=14, editable=False, unique=True) # gerado internamente em gerar_numero_inscricao(nome: str, cpf: str, nascimento: str) -> str
+    data_inscricao = models.DateTimeField(default=datetime.now())
+
+    def dict_for_matricula(self):
+        return {
+            'nome': self.nome,
+            'nome_social': self.nome_social,
+            'nascimento': self.nascimento,
+            'cpf': self.cpf,
+            'rg': self.rg,
+            'data_emissao': self.data_emissao,
+            'orgao_emissor': self.orgao_emissor,
+            'uf_emissao': self.uf_emissao,
+            'filiacao': self.filiacao,
+            'escolaridade': self.escolaridade,
+            'email': self.email,
+            'telefone': self.telefone,
+            'celular': self.celular,
+            'cep': self.cep,
+            'rua': self.rua,
+            'numero': self.numero,
+            'complemento': self.complemento,
+            'bairro': self.bairro,
+            'cidade': self.cidade,
+            'uf': self.uf,
+            'pcd': self.pcd,
+            'ps': self.ps,
+            'id_turma': self.id_turma
+        }
 
     def cpf_formatado(self):
         return f"{self.cpf[:3]}.{self.cpf[3:6]}.{self.cpf[6:9]}-{self.cpf[9:]}"
 
+    def save(self, *args, **kwargs):
+        self.nome_pesquisa = unidecode(self.nome_pesquisa.upper())
+        self.nome_social_pesquisa = unidecode(self.nome_social.upper()) if self.nome_social else None
+        self.cpf = re.sub(r'\D', '', self.cpf)
+        self.numero_inscricao = self.gerar_numero_inscricao()
+        super().save(*args, **kwargs)
+
+    def gerar_numero_inscricao(self):
+        salt = uuid.uuid4().hex
+        nascimento = self.nascimento.strftime('%d/%m/%Y')
+        return f'{self.gerar_hash(self.nome, salt)}.{self.gerar_hash(self.cpf, salt)}.{self.gerar_hash(nascimento, salt)}'
+
+    def gerar_hash(self, dado, salt):
+        codigo_hash = hashlib.sha256((str(dado)+salt).encode()).hexdigest()
+        return f'{int(codigo_hash, 16) % 10000}'
+
 
 class Aluno(models.Model):
     nome = models.CharField(max_length=100)
-    nome_pesquisa = models.CharField(max_length=100)
+    nome_pesquisa = models.CharField(max_length=100) # nome do aluno sem acentos e maiúsculo
     nome_social = models.CharField(max_length=100, null=True, default=None, blank=True)
-    nome_social_pesquisa = models.CharField(max_length=100, null=True, default=None, blank=True)
+    nome_social_pesquisa = models.CharField(max_length=100, null=True, default=None, blank=True) # nome social do aluno sem acentos e maiúsculo
     nascimento = models.DateField()
     cpf = models.CharField(max_length=14, unique=True)
     rg = models.CharField(max_length=14, null=True, default=None, blank=True)
@@ -145,10 +196,17 @@ class Aluno(models.Model):
     pcd = models.BooleanField(default=False)
     ps = models.BooleanField(default=False)
     observacoes = models.TextField(null=True, default=None, blank=True)
-    id_turma = models.ForeignKey(Turma, on_delete=models.CASCADE, related_name='inscrito_turma')
+    id_turma = models.ForeignKey(Turma, on_delete=models.CASCADE)
+    data_matricula = models.DateTimeField(default=datetime.now())
 
     def cpf_formatado(self):
         return f"{self.cpf[:3]}.{self.cpf[3:6]}.{self.cpf[6:9]}-{self.cpf[9:]}"
+
+    def save(self, *args, **kwargs):
+        self.nome_pesquisa = unidecode(self.nome_pesquisa.upper())
+        self.nome_social_pesquisa = unidecode(self.nome_social.upper()) if self.nome_social else None
+        self.cpf = re.sub(r'\D', '', self.cpf)
+        super().save(*args, **kwargs)
 
 
 class Controle(models.Model):

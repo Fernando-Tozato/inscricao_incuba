@@ -1,0 +1,90 @@
+{% extends 'bases/base_interno.html' %}
+
+{% block title %}Estatísticas{% endblock %}
+
+{% block content %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <div class="container my-5 px-5">
+        <div class="p-5 mb-5 border bg-body-secondary text-body-secondary rounded">
+            <div>
+                <h1 class="float-start">Inscritos e Matriculados por dia</h1>
+                <button class="float-end btn btn-primary" onclick="update_grafico();">Atualizar</button>
+            </div>
+
+            <canvas class="my-5 w-100" id="grafico" style="display: block; box-sizing: border-box;"></canvas>
+        </div>
+    </div>
+
+        <script>
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+
+        function update_grafico() {
+            fetch('{% url 'get_estatisticas' %}')
+            .then(response => response.json())
+            .then(data => {
+                if (!data['inscritos'] || !data['alunos']) {
+                    console.error("Dados ausentes ou incorretos:", data);
+                    return;
+                }
+
+                const labels = data.inscritos.map(item => formatDate(item.date));
+                const inscritos = data.inscritos.map(item => item.count);
+                const alunos = data.alunos.map(item => item.count);
+
+                // Calcula o valor máximo para o eixo Y
+                const maxYValue = Math.max(...inscritos, ...alunos);
+
+                const ctx = document.getElementById('grafico').getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Inscritos',
+                                data: inscritos,
+                                borderColor: 'blue',
+                                fill: true
+                            },
+                            {
+                                label: 'Alunos',
+                                data: alunos,
+                                borderColor: 'green',
+                                fill: true
+                            }
+                        ]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                suggestedMax: maxYValue,
+                                ticks: {
+                                    stepSize: 1,
+                                    callback: function(value) {
+                                        return Number.isInteger(value) ? value : null;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            })
+            .catch(error => console.error("Erro ao buscar os dados:", error));
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            update_grafico();
+            setInterval(update_grafico, 15 * 1000);
+        });
+    </script>
+
+
+{% endblock %}

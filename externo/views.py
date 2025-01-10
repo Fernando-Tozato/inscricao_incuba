@@ -10,12 +10,11 @@ from django.db.utils import IntegrityError
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, get_object_or_404
 from django.utils import timezone
-from unidecode import unidecode
 
 from database.models import *
 from externo.forms import InscricaoForm, ResultadoForm
 from externo.functions import *
-from incubadora.functions import load_form_to_object, get_turma_from_form
+from incubadora.functions import get_turma_from_form
 
 
 def home(request):
@@ -38,18 +37,31 @@ def home(request):
 
 
 def inscricao(request):
-    turmas = get_turmas_as_json(['curso', 'dias', 'horario', 'idade', 'escolaridade'])
-    context = {'turmas': turmas}
+    turmas = Turma.objects.select_related('unidade', 'curso').all()
+
+    dados = []
+    for turma in turmas:
+        dados.append({
+            'unidade_id': turma.unidade.id,
+            'unidade_nome': turma.unidade.nome,
+            'curso_id': turma.curso.id,
+            'curso_nome': turma.curso.nome,
+            'curso_idade': turma.curso.idade,
+            'curso_escolaridade': turma.curso.escolaridade,
+            'turma_id': turma.id,
+            'turma_dias': turma.dias,
+            'turma_horario': turma.horario()
+        })
+
+    context = {'dados': dados}
 
     if request.method == 'POST':
         form = InscricaoForm(request.POST)
         context.update({'form': form})
         if form.is_valid():
-            inscrito = load_form_to_object(form, Inscrito)
 
             try:
-                inscrito.full_clean()
-                inscrito.save()
+                inscrito = form.save()
             except ValidationError as e:
                 messages.error(request, f'Candidato já inscrito.')
             except IntegrityError as e:
