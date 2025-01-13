@@ -12,16 +12,13 @@
                 <button class="float-end btn btn-primary" onclick="update_grafico();">Atualizar</button>
             </div>
 
-            <canvas class="my-5 w-100" id="grafico" style="display: block; box-sizing: border-box;"></canvas>
+            <canvas class="w-100" id="grafico" style="display: block; box-sizing: border-box;"></canvas>
         </div>
     </div>
 
         <script>
         function formatDate(dateString) {
-            const date = new Date(dateString);
-            const day = date.getDate().toString().padStart(2, '0');
-            const month = (date.getMonth() + 1).toString().padStart(2, '0');
-            const year = date.getFullYear();
+            const [year, month, day] = dateString.split("-");
             return `${day}/${month}/${year}`;
         }
 
@@ -54,7 +51,7 @@
                                 fill: true
                             },
                             {
-                                label: 'Alunos',
+                                label: 'Matriculados',
                                 data: alunos,
                                 borderColor: 'green',
                                 fill: true

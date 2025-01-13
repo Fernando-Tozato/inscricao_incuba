@@ -3,6 +3,8 @@ import random
 from datetime import timedelta
 from logging import Logger
 
+from celery import shared_task
+
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMultiAlternatives
 from django.db.models import Q, QuerySet
@@ -388,3 +390,10 @@ def sortear(logger: Logger, turmas: QuerySet[Turma], inscritos: QuerySet[Inscrit
         """
 
     logger.info("Fim do sorteio")  # Mostra o fim do sorteio no log
+
+
+@shared_task(bind=True)
+def test_func(self):
+    for i in range(10):
+        print(i)
+    return 'Done'

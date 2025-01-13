@@ -25,6 +25,10 @@ from .functions import *
 from .tasks import *
 
 
+def test(request):
+    test_func.delay()
+    return HttpResponse("Done")
+
 def loop(request):
     while True:
         time.sleep(1)

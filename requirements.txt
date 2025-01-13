@@ -11,3 +11,4 @@ openpyxl
 unidecode
 djangorestframework
 python-decouple
+celery[redis]
