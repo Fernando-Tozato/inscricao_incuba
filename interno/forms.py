@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, PasswordResetForm, SetPasswordForm
 from django.contrib.auth.models import User
 
-from database.models import Turma, Curso, Unidade, Aluno
+from database.models import Turma, Curso, Unidade, Aluno, Controle
 
 
 class MatriculaForm(forms.ModelForm):
@@ -85,26 +85,6 @@ class BuscaForm(forms.Form):
                                                           'placeholder': 'Busca'}))
 
 
-class LoginForm(forms.Form):
-    username = forms.CharField()
-    password = forms.CharField(widget=forms.PasswordInput)
-
-
-class RegisterForm(UserCreationForm):
-    class Meta:
-        model = User
-        fields = ['username', 'email', 'password1', 'password2']
-
-
-class CustomPasswordResetForm(PasswordResetForm):
-    email = forms.EmailField()
-
-
-class CustomSetPasswordForm(SetPasswordForm):
-    senha = forms.CharField(widget=forms.PasswordInput)
-    confirmacao_senha = forms.CharField(widget=forms.PasswordInput)
-
-
 class UnidadeForm(forms.ModelForm):
     class Meta:
         model = Unidade
@@ -166,3 +146,57 @@ class TurmaForm(forms.ModelForm):
                                     attrs={'class': 'form-select required',
                                            'disabled': 'true'}),
         }
+
+
+class ControleForm(forms.ModelForm):
+    class Meta:
+        model = Controle
+        fields = '__all__'
+        widgets = {
+            "inscricao_inicio": forms.DateTimeInput(format="%Y-%m-%dT%H:%M",
+                                                    attrs={'class': 'form-control required',
+                                                           'type': 'datetime-local'}),
+            "inscricao_fim": forms.DateTimeInput(format="%Y-%m-%dT%H:%M",
+                                                 attrs={'class': 'form-control required',
+                                                        'type': 'datetime-local'}),
+            "sorteio_data": forms.DateTimeInput(format="%Y-%m-%dT%H:%M",
+                                                attrs={'class': 'form-control required',
+                                                       'type': 'datetime-local'}),
+            "matricula_sorte_inicio": forms.DateTimeInput(format="%Y-%m-%dT%H:%M",
+                                                       attrs={'class': 'form-control required',
+                                                              'type': 'datetime-local'}),
+            "matricula_sorte_fim": forms.DateTimeInput(format="%Y-%m-%dT%H:%M",
+                                                     attrs={'class': 'form-control required',
+                                                            'type': 'datetime-local'}),
+            "matricula_reman_inicio": forms.DateTimeInput(format="%Y-%m-%dT%H:%M",
+                                                   attrs={'class': 'form-control required',
+                                                          'type': 'datetime-local'}),
+            "matricula_reman_fim": forms.DateTimeInput(format="%Y-%m-%dT%H:%M",
+                                                 attrs={'class': 'form-control required',
+                                                        'type': 'datetime-local'}),
+            "aulas_inicio": forms.DateTimeInput(format="%Y-%m-%dT%H:%M",
+                                                attrs={'class': 'form-control required',
+                                                       'type': 'datetime-local'}),
+            "aulas_fim": forms.DateTimeInput(format="%Y-%m-%dT%H:%M",
+                                             attrs={'class': 'form-control required',
+                                                    'type': 'datetime-local'}),
+        }
+
+class LoginForm(forms.Form):
+    username = forms.CharField()
+    password = forms.CharField(widget=forms.PasswordInput)
+
+
+class RegisterForm(UserCreationForm):
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'password1', 'password2']
+
+
+class CustomPasswordResetForm(PasswordResetForm):
+    email = forms.EmailField()
+
+
+class CustomSetPasswordForm(SetPasswordForm):
+    senha = forms.CharField(widget=forms.PasswordInput)
+    confirmacao_senha = forms.CharField(widget=forms.PasswordInput)

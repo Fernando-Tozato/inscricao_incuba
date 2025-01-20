@@ -64,7 +64,7 @@ class Curso(models.Model):
     nome = models.CharField(max_length=100)
     descricao = models.TextField()
     requisitos = models.TextField()
-    imagem = models.ImageField(upload_to='cursos/', default='cursos/default.jpg')
+    imagem = models.ImageField(upload_to='cursos/', default='cursos/default.jpg', blank=True)
     unidades = models.ManyToManyField('Unidade')
     escolaridade = models.CharField(max_length=31, choices=EscolaridadeChoices.choices)
     idade = models.IntegerField()
@@ -91,6 +91,9 @@ class Turma(models.Model):
     
     def ampla_conc(self):
         return self.vagas - self.cotas()
+
+    def __str__(self):
+        return f'{self.unidade.__str__()} - {self.curso.__str__()} - {self.dias} - {self.horario()}'
 
 
 class Inscrito(models.Model):
@@ -157,7 +160,8 @@ class Inscrito(models.Model):
         self.nome_pesquisa = unidecode(self.nome_pesquisa.upper())
         self.nome_social_pesquisa = unidecode(self.nome_social.upper()) if self.nome_social else None
         self.cpf = re.sub(r'\D', '', self.cpf)
-        self.numero_inscricao = self.gerar_numero_inscricao()
+        if not self.numero_inscricao:
+            self.numero_inscricao = self.gerar_numero_inscricao()
         super().save(*args, **kwargs)
 
     def gerar_numero_inscricao(self):
@@ -167,7 +171,10 @@ class Inscrito(models.Model):
 
     def gerar_hash(self, dado, salt):
         codigo_hash = hashlib.sha256((str(dado)+salt).encode()).hexdigest()
-        return f'{int(codigo_hash, 16) % 10000}'
+        return f'{int(codigo_hash, 16) % 10000}:04d'
+
+    def __str__(self):
+        return f'{self.cpf}'
 
 
 class Aluno(models.Model):
@@ -208,14 +215,17 @@ class Aluno(models.Model):
         self.cpf = re.sub(r'\D', '', self.cpf)
         super().save(*args, **kwargs)
 
+    def __str__(self):
+        return f'{self.cpf}'
+
 
 class Controle(models.Model):
     inscricao_inicio = models.DateTimeField()
     inscricao_fim = models.DateTimeField()
     sorteio_data = models.DateTimeField()
-    matricula_sorteados = models.DateTimeField()
-    vagas_disponiveis = models.DateTimeField()
-    matricula_geral = models.DateTimeField()
-    matricula_fim = models.DateTimeField()
+    matricula_sorte_inicio = models.DateTimeField()
+    matricula_sorte_fim = models.DateTimeField()
+    matricula_reman_inicio = models.DateTimeField()
+    matricula_reman_fim = models.DateTimeField()
     aulas_inicio = models.DateTimeField()
     aulas_fim = models.DateTimeField()

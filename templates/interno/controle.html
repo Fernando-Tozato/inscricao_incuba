@@ -5,89 +5,35 @@
 {% load static %}
 
 {% block content %}
+
     <div class="container my-5">
-        <div class="p-5 mb-5 border bg-body-secondary text-body-secondary rounded">
-            <form method="post" action="{% url 'controle' %}">
-                {% csrf_token %}
-                {% if controle %}
-                    <div class="mb-3">
-                        <label for="inscricao_inicio" class="form-label">Início das Inscrições</label>
-                        <input type="datetime-local" class="form-control" id="inscricao_inicio" name="inscricao_inicio" required value="{{ controle.inscricao_inicio|date:'Y-m-d\TH:i' }}">
-                    </div>
-                    <div class="mb-3">
-                        <label for="inscricao_fim" class="form-label">Fim das Inscrições</label>
-                        <input type="datetime-local" class="form-control" id="inscricao_fim" name="inscricao_fim" required value="{{ controle.inscricao_fim|date:'Y-m-d\TH:i' }}">
-                    </div>
-                    <div class="mb-3">
-                        <label for="sorteio_data" class="form-label">Data e Hora do Sorteio</label>
-                        <input type="datetime-local" class="form-control" id="sorteio_data" name="sorteio_data" required value="{{ controle.sorteio_data|date:'Y-m-d\TH:i' }}">
-                    </div>
-                    <div class="mb-3">
-                        <label for="matricula_sorteados" class="form-label">Início da Matrícula para sorteados</label>
-                        <input type="datetime-local" class="form-control" id="matricula_sorteados" name="matricula_sorteados" required value="{{ controle.matricula_sorteados|date:'Y-m-d\TH:i' }}">
-                    </div>
-                    <div class="mb-3">
-                        <label for="matricula_geral" class="form-label">Início da Matrícula geral</label>
-                        <input type="datetime-local" class="form-control" id="matricula_geral" name="matricula_geral" required value="{{ controle.matricula_geral|date:'Y-m-d\TH:i' }}">
-                    </div>
-                    <div class="mb-3">
-                        <label for="matricula_fim" class="form-label">Fim das Matrículas</label>
-                        <input type="datetime-local" class="form-control" id="matricula_fim" name="matricula_fim" required value="{{ controle.matricula_fim|date:'Y-m-d\TH:i' }}">
-                    </div>
-                    <div class="mb-3">
-                        <label for="aulas_inicio" class="form-label">Início das Aulas</label>
-                        <input type="datetime-local" class="form-control" id="aulas_inicio" name="aulas_inicio" required value="{{ controle.aulas_inicio|date:'Y-m-d\TH:i' }}">
-                    </div>
-                    <div class="mb-3">
-                        <label for="aulas_fim" class="form-label">Fim das Aulas</label>
-                        <input type="datetime-local" class="form-control" id="aulas_fim" name="aulas_fim" required value="{{ controle.aulas_fim|date:'Y-m-d\TH:i' }}">
-                    </div>
-                {% else %}
-                    <div class="mb-3">
-                        <label for="inscricao_inicio" class="form-label">Início das Inscrições</label>
-                        <input type="datetime-local" class="form-control" id="inscricao_inicio" name="inscricao_inicio" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="inscricao_fim" class="form-label">Fim das Inscrições</label>
-                        <input type="datetime-local" class="form-control" id="inscricao_fim" name="inscricao_fim" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="sorteio_data" class="form-label">Data e Hora do Sorteio</label>
-                        <input type="datetime-local" class="form-control" id="sorteio_data" name="sorteio_data" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="matricula_sorteados" class="form-label">Início da Matrícula para sorteados</label>
-                        <input type="datetime-local" class="form-control" id="matricula_sorteados" name="matricula_sorteados" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="matricula_geral" class="form-label">Início da Matrícula geral</label>
-                        <input type="datetime-local" class="form-control" id="matricula_geral" name="matricula_geral" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="matricula_fim" class="form-label">Fim das Matrículas</label>
-                        <input type="datetime-local" class="form-control" id="matricula_fim" name="matricula_fim" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="aulas_inicio" class="form-label">Início das Aulas</label>
-                        <input type="datetime-local" class="form-control" id="aulas_inicio" name="aulas_inicio" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="aulas_fim" class="form-label">Fim das Aulas</label>
-                        <input type="datetime-local" class="form-control" id="aulas_fim" name="aulas_fim" required>
-                    </div>
-                {% endif %}
-                <div class="row">
-                    <div class="col">
-                        <button type="submit" class="btn btn-primary">Salvar Configurações</button>
-                    </div>
-                    <div class="col">
-                        <a href="{% url 'planilhas' %}" class="btn btn-primary">Baixar planilhas</a>
-                    </div>
-                    <div class="col">
-                        <a href="{% url 'planilha_coord' %}" class="btn btn-primary">Baixar planilha geral</a>
+        <div class="p-5 border bg-body-secondary text-body-secondary rounded">
+            <div class="m-auto">
+                <a href="{% url 'controle_datetimes' %}" class="btn btn-primary">Controle de horários</a>
+                <a href="{% url 'planilhas' %}" class="btn btn-primary">Baixar planilhas</a>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#email_modal">Enviar registros por E-mail</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="email_modal" tabindex="-1" aria-labelledby="email_modal_label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="email_modal_label">Envio de registros por E-mail</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                Para enviar os registros do sistema, você deve preencher o campo abaixo com o E-mail de destino e clicar no botão "Enviar".
+                    <div class="row">
+
                     </div>
                 </div>
-            </form>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary">Enviar</button>
+                </div>
+            </div>
         </div>
     </div>
 {% endblock %}

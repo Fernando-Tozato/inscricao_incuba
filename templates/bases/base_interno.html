@@ -25,7 +25,7 @@
 
     <nav class="navbar navbar-expand-sm">
         <div class="container border-bottom bg-light py-3">
-            <a class="navbar-brand" href="{% url 'busca_de_inscrito' %}">
+            <a class="navbar-brand" href="{% url 'estatisticas' %}">
                 <img src="{% static 'img/Logo Incubadora.png' %}" alt="Incubadora de Inovação Social em Robótica e Sustentabilidade" width="200" class="bi me-2">
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar2" aria-controls="offcanvasNavbar2" aria-label="Toggle navigation">
@@ -41,10 +41,10 @@
                             <a class="nav-link {% if url_name == 'estatisticas' %}active text-light{% endif %}" href="{% url 'estatisticas' %}">Estatísticas</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {% if url_name == 'busca_de_inscrito' %}active text-light{% endif %}" href="{% url 'busca_de_inscrito' %}">Busca de inscritos</a>
+                            <a class="nav-link {% if url_name == 'inscrito' %}active text-light{% endif %}" href="{% url 'inscrito' %}">Inscritos</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {% if url_name == 'busca_de_aluno' %}active text-light{% endif %}" href="{% url 'busca_de_aluno' %}">Busca de alunos</a>
+                            <a class="nav-link {% if url_name == 'aluno' %}active text-light{% endif %}" href="{% url 'aluno' %}">Alunos</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link {% if url_name == 'unidade' %}active text-light{% endif %}" href="{% url 'unidade' %}">Unidades</a>

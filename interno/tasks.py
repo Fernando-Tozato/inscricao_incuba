@@ -1,24 +1,41 @@
 import os
 import random
 from datetime import timedelta
-from logging import Logger
+from logging import getLogger, Logger
 
-from celery import shared_task
+from celery import shared_task, group
 
 from django.contrib.sites.shortcuts import get_current_site
-from django.core.mail import EmailMultiAlternatives
+from django.core.mail import send_mail, EmailMultiAlternatives
 from django.db.models import Q, QuerySet
 from django.db.models.functions import Coalesce
 from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 from openpyxl import Workbook
 from openpyxl.formatting.rule import CellIsRule
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 from openpyxl.utils import get_column_letter
 
 from database.models import *
+from django.conf import settings
+from .middleware import get_current_user
 
 
-def avisar_sorteados(request, emails, sorteado=False):
+@shared_task
+def test_func(emails, conteudo, assunto):
+    send_mail(
+        assunto,
+        conteudo,
+        settings.EMAIL_HOST_USER,
+        emails,
+        fail_silently=False
+    )
+
+    print('Fim')
+
+
+@shared_task
+def avisar_sorteados(emails, sorteado=False):
     controle = Controle.objects.first()
 
     subject = 'Incubadora de Robótica'
@@ -26,7 +43,7 @@ def avisar_sorteados(request, emails, sorteado=False):
     if sorteado:
         email_template_name = "emails/aviso_sorteado.html"
         c = {
-            'domain': get_current_site(request).domain,
+            'domain': 'domain',
             'protocol': 'http',
             'data_matricula_inicio': controle.matricula_sorteados,  # type: ignore
             'data_matricula_fim': controle.matricula_fim,  # type: ignore
@@ -45,15 +62,16 @@ def avisar_sorteados(request, emails, sorteado=False):
         }
         email_content = render_to_string(email_template_name, c)
 
+    plain_message = strip_tags(email_content)
 
-    email_message = EmailMultiAlternatives(subject, '', 'nao_responda@incubarobotica.com.br', emails)
-    email_message.attach_alternative(email_content, "text/html")
-
-    try:
-        email_message.send()
-        print('enviado')
-    except Exception as e:
-        print(e)
+    send_mail(
+        subject,
+        plain_message,
+        settings.EMAIL_HOST_USER,
+        emails,
+        fail_silently=False,
+        html_message=email_content,
+    )
 
     print('Fim')
 
@@ -246,7 +264,7 @@ def criar_folha_alunos(wb, turmas):
     ajustar_colunas(ws_alunos)
     return ws_alunos
 
-
+@shared_task
 def gerar_planilhas():
     """
     Gera planilhas Excel para cada professor e curso ministrado.
@@ -320,7 +338,41 @@ def gerar_planilhas():
         print(f"Ocorreu um erro durante a geração das planilhas: {e}")
 
 
-def sortear(logger: Logger, turmas: QuerySet[Turma], inscritos: QuerySet[Inscrito]):
+@shared_task
+def sortear():
+    logger = getLogger('sorteio')
+    controle = Controle.objects.first()
+    turmas = Turma.objects.all()
+    inscritos = Inscrito.objects.all()
+
+    sorteio(logger, turmas, inscritos)
+
+    emails_sorteados = list(inscritos.filter(Q(ja_sorteado=True) & Q(email__isnull=False)).values_list('email', flat=True))
+    emails_nao_sorteados = list(inscritos.filter(Q(ja_sorteado=False) & Q(email__isnull=False)).values_list('email', flat=True))
+
+    content_sorteados = render_to_string("emails/aviso_sorteado.html", {
+        'domain': 'incubarobotica.com.br',
+        'protocol': 'http',
+        'data_matricula_inicio': controle.matricula_sorteados,  # type: ignore
+        'data_matricula_fim': controle.matricula_fim,  # type: ignore
+        'data_aulas_inicio': controle.aulas_inicio,  # type: ignore
+    })
+
+    content_nao_sorteados = render_to_string("emails/aviso_nao_sorteado.html", {
+        'domain': 'incubarobotica.com.br',
+        'protocol': 'http',
+        'data_matricula_inicio': controle.matricula_sorteados,  # type: ignore
+        'data_matricula_fim': controle.matricula_fim,  # type: ignore
+        'data_aulas_inicio': controle.aulas_inicio,  # type: ignore
+    })
+
+    tarefas = [
+        preparar_emails_sorteio.s(emails_sorteados, content_sorteados),
+        preparar_emails_sorteio.s(emails_nao_sorteados, content_nao_sorteados)
+    ]
+    group(tarefas).apply_async()
+
+def sorteio(logger: Logger, turmas: QuerySet[Turma], inscritos: QuerySet[Inscrito]):
     """
     Realiza o sorteio de inscritos em turmas conforme as regras especificadas.
 
@@ -382,18 +434,37 @@ def sortear(logger: Logger, turmas: QuerySet[Turma], inscritos: QuerySet[Inscrit
 
         logger.info('Fim da turma.')  # Mostra o final do sorteio da turma atual no log
 
-        for i in range(5):  # Pula 5 linhas no log para melhorar a legibilidade
-            logger.info("")
-
         """
         Por ser um loop, o processo se repetirá para todas as turmas 
         """
 
     logger.info("Fim do sorteio")  # Mostra o fim do sorteio no log
 
+@shared_task
+def preparar_emails_sorteio(emails_inscritos, content):
+    tamanho_lote = 100
+    subject = 'Incubadora de Robótica'
+    tarefas = [
+        enviar_emails.s(emails_inscritos[i:i+tamanho_lote if i+tamanho_lote < len(emails_inscritos) else -1], content, subject)
+        for i in range(0, len(emails_inscritos), tamanho_lote)
+    ]
+    group(tarefas).apply_async()
 
-@shared_task(bind=True)
-def test_func(self):
-    for i in range(10):
-        print(i)
-    return 'Done'
+@shared_task
+def enviar_emails(emails, content, subject):
+    for email in emails:
+        send_mail(
+            subject,
+            content,
+            settings.EMAIL_HOST_USER,
+            [email],
+            fail_silently=False,
+            html_message=content
+        )
+
+@shared_task
+def log_action(action, instance):
+    logger = getLogger('register')
+    user = get_current_user()
+    username = user.username if user else "Desconhecido"
+    logger.info(f'{action}: {instance._meta.model_name} | Usuário: {username} | ID: {instance.id} - {instance.__str__()}')

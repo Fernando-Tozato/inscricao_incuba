@@ -1,0 +1,89 @@
+{% extends 'bases/base_interno.html' %}
+
+{% block title %}Controle de horários{% endblock %}
+
+{% load static %}
+
+{% block content %}
+    <div class="container my-5 px-5">
+        <form method="post" action="{% url 'controle' %}">
+            {% csrf_token %}
+
+            {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="p-5 border bg-body-secondary text-body-secondary rounded">
+                <h3>Inscrição</h3>
+                <div class="row">
+                    <div class="col-sm mt-1 form-floating">
+                        {{ form.inscricao_inicio }}
+                        <label for="{{ form.inscricao_inicio.id_for_label }}" class="ms-2 fw-bold">Início das inscrições</label>
+                    </div>
+                    <div class="col-sm mt-1 form-floating">
+                        {{ form.inscricao_fim }}
+                        <label for="{{ form.inscricao_fim.id_for_label }}" class="ms-2 fw-bold">Fim das inscrições</label>
+                    </div>
+                </div>
+
+                <h3 class="mt-4">Sorteio</h3>
+                <div class="row">
+                    <div class="col-sm mt-1 form-floating">
+                        {{ form.sorteio_data }}
+                        <label for="{{ form.sorteio_data.id_for_label }}" class="ms-2 fw-bold">Realização do sorteio</label>
+                    </div>
+                    <div class="col-sm mt-1 form-floating">
+                        {{ form.matricula_sorteados }}
+                        <label for="{{ form.matricula_sorteados.id_for_label }}" class="ms-2 fw-bold">Início da matrícula para sorteados</label>
+                    </div>
+                </div>
+
+                <h3 class="mt-4">Matrícula remanescente</h3>
+                <div class="row">
+                    <div class="col-sm mt-1 form-floating">
+                        {{ form.matricula_geral }}
+                        <label for="{{ form.matricula_geral.id_for_label }}" class="ms-2 fw-bold">Início das matrículas remanescentes</label>
+                    </div>
+                    <div class="col-sm mt-1 form-floating">
+                        {{ form.matricula_fim }}
+                        <label for="{{ form.matricula_fim.id_for_label }}" class="ms-2 fw-bold">Fim das matrículas</label>
+                    </div>
+                </div>
+
+                <h3 class="mt-4">Aulas</h3>
+                <div class="row">
+                    <div class="col-sm mt-1 form-floating">
+                        {{ form.aulas_inicio }}
+                        <label for="{{ form.aulas_inicio.id_for_label }}" class="ms-2 fw-bold">Início das aulas</label>
+                    </div>
+                    <div class="col-sm mt-1 form-floating">
+                        {{ form.aulas_fim }}
+                        <label for="{{ form.aulas_fim.id_for_label }}" class="ms-2 fw-bold">Fim das aulas</label>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="container align-items-center my-3">
+                <span class="mt-4 badge text-bg-danger" id="danger_badge">TODOS os itens são obrigatórios!</span>
+                <div class="row">
+                    <div class="col-xl-10 col-md-8 col-6 mt-3 form-check">
+                        <input class="form-check-input required" type="checkbox" id="termos" required>
+                        <label class="form-check-label" for="termos">Marque para confirmar as informações. <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
+                        <div class="invalid-feedback">Você deve aceitar os termos para prosseguir.</div>
+                    </div>
+                    <div class="col-xl-2 col-md-4 col-6 mt-3">
+                        <button class="btn btn-primary float-end" type="submit">Enviar</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}

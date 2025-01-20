@@ -17,21 +17,22 @@ django.setup()
 from database.models import Inscrito, Turma, Aluno
 
 # Definindo algumas constantes
-NUM_TURMAS = 64
-INSCRITOS_POR_TURMA = 100
+NUM_TURMAS = 6
+INSCRITOS_POR_TURMA = 50
 
 
 def generate_and_insert_data():
-    for id_turma in range(1, NUM_TURMAS + 1):
-        turma = get_object_or_404(Turma, id=id_turma)
-        for _ in range(turma.vagas):
+    turmas = Turma.objects.all()
+    for turma in turmas:
+        for _ in range(INSCRITOS_POR_TURMA):
             nome = fake.name()
             nome_pesquisa = unidecode(nome).upper()
             nascimento = fake.date_of_birth(minimum_age=12, maximum_age=80)
             cpf = fake.cpf()
             filiacao = fake.name()
-            escolaridade = random.randint(2, 7)
-            email = fake.email()
+            escolaridade = fake.random_element(elements=('N_ALF', 'ALF', 'EF1_INC', 'EF1_COM', 'EF2_INC', 'EF2_COM',
+                                                         'EM_INC', 'EM_COM', 'ES_INC', 'ES_COM', 'PG_COM'))
+            email = 'nao-responda@incubarobotica.com.br'
             telefone = fake.phone_number() if fake.boolean(chance_of_getting_true=40) else None
             celular = fake.cellphone_number()
             cep = fake.postcode()
@@ -40,8 +41,8 @@ def generate_and_insert_data():
             bairro = fake.bairro()
             cidade = fake.city()
             uf = fake.estado_sigla()
-            pcd = fake.boolean(chance_of_getting_true=20)
-            ps = fake.boolean(chance_of_getting_true=10)
+            pcd = fake.boolean(chance_of_getting_true=15)
+            ps = fake.boolean(chance_of_getting_true=15)
 
             nome_social = None
             nome_social_pesquisa = None
@@ -59,13 +60,13 @@ def generate_and_insert_data():
                 orgao_emissor = fake.random_element(elements=('SSP', 'DETRAN', 'IFP', 'OAB'))
                 uf_emissao = fake.estado_sigla()
 
-            aluno = Aluno(
+            inscrito = Inscrito(
                 nome=nome,
                 nome_pesquisa=nome_pesquisa,
                 nome_social=nome_social,
                 nome_social_pesquisa=nome_social_pesquisa,
                 nascimento=nascimento,
-                cpf=re.sub(r'\D', '', cpf),
+                cpf=cpf,
                 rg=rg,
                 data_emissao=data_emissao,
                 orgao_emissor=orgao_emissor,
@@ -88,7 +89,7 @@ def generate_and_insert_data():
             )
 
             try:
-                aluno.save()
+                inscrito.save()
             except Exception as e:
                 print(e)
 

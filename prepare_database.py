@@ -41,10 +41,10 @@ def import_controle_from_csv(csv_file_path):
         inscricao_inicio = datetime.strptime(row['inscricao_inicio'] + ' -0300', '%d/%m/%Y %H:%M:%S %z')
         inscricao_fim = datetime.strptime(row['inscricao_fim'] + ' -0300', '%d/%m/%Y %H:%M:%S %z')
         sorteio_data = datetime.strptime(row['sorteio_data'] + ' -0300', '%d/%m/%Y %H:%M:%S %z')
-        matricula_sorteados = datetime.strptime(row['matricula_sorteados'] + ' -0300', '%d/%m/%Y %H:%M:%S %z')
-        vagas_disponiveis = datetime.strptime(row['vagas_disponiveis'] + ' -0300', '%d/%m/%Y %H:%M:%S %z')
-        matricula_geral = datetime.strptime(row['matricula_geral'] + ' -0300', '%d/%m/%Y %H:%M:%S %z')
-        matricula_fim = datetime.strptime(row['matricula_fim'] + ' -0300', '%d/%m/%Y %H:%M:%S %z')
+        matricula_sorte_inicio = datetime.strptime(row['matricula_sorte_inicio'] + ' -0300', '%d/%m/%Y %H:%M:%S %z')
+        matricula_sorte_fim = datetime.strptime(row['matricula_sorte_fim'] + ' -0300', '%d/%m/%Y %H:%M:%S %z')
+        matricula_reman_inicio = datetime.strptime(row['matricula_reman_inicio'] + ' -0300', '%d/%m/%Y %H:%M:%S %z')
+        matricula_reman_fim = datetime.strptime(row['matricula_reman_fim'] + ' -0300', '%d/%m/%Y %H:%M:%S %z')
         aulas_inicio = datetime.strptime(row['aulas_inicio'] + ' -0300', '%d/%m/%Y %H:%M:%S %z')
         aulas_fim = datetime.strptime(row['aulas_fim'] + ' -0300', '%d/%m/%Y %H:%M:%S %z')
 
@@ -53,10 +53,10 @@ def import_controle_from_csv(csv_file_path):
             inscricao_inicio=inscricao_inicio,
             inscricao_fim=inscricao_fim,
             sorteio_data=sorteio_data,
-            matricula_sorteados=matricula_sorteados,
-            vagas_disponiveis=vagas_disponiveis,
-            matricula_geral=matricula_geral,
-            matricula_fim=matricula_fim,
+            matricula_sorte_inicio=matricula_sorte_inicio,
+            matricula_sorte_fim=matricula_sorte_fim,
+            matricula_reman_inicio=matricula_reman_inicio,
+            matricula_reman_fim=matricula_reman_fim,
             aulas_inicio=aulas_inicio,
             aulas_fim=aulas_fim
         )

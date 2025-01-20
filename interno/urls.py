@@ -2,15 +2,15 @@ from django.urls import path
 from .views import *
 
 urlpatterns = [
-    path('test/', test, name='test'),
     path('', estatisticas, name='estatisticas'),
     path('get_estatisticas', get_estatisticas, name='get_estatisticas'),
-    path('busca_inscrito/', busca_de_inscrito, name='busca_de_inscrito'),
+    path('inscrito/', inscrito, name='inscrito'),
     path('matricula/', matricula, name='matricula'),
     path('matricula/<int:inscrito_id>/', matricula, name='matricula_inscrito'),
-    path('enviado/', enviado, name='enviado_int'),
-    path('busca_aluno/', busca_de_aluno, name='busca_de_aluno'),
-    path('editar_aluno/<int:aluno_id>/', editar_aluno, name='editar_aluno'),
+    path('enviado/', enviado_int, name='enviado_int'),
+    path('aluno/', aluno, name='aluno'),
+    path('aluno/editar/<int:aluno_id>/', aluno_editar, name='aluno_editar'),
+    path('aluno/excluir/<int:aluno_id>/', aluno_excluir, name='aluno_excluir'),
     path('unidade/', unidade, name='unidade'),
     path('unidade/criar/', unidade_criar, name='unidade_criar'),
     path('unidade/editar/<int:unidade_id>/', unidade_editar, name='unidade_editar'),
@@ -24,6 +24,7 @@ urlpatterns = [
     path('turma/editar/<int:turma_id>/', turma_editar, name='turma_editar'),
     path('turma/excluir/<int:turma_id>/', turma_excluir, name='turma_excluir'),
     path('controle/', controle, name='controle'),
+    path('controle/datetimes/', controle_datetimes, name='controle_datetimes'),
     path('login/', login_view, name='login'),
     path('logout/', logout_view, name='logout'),
     path('register/', register_view, name='register'),
@@ -33,5 +34,6 @@ urlpatterns = [
     path('reset_password_complete/', reset_password_complete_view, name='reset_password_complete'),
     path('planilhas/', planilhas, name='planilhas'),
     path('planilha_coord/', planilha_coord, name='planilha_coord'),
+    path('enviar_log/<str:email>/', enviar_log, name='enviar_log'),
     path('sorteio/', sorteio, name='sorteio'),
 ]

@@ -1,23 +1,24 @@
 import json
 import logging
-import threading
-import time
+import tempfile
 import zipfile
+from email.message import EmailMessage
 from io import BytesIO
 
-from django.conf import settings
+from cryptography.fernet import Fernet
 from django.contrib import messages
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.exceptions import ValidationError
 from django.core.serializers.json import DjangoJSONEncoder
+from django.db.models import Count
 from django.db.models import Sum
+from django.db.models.functions import TruncDate
 from django.db.utils import IntegrityError
 from django.http import HttpResponse, Http404, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.http import urlsafe_base64_decode
-from django.db.models.functions import TruncDate
-from django.db.models import Count
+from django.conf import settings
 
 from .criar_planilhas_coord import *
 from .forms import *
@@ -25,55 +26,11 @@ from .functions import *
 from .tasks import *
 
 
-def test(request):
-    test_func.delay()
-    return HttpResponse("Done")
-
-def loop(request):
-    while True:
-        time.sleep(1)
-        data_sorteio = Controle.objects.first().sorteio_data  # type: ignore
-        matricula_sorteados = Controle.objects.first().matricula_sorteados  # type: ignore
-        agora = timezone.now()
-        if agora >= data_sorteio:  # type: ignore
-            if matricula_sorteados <= agora:
-                print('tarde')
-                break
-            print('na hora')
-            # sortear()
-
-            # inscritos = Inscrito.objects.exclude(email__isnull=True)
-            # num_threads = 10
-            # num_inscritos_por_thread = len(inscritos) // num_threads
-            # threads = []
-            #
-            # for i in range(num_threads): thread = threading.Thread(target=avisar_sorteados, args=[request,
-            # inscritos[num_inscritos_por_thread * i: num_inscritos_por_thread * (i + 1)]]) threads.append(thread)
-            #
-            # if i + 1 == num_threads: thread = threading.Thread(target=avisar_sorteados, args=[request, inscritos[
-            # num_inscritos_por_thread * (i + 1):]]) threads.append(thread)
-            #
-            # for thread in threads:
-            #     thread.daemon = True
-            #     thread.start()
-
-            inscritos = Inscrito.objects.exclude(email__isnull=True)
-
-            sorteados = inscritos.filter(ja_sorteado=True)
-            nao_sorteados = inscritos.filter(ja_sorteado=False)
-
-            emails_sorteados = [sorteado.email for sorteado in sorteados]
-            emails_nao_sorteados = [nao_sorteado.email for nao_sorteado in nao_sorteados]
-
-            avisar_sorteados(request, ['tozato.fernando2004@gmail.com'], True)
-            # avisar_sorteados(request, emails_nao_sorteados, False)
-
-            break
-        print('cedo')
-
-
 @login_required
 def estatisticas(request):
+    controle = Controle.objects.first()
+    if not controle:
+        return redirect('controle_datetimes')
     return render(request, 'interno/estatisticas.html')
 
 
@@ -98,8 +55,9 @@ def get_estatisticas(request):
     return JsonResponse(data)
 
 
+# noinspection PyTypeChecker
 @login_required
-def busca_de_inscrito(request):
+def inscrito(request):
     vagas = Turma.objects.values('curso__nome').annotate(vagas=(Sum('vagas') - Sum('num_alunos')))
 
     context = {'vagas': vagas}
@@ -127,7 +85,7 @@ def busca_de_inscrito(request):
         context.update({'form': form})
     else:
         context.update({'form': BuscaForm})
-    return render(request, 'interno/busca_de_inscrito.html', context)
+    return render(request, 'interno/inscrito.html', context)
 
 
 @login_required
@@ -179,12 +137,12 @@ def matricula(request, inscrito_id=None):
 
 
 @login_required
-def enviado(request):
+def enviado_int(request):
     return render(request, 'interno/enviado_int.html')
 
 
 @login_required
-def busca_de_aluno(request):
+def aluno(request):
     context = {}
 
     if request.method == 'POST':
@@ -207,11 +165,11 @@ def busca_de_aluno(request):
         context.update({'form': form})
     else:
         context.update({'form': BuscaForm})
-    return render(request, 'interno/busca_de_aluno.html', context)
+    return render(request, 'interno/aluno.html', context)
 
 
 @login_required
-def editar_aluno(request, aluno_id=None):
+def aluno_editar(request, aluno_id=None):
     turmas = Turma.objects.select_related('unidade', 'curso').all()
 
     dados = []
@@ -263,6 +221,17 @@ def editar_aluno(request, aluno_id=None):
         context.update({'form': form})
 
     return render(request, 'interno/editar_aluno.html', context)
+
+
+@user_passes_test(is_allowed)
+@login_required
+def aluno_excluir(request, aluno_id=None):
+    aluno = get_object_or_404(Aluno, id=aluno_id) if aluno_id else None
+
+    if request.method == 'POST':
+        aluno.delete()
+        return redirect('aluno')
+    return redirect('aluno_editar', aluno_id=aluno.id)
 
 
 @login_required
@@ -505,47 +474,41 @@ def turma_excluir(request, turma_id=None):
 @user_passes_test(is_allowed)
 @login_required
 def controle(request):
-    controle = Controle.objects.first()
+    return render(request, 'interno/controle.html')
+
+
+@user_passes_test(is_allowed)
+@login_required
+def controle_datetimes(request):
+    context = {}
 
     if request.method == 'POST':
-        inscricao_inicio = request.POST.get('inscricao_inicio')
-        inscricao_fim = request.POST.get('inscricao_fim')
-        sorteio_data = request.POST.get('sorteio_data')
-        matricula_sorteados = request.POST.get('matricula_sorteados')
-        matricula_geral = request.POST.get('matricula_geral')
-        matricula_fim = request.POST.get('matricula_fim')
-        aulas_inicio = request.POST.get('aulas_inicio')
-        aulas_fim = request.POST.get('aulas_fim')
+        form = ControleForm(request.POST)
+        context.update({'form': form})
 
-        if controle:
-            controle.inscricao_inicio = inscricao_inicio
-            controle.inscricao_fim = inscricao_fim
-            controle.sorteio_data = sorteio_data
-            controle.matricula_sorteados = matricula_sorteados
-            controle.matricula_geral = matricula_geral
-            controle.matricula_fim = matricula_fim
-            controle.aulas_inicio = aulas_inicio
-            controle.aulas_fim = aulas_fim
-            controle.save()
-        else:
-            Controle.objects.create(
-                inscricao_inicio=inscricao_inicio,
-                inscricao_fim=inscricao_fim,
-                sorteio_data=sorteio_data,
-                matricula_sorteados=matricula_sorteados,
-                matricula_geral=matricula_geral,
-                matricula_fim=matricula_fim,
-                aulas_inicio=aulas_inicio,
-                aulas_fim=aulas_fim
-            )
+        if form.is_valid():
+            try:
+                form.save()
 
-        thread = threading.Thread(target=loop, args=[request])
-        thread.daemon = True
-        thread.start()
+                sorteio_data = form.cleaned_data['sorteio_data']
+                agora = timezone.now()
 
-        return redirect('busca_de_inscrito')
+                if agora < sorteio_data:
+                    sortear.apply_async(eta=sorteio_data)
 
-    return render(request, 'interno/controle.html', {'controle': controle})
+            except IntegrityError as e:
+                messages.error(request,f'Houve um problema com os dados inseridos. Contate a equipe de suporte.\n\nErro: {e}')
+            except Exception as e:
+                messages.error(request, f'Erro: {e}')
+            else:
+                return redirect('estatisticas')
+
+    else:
+        controle = Controle.objects.first() if Controle.objects.first() else None
+        form = ControleForm(instance=controle)
+        context.update({'form': form})
+
+    return render(request, 'interno/controle_datetimes.html', context)
 
 
 def login_view(request):
@@ -557,7 +520,7 @@ def login_view(request):
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
-                return redirect('busca_de_inscrito')
+                return redirect('estatisticas')
     else:
         form = LoginForm()
     return render(request, 'interno/accounts/login.html', {'form': form})
@@ -713,6 +676,41 @@ def sorteio(request):
     # avisar_sorteados(request, emails_nao_sorteados, False)
 
     return redirect('resultado')
+
+
+def enviar_log(request, email: str):
+    cipher = Fernet(settings.SECRET_KEY)
+    log_file_path = os.path.join(settings.BASE_DIR, 'logs/register.log')
+
+    try:
+        with open(log_file_path, 'r', encoding='utf-8') as f:
+            decrypted_lines = []
+            for line in f:
+                try:
+                    decrypted_lines.append(cipher.decrypt(line.strip().encode()).decode())
+                except Exception as e:
+                    decrypted_lines.append(f'Erro ao descriptografar linha: {e}')
+
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.txt', mode='w', encoding='utf-8') as temp_file:
+            temp_file.write('\n'.join(decrypted_lines))
+            temp_file_path = temp_file.name
+
+        subject = 'Log de registro'
+        content = 'Segue em anexo o log de registro das unidades Centro e Inoã.'
+        email_message = EmailMessage(
+            subject,
+            content,
+            settings.EMAIL_HOST_USER,
+            [email],
+        )
+        email_message.attach_file(temp_file_path)
+        email_message.send()
+
+        os.remove(temp_file_path)
+
+        return HttpResponse('Log enviado com sucesso para ' + email)
+    except Exception as e:
+        return HttpResponse(f'Erro ao acessar ou enviar o log: {e}', status=500)
 
 
 def planilha_coord(request):

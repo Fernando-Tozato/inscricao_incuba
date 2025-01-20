@@ -11,3 +11,5 @@ openpyxl
 unidecode
 djangorestframework
 python-decouple
+celery
+cryptography
