@@ -1,48 +1,65 @@
-id,curso,dias,horario_entrada,horario_saida,vagas,escolaridade,idade,professor
-1,Informática para Iniciantes e Melhor Idade,Seg e Qua,08:40,09:50,20,2,12,Cláudia
-2,Informática para Iniciantes e Melhor Idade,Seg e Qua,13:30,14:40,20,2,12,Cláudia
-3,Informática para Iniciantes e Melhor Idade,Sexta,08:40,10:40,20,2,12,Erika
-4,Informática para Iniciantes e Melhor Idade,Sexta,11:00,13:00,20,2,12,Erika
-5,Informática para Iniciantes e Melhor Idade,Sexta,14:00,16:00,20,2,12,Cláudia
-6,Informática Básica,Seg e Qua,10:00,11:10,20,4,12,Erika
-7,Informática Básica,Seg e Qua,11:20,12:20,20,4,12,Cláudia
-8,Informática Básica,Seg e Qua,14:50,16:00,20,4,12,Cláudia
-9,Informática Básica,Seg e Qua,16:10,17:20,20,4,12,Cláudia
-10,Informática Básica,Ter e Qui,10:00,11:10,20,4,12,Cláudia
-11,Informática Básica,Ter e Qui,11:20,12:30,20,4,12,Cláudia
-12,Informática Básica,Ter e Qui,14:50,16:00,20,4,12,Cláudia
-13,Informática Básica,Sexta,16:00,18:00,20,4,12,Cláudia
-14,Excel,Ter e Qui,08:40,09:50,20,4,14,Erika
-15,Excel,Ter e Qui,13:30,14:40,20,4,14,Erika
-16,Excel,Ter e Qui,16:10,17:20,20,4,14,Erika
-17,Montagem e Manutenção de Computadores,"Seg, Ter e Qui",08:40,10:40,20,4,14,Celso
-18,Montagem e Manutenção de Computadores,"Seg, Ter e Qui",10:50,12:50,20,4,14,Celso
-19,Montagem e Manutenção de Computadores,"Ter, Qua e Sex",14:00,16:00,20,4,14,Celso
-20,Montagem e Manutenção de Computadores,"Ter, Qua e Sex",16:00,18:00,20,4,14,Celso
-21,Robótica e Automação: Módulo 01,Seg e Qua,08:40,10:40,20,4,12,Miguel
-22,Robótica e Automação: Módulo 01,Ter e Qui,14:00,16:00,20,4,12,Miguel
-23,Robótica e Automação: Módulo 01,Ter e Qui,16:00,18:00,20,4,12,Miguel
-24,Robótica e Automação: Módulo 02,Seg e Qua,11:00,13:00,20,4,12,Miguel
-25,Robótica e Automação: Módulo 02,Seg e Qua,14:00,16:00,20,4,12,Miguel
-26,Robótica e Automação: Módulo 02,Ter e Qui,11:00,13:00,20,4,12,Miguel
-27,Robótica e Automação: Módulo 03,Seg e Qua,16:00,18:00,20,4,12,Miguel
-28,Robótica e Automação: Módulo 03,Ter e Qui,08:40,10:40,20,4,12,Miguel
-29,Design e Modelagem 3D: Módulo 01,Ter e Qui,08:40,10:40,12,4,14,Beatriz
-30,Design e Modelagem 3D: Módulo 01,Ter e Qui,13:50,15:50,12,4,14,Beatriz
-31,Design e Modelagem 3D: Módulo 01,Ter e Qui,17:00,18:10,12,4,14,Beatriz
-32,Design e Modelagem 3D: Módulo 01,Qua e Sex,10:50,12:50,12,4,14,Beatriz
-33,Design e Modelagem 3D: Módulo 01,Qua e Sex,16:00,18:00,12,4,14,Beatriz
-34,Design e Modelagem 3D: Módulo 02,Ter e Qui,10:50,12:50,12,4,14,Beatriz
-35,Design e Modelagem 3D: Módulo 02,Ter e Qui,16:00,18:00,12,4,14,Beatriz
-36,Design e Modelagem 3D: Módulo 02,Qua e Sex,08:40,10:40,12,4,14,Beatriz
-37,Design e Modelagem 3D: Módulo 02,Qua e Sex,13:50,15:50,12,4,14,Beatriz
-38,Gestão de Pessoas,Ter e Qui,09:00,11:00,23,6,16,Alessandra
-39,Gestão de Pessoas,Ter e Qui,16:00,18:00,23,6,16,Alessandra
-40,Educação Financeira,Ter e Qui,11:00,13:00,23,6,16,Alessandra
-41,Educação Financeira,Ter e Qui,14:00,16:00,23,6,16,Alessandra
-42,Educação Financeira,Sexta,09:00,12:00,23,6,16,Alessandra
-43,Marketing Digital,Seg e Qua,09:00,11:00,23,6,16,Mayco
-44,Marketing Digital,Seg e Qua,16:00,18:00,23,6,16,Mayco
-45,Marketing Digital,Sexta,13:00,16:00,23,6,16,Mayco
-46,Marketing Empreeendedor,Seg e Qua,11:00,13:00,23,6,16,Mayco
-47,Marketing Empreeendedor,Seg e Qua,14:00,16:00,23,6,16,Mayco
+dias,horario_entrada,horario_saida,vagas,professor,num_alunos,curso_id,unidade_id
+Segunda e Quarta,08:30,10:30,12,n/d,0,7,2
+Segunda e Quarta,10:30,12:30,12,n/d,0,7,2
+"Segunda, Quarta e Sexta",13:30,15:30,12,n/d,0,8,2
+"Segunda, Quarta e Sexta",15:30,17:30,12,n/d,0,7,2
+Terça e Quinta,08:30,10:30,12,n/d,0,8,2
+Terça e Quinta,10:30,12:30,12,n/d,0,7,2
+Terça e Quinta,13:30,15:30,12,n/d,0,7,2
+Terça e Quinta,15:30,17:30,12,n/d,0,7,2
+Segunda e Quarta,08:30,10:30,24,Celso,0,10,2
+Segunda e Quarta,10:30,12:30,24,Celso,0,10,2
+"Segunda, Quarta e Sexta",13:30,15:30,24,Celso,0,10,2
+"Segunda, Quarta e Sexta",15:30,17:30,24,Celso,0,10,2
+Terça e Quinta,08:30,10:30,24,Celso,0,10,2
+Terça e Quinta,10:30,12:30,24,Celso,0,10,2
+Terça e Quinta,13:30,15:30,24,Celso,0,10,2
+Terça e Quinta,15:30,17:30,24,Celso,0,10,2
+Segunda e Quarta,08:30,10:30,24,Cláudia,0,11,2
+Segunda e Quarta,10:30,12:30,24,Cláudia,0,1,2
+"Segunda, Quarta e Sexta",13:30,15:30,24,Cláudia,0,11,2
+"Segunda, Quarta e Sexta",15:30,17:30,24,Cláudia,0,1,2
+Terça e Quinta,08:30,10:30,24,Cláudia,0,1,2
+Terça e Quinta,10:30,12:30,24,Cláudia,0,11,2
+Terça e Quinta,13:30,15:30,24,Cláudia,0,1,2
+Terça e Quinta,15:30,17:30,24,Cláudia,0,1,2
+Segunda e Quarta,08:30,10:30,19,Erika,0,1,1
+"Segunda, Quarta e Sexta",10:30,12:30,19,Erika,0,2,1
+"Segunda, Quarta e Sexta",13:30,15:30,19,Erika,0,3,1
+"Segunda, Quarta e Sexta",15:30,17:30,19,Erika,0,2,1
+Terça e Quinta,12:00,14:00,19,Erika,0,1,1
+Terça e Quinta,14:00,16:00,19,Erika,0,3,1
+Terça e Quinta,16:30,18:30,19,Erika,0,2,1
+Terça e Quinta,18:30,20:30,19,Erika,0,3,1
+Segunda e Quarta,08:30,10:30,15,Keven,0,4,1
+"Segunda, Quarta e Sexta",10:30,12:30,15,Keven,0,4,1
+"Segunda, Quarta e Sexta",13:30,15:30,15,Keven,0,4,1
+"Segunda, Quarta e Sexta",15:30,17:30,15,Keven,0,4,1
+Terça e Quinta,12:00,14:00,15,Keven,0,4,1
+Terça e Quinta,14:00,16:00,15,Keven,0,4,1
+Terça e Quinta,16:30,18:30,15,Keven,0,4,1
+Terça e Quinta,18:30,20:30,15,Keven,0,4,1
+Segunda e Quarta,08:30,10:30,8,Freitas,0,5,1
+"Segunda, Quarta e Sexta",10:30,12:30,8,Freitas,0,6,1
+"Segunda, Quarta e Sexta",13:30,15:30,8,Freitas,0,6,1
+"Segunda, Quarta e Sexta",15:30,17:30,8,Freitas,0,5,1
+Terça e Quinta,12:00,14:00,8,Freitas,0,6,1
+Terça e Quinta,14:00,16:00,8,Freitas,0,5,1
+Terça e Quinta,16:30,18:30,8,Freitas,0,5,1
+Terça e Quinta,18:30,20:30,8,Freitas,0,6,1
+"Segunda, Quarta e Sexta",10:45,12:45,12,Marco Túlio,0,7,1
+"Segunda, Quarta e Sexta",13:45,15:45,12,Marco Túlio,0,8,1
+"Segunda, Quarta e Sexta",16:00,18:00,12,Marco Túlio,0,7,1
+"Segunda, Quarta e Sexta",18:15,20:15,12,Marco Túlio,0,8,1
+Terça e Quinta,08:30,10:30,12,Marco Túlio,0,7,1
+Terça e Quinta,10:45,12:45,12,Marco Túlio,0,8,1
+Terça e Quinta,13:45,15:45,12,Marco Túlio,0,7,1
+Terça e Quinta,16:00,18:00,12,Marco Túlio,0,9,1
+Segunda e Quarta,08:30,10:30,12,Ramon,0,12,1
+"Segunda, Quarta e Sexta",10:30,12:30,12,Ramon,0,13,1
+"Segunda, Quarta e Sexta",13:30,15:30,12,Ramon,0,12,1
+"Segunda, Quarta e Sexta",15:30,17:30,12,Ramon,0,13,1
+Terça e Quinta,09:30,11:30,12,Ramon,0,12,1
+Terça e Quinta,11:30,13:30,12,Ramon,0,12,1
+Terça e Quinta,14:30,16:30,12,Ramon,0,13,1
+Terça e Quinta,16:30,18:30,12,Ramon,0,12,1

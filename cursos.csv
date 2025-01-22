@@ -1,0 +1,14 @@
+nome,descricao,requisitos,imagem,escolaridade,idade,unidades
+Informática Básica,descricao,requisitos,cursos/default.jpg,EF1_COM,12,"1,2"
+Excel,descricao,requisitos,cursos/default.jpg,EF1_COM,14,1
+Power BI,descricao,requisitos,cursos/default.jpg,EF1_COM,14,1
+Montagem e Manutenção de Celulares,descricao,requisitos,cursos/default.jpg,EF1_COM,14,1
+Blockchain,descricao,requisitos,cursos/default.jpg,EF2_COM,16,1
+Marketing,descricao,requisitos,cursos/default.jpg,EF2_COM,16,1
+Robótica e Automação - Módulo 1,descricao,requisitos,cursos/default.jpg,EF1_COM,12,"1,2"
+Robótica e Automação - Módulo 2,descricao,requisitos,cursos/default.jpg,EF1_COM,12,"1,2"
+Robótica e Automação - Módulo 3,descricao,requisitos,cursos/default.jpg,EF1_COM,12,1
+Montagem e Manutenção de Computadores,descricao,requisitos,cursos/default.jpg,EF1_COM,14,2
+Informática para Melhor Idade,descricao,requisitos,cursos/default.jpg,ALF,12,2
+Design e Modelagem 3D - Módulo 1,descricao,requisitos,cursos/default.jpg,EF1_COM,14,1
+Design e Modelagem 3D - Módulo 2,descricao,requisitos,cursos/default.jpg,EF1_COM,14,1

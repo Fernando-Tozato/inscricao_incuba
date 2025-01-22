@@ -171,7 +171,7 @@ class Inscrito(models.Model):
 
     def gerar_hash(self, dado, salt):
         codigo_hash = hashlib.sha256((str(dado)+salt).encode()).hexdigest()
-        return f'{int(codigo_hash, 16) % 10000}:04d'
+        return f'{int(codigo_hash, 16) % 10000:04d}'
 
     def __str__(self):
         return f'{self.cpf}'

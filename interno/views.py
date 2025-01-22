@@ -361,7 +361,7 @@ def curso_editar(request, curso_id=None):
                     form.save()
 
                     messages.success(request, 'Dados da curso atualizados com sucesso!')
-                    return render(request, 'interno/enviado_int.html')
+                    return redirect('curso')
                 else:
                     messages.error(request, 'Você não tem permissão para executar essa ação.')
             except ValidationError as e:
@@ -442,7 +442,7 @@ def turma_editar(request, turma_id=None):
                     form.save()
 
                     messages.success(request, 'Dados da turma atualizados com sucesso!')
-                    return render(request, 'interno/enviado_int.html')
+                    return redirect('turma')
                 else:
                     messages.error(request, 'Você não tem permissão para executar essa ação.')
             except ValidationError as e:
