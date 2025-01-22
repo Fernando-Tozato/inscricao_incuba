@@ -1,8 +1,7 @@
-import logging
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from database.models import Inscrito, Aluno, Unidade, Curso, Turma
-
+from interno.tasks import log_action
 
 
 @receiver(post_save, sender=Inscrito)

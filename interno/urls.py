@@ -2,8 +2,9 @@ from django.urls import path
 from .views import *
 
 urlpatterns = [
+    path('test/', test, name='test'),
     path('', estatisticas, name='estatisticas'),
-    path('get_estatisticas', get_estatisticas, name='get_estatisticas'),
+    path('get_estatisticas/', get_estatisticas, name='get_estatisticas'),
     path('inscrito/', inscrito, name='inscrito'),
     path('matricula/', matricula, name='matricula'),
     path('matricula/<int:inscrito_id>/', matricula, name='matricula_inscrito'),
@@ -25,6 +26,8 @@ urlpatterns = [
     path('turma/excluir/<int:turma_id>/', turma_excluir, name='turma_excluir'),
     path('controle/', controle, name='controle'),
     path('controle/datetimes/', controle_datetimes, name='controle_datetimes'),
+    path('planilhas/', planilhas, name='planilhas'),
+    path('logs/', logs, name='logs'),
     path('login/', login_view, name='login'),
     path('logout/', logout_view, name='logout'),
     path('register/', register_view, name='register'),
@@ -32,8 +35,4 @@ urlpatterns = [
     path('reset_password_sent/', reset_password_sent_view, name='reset_password_sent'),
     path('reset/<uidb64>/<token>/', reset_password_confirm_view, name='password_reset_confirm'),
     path('reset_password_complete/', reset_password_complete_view, name='reset_password_complete'),
-    path('planilhas/', planilhas, name='planilhas'),
-    path('planilha_coord/', planilha_coord, name='planilha_coord'),
-    path('enviar_log/<str:email>/', enviar_log, name='enviar_log'),
-    path('sorteio/', sorteio, name='sorteio'),
 ]

@@ -42,7 +42,7 @@ class MatriculaForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        inscrito = kwargs.pop('inscrito', None)
+        inscrito: [dict, None] = kwargs.pop('inscrito', None)
         super().__init__(*args, **kwargs)
         self.fields['nascimento'].input_formats = ['%d/%m/%Y', '%Y-%m-%d']
         self.fields['data_emissao'].input_formats = ['%d/%m/%Y', '%Y-%m-%d']
@@ -198,5 +198,17 @@ class CustomPasswordResetForm(PasswordResetForm):
 
 
 class CustomSetPasswordForm(SetPasswordForm):
-    senha = forms.CharField(widget=forms.PasswordInput)
-    confirmacao_senha = forms.CharField(widget=forms.PasswordInput)
+    new_password1 = forms.CharField(label='Senha',
+                                    widget=forms.PasswordInput(attrs={'class': 'form-control required',
+                                                                      'placeholder': 'Senha'}))
+    new_password2 = forms.CharField(label='Confirme sua senha',
+                                    widget=forms.PasswordInput(attrs={'class': 'form-control required',
+                                                                      'placeholder': 'Confirme de senha'}))
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['new_password1'].label = "Senha"
+        self.fields['new_password2'].label = "Confirmação da Senha"
+
+class EmailForm(forms.Form):
+    email = forms.EmailField(widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'}))

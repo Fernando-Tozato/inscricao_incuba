@@ -1,79 +1,255 @@
+import json
 import os
 import random
+import zipfile
 from datetime import timedelta
 from logging import getLogger, Logger
 
 from celery import shared_task, group
-
-from django.contrib.sites.shortcuts import get_current_site
-from django.core.mail import send_mail, EmailMultiAlternatives
+from cryptography.fernet import Fernet
+from django.conf import settings
+from django.core.mail import send_mail, EmailMessage
 from django.db.models import Q, QuerySet
 from django.db.models.functions import Coalesce
 from django.template.loader import render_to_string
-from django.utils.html import strip_tags
+from django_celery_beat.models import IntervalSchedule, PeriodicTask
 from openpyxl import Workbook
 from openpyxl.formatting.rule import CellIsRule
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 from openpyxl.utils import get_column_letter
 
 from database.models import *
-from django.conf import settings
 from .middleware import get_current_user
 
-
+'''
+    ENVIO DE EMAILS
+'''
 @shared_task
-def test_func(emails, conteudo, assunto):
-    send_mail(
-        assunto,
-        conteudo,
-        settings.EMAIL_HOST_USER,
-        emails,
-        fail_silently=False
-    )
-
-    print('Fim')
-
-
-@shared_task
-def avisar_sorteados(emails, sorteado=False):
-    controle = Controle.objects.first()
-
-    subject = 'Incubadora de Robótica'
-
-    if sorteado:
-        email_template_name = "emails/aviso_sorteado.html"
-        c = {
-            'domain': 'domain',
-            'protocol': 'http',
-            'data_matricula_inicio': controle.matricula_sorteados,  # type: ignore
-            'data_matricula_fim': controle.matricula_fim,  # type: ignore
-            'data_aulas_inicio': controle.aulas_inicio,  # type: ignore
-        }
-        email_content = render_to_string(email_template_name, c)
-
+def enviar_emails(*args):
+    if len(args) == 3:
+        emails, content, subject = args
     else:
-        email_template_name = 'emails/aviso_nao_sorteado.html'
-        c = {
-            'domain': get_current_site(request).domain,
-            'protocol': 'http',
-            'data_matricula_inicio': controle.matricula_geral,  # type: ignore
-            'data_matricula_fim': controle.matricula_fim,  # type: ignore
-            'data_aulas_inicio': controle.aulas_inicio,  # type: ignore
-        }
-        email_content = render_to_string(email_template_name, c)
+        emails, content, subject, has_html = args
 
-    plain_message = strip_tags(email_content)
+    for email in emails:
+        send_mail(
+            subject,
+            content,
+            settings.EMAIL_HOST_USER,
+            [email],
+            fail_silently=False,
+            html_message=content if has_html else None,
+        )
 
-    send_mail(
+@shared_task
+def enviar_email_arq(emails, content, subject, file_path):
+    email_message = EmailMessage(
         subject,
-        plain_message,
+        content,
         settings.EMAIL_HOST_USER,
-        emails,
-        fail_silently=False,
-        html_message=email_content,
+        [emails],
     )
+    email_message.attach_file(file_path)
+    email_message.send()
 
-    print('Fim')
+
+'''
+    SORTEIO E AVISO DE INSCRITOS
+'''
+
+@shared_task
+def sortear():
+    logger = getLogger('sorteio')
+    controle = Controle.objects.first()
+    turmas = Turma.objects.all()
+    inscritos = Inscrito.objects.all()
+
+    sorteio(logger, turmas, inscritos)
+
+    emails_sorteados = list(inscritos.filter(Q(ja_sorteado=True) & Q(email__isnull=False)).values_list('email', flat=True))
+    emails_nao_sorteados = list(inscritos.filter(Q(ja_sorteado=False) & Q(email__isnull=False)).values_list('email', flat=True))
+
+    content_sorteados = render_to_string("emails/aviso_sorteado.html", {
+        'domain': 'incubarobotica.com.br',
+        'protocol': 'http',
+        'data_matricula_inicio': controle.matricula_sorteados,  # type: ignore
+        'data_matricula_fim': controle.matricula_fim,  # type: ignore
+        'data_aulas_inicio': controle.aulas_inicio,  # type: ignore
+    })
+
+    content_nao_sorteados = render_to_string("emails/aviso_nao_sorteado.html", {
+        'domain': 'incubarobotica.com.br',
+        'protocol': 'http',
+        'data_matricula_inicio': controle.matricula_sorteados,  # type: ignore
+        'data_matricula_fim': controle.matricula_fim,  # type: ignore
+        'data_aulas_inicio': controle.aulas_inicio,  # type: ignore
+    })
+
+    tarefas = [
+        preparar_emails_sorteio.s(emails_sorteados, content_sorteados),
+        preparar_emails_sorteio.s(emails_nao_sorteados, content_nao_sorteados)
+    ]
+    group(tarefas).apply_async()
+
+def sorteio(logger: Logger, turmas: QuerySet[Turma], inscritos: QuerySet[Inscrito]):
+    """
+    Realiza o sorteio de inscritos em turmas conforme as regras especificadas.
+
+    Este código é público para fins de transparência e validação do sorteio.
+
+    - Para cada turma, o sorteio é realizado separadamente para vagas de cotas e de ampla concorrência.
+    - Os inscritos sorteados são marcados como 'ja_sorteado' para evitar múltiplas seleções.
+    - As operações são registradas em 'sorteio.log' para auditoria e verificação posterior.
+    """
+
+    logger.info("Inicio do sorteio")  # Mostra o início do sorteio no log
+
+    for turma in turmas:  # Itera sobre todas as turmas
+        logger.info(f"Turma: {turma.curso} - {turma.dias} - {turma.horario()}")  # Mostra no log a turma atual
+
+        """
+        Sorteio para vagas de cotas
+        """
+
+        vagas_cotas = turma.cotas()  # Pega o número de vagas para cotas (30% do total das vagas)
+        inscritos_cotas = list(inscritos.filter(Q(id_turma=turma) & Q(Q(pcd=True) | Q(
+            ps=True))))  # Pega todos os inscritos para a turma atual que sejam PCD ou participem de Programa Social
+
+        if len(inscritos_cotas) <= vagas_cotas:  # Caso o número de inscritos cotistas para a turma atual seja menor
+            # que o número de vagas para cotas da turma...
+            sorteados_cotas = inscritos_cotas  # ... define os sorteados cotistas para a turma atual como todos os
+            # inscritos para a turma atual
+        else:  # Se não...
+            sorteados_cotas = random.sample(inscritos_cotas,
+                                            vagas_cotas)  # ... sorteia os inscritos de acordo com o número de vagas
+
+        for sorteado in sorteados_cotas:  # Itera sobre todos os sorteados cotistas da turma atual
+            logger.info(
+                f'{sorteado.nome_social if sorteado.nome_social else sorteado.nome} - Cota')  # Mostra o nome civil ou social do sorteado no log
+            sorteado.ja_sorteado = True  # Define o atributo ja_sorteado como verdadeiro
+            sorteado.save()  # Salva a alteração
+
+        """
+        Sorteio para vagas de ampla concorrência
+        """
+
+        vagas_gerais = turma.ampla_conc()  # Pega o número de vagas para ampla concorrência (70% do total das vagas)
+        inscritos_gerais = list(inscritos.filter(Q(id_turma=turma) & Q(
+            ja_sorteado=False)))  # Pega todos os inscritos para a turma atual que não tenham sido sorteados ainda
+
+        if len(inscritos_gerais) <= vagas_gerais:  # Caso o número de inscritos para a turma atual seja menor que o
+            # número de vagas da turma...
+            sorteados_gerais = inscritos_gerais  # ... define os sorteados para a turma atual como todos os inscritos
+            # para a turma atual
+        else:  # Se não...
+            sorteados_gerais = random.sample(inscritos_gerais,
+                                             vagas_gerais)  # ... sorteia os inscritos de acordo com o número de vagas
+
+        for sorteado in sorteados_gerais:  # Itera sobre todos os sorteados de ampla concorrência da turma atual
+            logger.info(
+                f'{sorteado.nome_social if sorteado.nome_social else sorteado.nome} - Ampla concorrência')  # Mostra o nome civil ou social do sorteado no log
+            sorteado.ja_sorteado = True  # Define o atributo ja_sorteado como verdadeiro
+            sorteado.save()  # Salva a alteração
+
+        logger.info('Fim da turma.')  # Mostra o final do sorteio da turma atual no log
+
+        """
+        Por ser um loop, o processo se repetirá para todas as turmas 
+        """
+
+    logger.info("Fim do sorteio")  # Mostra o fim do sorteio no log
+
+@shared_task
+def preparar_emails_sorteio(emails_inscritos, content):
+    tamanho_lote = 100
+    subject = 'Incubadora de Robótica'
+    tarefas = [
+        enviar_emails.s(emails_inscritos[i:i+tamanho_lote if i+tamanho_lote < len(emails_inscritos) else -1], content, subject, True)
+        for i in range(0, len(emails_inscritos), tamanho_lote)
+    ]
+    group(tarefas).apply_async()
+
+
+'''
+    PREENCHIMENTO E ENVIO DE LOGS
+'''
+@shared_task
+def log_action(action, instance):
+    logger = getLogger('register')
+    user = get_current_user()
+    username = user.username if user else "Desconhecido"
+    logger.info(f'{action}: {instance._meta.model_name} | Usuário: {username} | ID: {instance.id} - {instance.__str__()}')
+
+@shared_task
+def preparar_log(email):
+    cipher = Fernet(settings.LOGGER_SECRET_KEY)
+    log_file_path = os.path.join(settings.BASE_DIR, 'logs/register.log')
+
+    decrypted_lines = []
+    with open(log_file_path, 'r', encoding='utf-8') as f:
+        for line in f:
+            try:
+                decrypted_line = cipher.decrypt(line.strip().encode()).decode()
+                decrypted_lines.append(decrypted_line)
+            except Exception as e:
+                decrypted_lines.append(f'Erro ao descriptografar linha: {e}')
+
+    temp_file_path = os.path.join(settings.BASE_DIR, 'registro.txt')
+    with open(temp_file_path, 'w', encoding='utf-8') as temp_file:
+        temp_file.write('\n'.join(decrypted_lines))
+
+    subject = 'Log de registro'
+    content = 'Segue em anexo o log de registro das unidades Centro e Inoã.'
+
+    enviar_email_arq.delay(email, content, subject, temp_file_path)
+
+
+@shared_task
+def apagar_log(temp_file_path):
+    os.remove(temp_file_path)
+
+
+'''
+    GERAÇÃO E ENVIO DE PLANILHAS
+'''
+@shared_task
+def preparar_planilhas(email):
+    planilhas_dir = os.path.join(settings.MEDIA_ROOT, 'planilhas')
+
+    if not os.path.exists(planilhas_dir):
+        print('criando planilhas_dir')
+        os.makedirs(planilhas_dir)
+    print('planilhas_dir existe')
+
+    filenames = os.listdir(planilhas_dir)
+
+    if not filenames:
+        print('planilhas vazio')
+        gerar_planilhas()
+        gerar_planilha_coord()
+        filenames = os.listdir(planilhas_dir)
+        if not filenames:
+            print('não foi possível gerar planilhas')
+        print('planilhas criadas')
+    print('planilhas não vazio')
+
+    zip_subdir = 'planilhas'
+    zip_filename = os.path.join(settings.MEDIA_ROOT, f'{zip_subdir}/{zip_subdir}.zip')
+
+    with zipfile.ZipFile(zip_filename, 'w') as zip_file:
+        for filename in filenames:
+            file_path = os.path.join(planilhas_dir, filename)
+            if os.path.exists(file_path):
+                with open(file_path, 'rb') as file:
+                    zip_path = os.path.join(zip_subdir, filename)
+                    zip_file.writestr(zip_path, file.read())
+            else:
+                print(f'{filename} não encontrado')
+
+    subject = 'Planilhas pedagógicas'
+    content = 'Segue em anexo um arquivo zipado com as planilhas de presença.'
+
+    enviar_emails.delay(email, content, subject, zip_filename)
 
 
 def ajustar_colunas(ws):
@@ -94,7 +270,7 @@ def ajustar_colunas(ws):
         adjusted_width = max_length + 2
         ws.column_dimensions[column].width = adjusted_width
 
-
+@shared_task
 def criar_folha_presenca(wb, turmas, aulas_inicio, aulas_fim):
     """
     Cria a folha de presença no workbook.
@@ -230,7 +406,7 @@ def criar_folha_presenca(wb, turmas, aulas_inicio, aulas_fim):
     ajustar_colunas(ws_presenca)
     return ws_presenca
 
-
+@shared_task
 def criar_folha_alunos(wb, turmas):
     """
     Cria a folha de alunos no workbook.
@@ -320,8 +496,8 @@ def gerar_planilhas():
                 wb.remove(default_sheet)
 
                 # Cria as folhas necessárias
-                criar_folha_presenca(wb, turmas_aux, aulas_inicio, aulas_fim)
-                criar_folha_alunos(wb, turmas_aux)
+                criar_folha_presenca.delay(wb, turmas_aux, aulas_inicio, aulas_fim)
+                criar_folha_alunos.delay(wb, turmas_aux)
 
                 # Definir caminho e nome do arquivo
                 nome_arquivo = f"presenca_{professor}_{curso_arq[curso]}.xlsx"
@@ -337,134 +513,171 @@ def gerar_planilhas():
     except Exception as e:
         print(f"Ocorreu um erro durante a geração das planilhas: {e}")
 
+@shared_task
+def criar_folha_geral(wb: Workbook):
+    ws_geral = wb.create_sheet(title='Geral')
+    headers = ['ID', 'Nome', 'CPF', 'Celular', 'Rua', 'Número', 'Bairro', 'Cidade', 'UF', 'É PCD?', 'OBS', 'Curso', 'Dias', 'Horario']
+    for col_num, header in enumerate(headers, start=1):
+        ws_geral.cell(row=1, column=col_num).value = header
+        ws_geral.cell(row=1, column=col_num).font = Font(bold=True)
+        ws_geral.cell(row=1, column=col_num).alignment = Alignment(horizontal="center")
+
+    alunos = Aluno.objects.all()
+
+    for row_num, aluno in enumerate(alunos, start=2):
+        turma = aluno.id_turma
+
+        ws_geral.cell(row=row_num, column=1).value = aluno.pk
+        ws_geral.cell(row=row_num, column=2).value = aluno.nome_social if aluno.nome_social else aluno.nome
+        ws_geral.cell(row=row_num, column=3).value = aluno.cpf_formatado()
+        ws_geral.cell(row=row_num, column=4).value = aluno.celular
+        ws_geral.cell(row=row_num, column=5).value = aluno.rua
+        ws_geral.cell(row=row_num, column=6).value = aluno.numero
+        ws_geral.cell(row=row_num, column=7).value = aluno.bairro
+        ws_geral.cell(row=row_num, column=8).value = aluno.cidade
+        ws_geral.cell(row=row_num, column=9).value = aluno.uf
+        ws_geral.cell(row=row_num, column=10).value = 'PCD' if aluno.pcd else ''
+        ws_geral.cell(row=row_num, column=11).value = aluno.observacoes if aluno.observacoes is not None else ''
+        ws_geral.cell(row=row_num, column=12).value = turma.curso
+        ws_geral.cell(row=row_num, column=13).value = turma.dias
+        ws_geral.cell(row=row_num, column=14).value = turma.horario()
+
+        for col in range(1, 15):
+            ws_geral.cell(row=row_num, column=col).alignment = Alignment(horizontal="left")
+
+    ajustar_colunas(ws_geral)
+    return ws_geral
 
 @shared_task
-def sortear():
-    logger = getLogger('sorteio')
-    controle = Controle.objects.first()
-    turmas = Turma.objects.all()
-    inscritos = Inscrito.objects.all()
+def criar_folha_curso(wb: Workbook, curso: str, turmas: QuerySet[Turma]):
+    dark_fill = PatternFill(start_color="4F4F4F", end_color="4F4F4F", fill_type="solid")
 
-    sorteio(logger, turmas, inscritos)
+    ws_curso = wb.create_sheet(title=f'{curso}')
+    headers = ['ID', 'Nome', 'CPF', 'Celular', 'Rua', 'Número', 'Bairro', 'Cidade', 'UF', 'É PCD?', 'OBS']
 
-    emails_sorteados = list(inscritos.filter(Q(ja_sorteado=True) & Q(email__isnull=False)).values_list('email', flat=True))
-    emails_nao_sorteados = list(inscritos.filter(Q(ja_sorteado=False) & Q(email__isnull=False)).values_list('email', flat=True))
+    init_row = 1
+    for turma in turmas:
+        last_row = init_row
 
-    content_sorteados = render_to_string("emails/aviso_sorteado.html", {
-        'domain': 'incubarobotica.com.br',
-        'protocol': 'http',
-        'data_matricula_inicio': controle.matricula_sorteados,  # type: ignore
-        'data_matricula_fim': controle.matricula_fim,  # type: ignore
-        'data_aulas_inicio': controle.aulas_inicio,  # type: ignore
-    })
+        # Separação de turmas
+        ws_curso.cell(row=init_row, column=1).fill = dark_fill
+        ws_curso.cell(row=init_row, column=2).value = f'{turma.dias} - {turma.horario()}'
+        for col in range(3, 12):
+            ws_curso.cell(row=init_row, column=col).fill = dark_fill
 
-    content_nao_sorteados = render_to_string("emails/aviso_nao_sorteado.html", {
-        'domain': 'incubarobotica.com.br',
-        'protocol': 'http',
-        'data_matricula_inicio': controle.matricula_sorteados,  # type: ignore
-        'data_matricula_fim': controle.matricula_fim,  # type: ignore
-        'data_aulas_inicio': controle.aulas_inicio,  # type: ignore
-    })
+        # Headers
+        for col_num, header in enumerate(headers, start=1):
+            ws_curso.cell(row=init_row + 1, column=col_num).value = header
+            ws_curso.cell(row=init_row + 1, column=col_num).font = Font(bold=True)
+            ws_curso.cell(row=init_row + 1, column=col_num).alignment = Alignment(horizontal="center")
 
-    tarefas = [
-        preparar_emails_sorteio.s(emails_sorteados, content_sorteados),
-        preparar_emails_sorteio.s(emails_nao_sorteados, content_nao_sorteados)
-    ]
-    group(tarefas).apply_async()
+        alunos = (Aluno.objects.filter(id_turma=turma)
+                  .annotate(nome_ordenacao=Coalesce('nome_social', 'nome'))
+                  .order_by('nome_ordenacao'))
 
-def sorteio(logger: Logger, turmas: QuerySet[Turma], inscritos: QuerySet[Inscrito]):
-    """
-    Realiza o sorteio de inscritos em turmas conforme as regras especificadas.
+        last_row += 2
+        for row_num, aluno in enumerate(alunos, start=last_row):
+            ws_curso.cell(row=row_num, column=1).value = aluno.pk
+            ws_curso.cell(row=row_num, column=2).value = aluno.nome_social if aluno.nome_social else aluno.nome
+            ws_curso.cell(row=row_num, column=3).value = aluno.cpf_formatado()
+            ws_curso.cell(row=row_num, column=4).value = aluno.celular
+            ws_curso.cell(row=row_num, column=5).value = aluno.rua
+            ws_curso.cell(row=row_num, column=6).value = aluno.numero
+            ws_curso.cell(row=row_num, column=7).value = aluno.bairro
+            ws_curso.cell(row=row_num, column=8).value = aluno.cidade
+            ws_curso.cell(row=row_num, column=9).value = aluno.uf
+            ws_curso.cell(row=row_num, column=10).value = 'PCD' if aluno.pcd else ''
+            ws_curso.cell(row=row_num, column=11).value = aluno.observacoes if aluno.observacoes is not None else ''
 
-    Este código é público para fins de transparência e validação do sorteio.
+            for col in range(1, 12):
+                ws_curso.cell(row=row_num, column=col).alignment = Alignment(horizontal="left")
+            last_row += 1
 
-    - Para cada turma, o sorteio é realizado separadamente para vagas de cotas e de ampla concorrência.
-    - Os inscritos sorteados são marcados como 'ja_sorteado' para evitar múltiplas seleções.
-    - As operações são registradas em 'sorteio.log' para auditoria e verificação posterior.
-    """
+        for col_num in range(1, 12):
+            ws_curso.cell(row=last_row, column=col_num).fill = dark_fill
 
-    logger.info("Inicio do sorteio")  # Mostra o início do sorteio no log
+        init_row = last_row + 1
 
-    for turma in turmas:  # Itera sobre todas as turmas
-        logger.info(f"Turma: {turma.curso} - {turma.dias} - {turma.horario()}")  # Mostra no log a turma atual
+    print(ws_curso)
+    ajustar_colunas(ws_curso)
+    return ws_curso
 
-        """
-        Sorteio para vagas de cotas
-        """
 
-        vagas_cotas = turma.cotas()  # Pega o número de vagas para cotas (30% do total das vagas)
-        inscritos_cotas = list(inscritos.filter(Q(id_turma=turma) & Q(Q(pcd=True) | Q(
-            ps=True))))  # Pega todos os inscritos para a turma atual que sejam PCD ou participem de Programa Social
+def gerar_planilha_coord():
+    curso_title = {
+        'Informática para Iniciantes e Melhor Idade': 'Info Iniciante',
+        'Informática Básica': 'Info Básica',
+        'Excel': 'Excel',
+        'Montagem e Manutenção de Computadores': 'Montagem',
+        'Robótica e Automação: Módulo 01': 'Robótica 1',
+        'Robótica e Automação: Módulo 02': 'Robótica 2',
+        'Robótica e Automação: Módulo 03': 'Robótica 3',
+        'Design e Modelagem 3D: Módulo 01': 'Design 1',
+        'Design e Modelagem 3D: Módulo 02': 'Design 2',
+        'Gestão de Pessoas': 'Gestão',
+        'Educação Financeira': 'Educação Financeira',
+        'Marketing Digital': 'M. Digital',
+        'Marketing Empreendedor': 'M. Empreendedor'
+    }
 
-        if len(inscritos_cotas) <= vagas_cotas:  # Caso o número de inscritos cotistas para a turma atual seja menor
-            # que o número de vagas para cotas da turma...
-            sorteados_cotas = inscritos_cotas  # ... define os sorteados cotistas para a turma atual como todos os
-            # inscritos para a turma atual
-        else:  # Se não...
-            sorteados_cotas = random.sample(inscritos_cotas,
-                                            vagas_cotas)  # ... sorteia os inscritos de acordo com o número de vagas
+    try:
+        wb = Workbook()
 
-        for sorteado in sorteados_cotas:  # Itera sobre todos os sorteados cotistas da turma atual
-            logger.info(
-                f'{sorteado.nome_social if sorteado.nome_social else sorteado.nome} - Cota')  # Mostra o nome civil ou social do sorteado no log
-            sorteado.ja_sorteado = True  # Define o atributo ja_sorteado como verdadeiro
-            sorteado.save()  # Salva a alteração
+        default_sheet = wb.active
+        wb.remove(default_sheet)
 
-        """
-        Sorteio para vagas de ampla concorrência
-        """
+        criar_folha_geral.delay(wb)
 
-        vagas_gerais = turma.ampla_conc()  # Pega o número de vagas para ampla concorrência (70% do total das vagas)
-        inscritos_gerais = list(inscritos.filter(Q(id_turma=turma) & Q(
-            ja_sorteado=False)))  # Pega todos os inscritos para a turma atual que não tenham sido sorteados ainda
+        turmas = Turma.objects.all()
+        cursos = set(turma.curso for turma in turmas)
 
-        if len(inscritos_gerais) <= vagas_gerais:  # Caso o número de inscritos para a turma atual seja menor que o
-            # número de vagas da turma...
-            sorteados_gerais = inscritos_gerais  # ... define os sorteados para a turma atual como todos os inscritos
-            # para a turma atual
-        else:  # Se não...
-            sorteados_gerais = random.sample(inscritos_gerais,
-                                             vagas_gerais)  # ... sorteia os inscritos de acordo com o número de vagas
+        for curso in cursos:
+            turmas_aux = turmas.filter(curso=curso)
 
-        for sorteado in sorteados_gerais:  # Itera sobre todos os sorteados de ampla concorrência da turma atual
-            logger.info(
-                f'{sorteado.nome_social if sorteado.nome_social else sorteado.nome} - Ampla concorrência')  # Mostra o nome civil ou social do sorteado no log
-            sorteado.ja_sorteado = True  # Define o atributo ja_sorteado como verdadeiro
-            sorteado.save()  # Salva a alteração
+            if not turmas_aux.exists():
+                continue
 
-        logger.info('Fim da turma.')  # Mostra o final do sorteio da turma atual no log
+            criar_folha_curso.delay(wb, curso_title[curso], turmas_aux)
 
-        """
-        Por ser um loop, o processo se repetirá para todas as turmas 
-        """
+        nome_arquivo = f'planilha_geral_2024_2.xlsx'
+        caminho_arquivo = os.path.join('media', 'planilhas', nome_arquivo)
 
-    logger.info("Fim do sorteio")  # Mostra o fim do sorteio no log
+        os.makedirs(os.path.dirname(caminho_arquivo), exist_ok=True)
 
+        wb.save(caminho_arquivo)
+        print(f'Planilha salva: {caminho_arquivo}')
+
+    except Exception as e:
+        print(f'Ocorreu um erro durante a geração da planilha: {e}')
+
+
+'''
+    AGENDAMENTO DE TAREFAS
+'''
 @shared_task
-def preparar_emails_sorteio(emails_inscritos, content):
-    tamanho_lote = 100
-    subject = 'Incubadora de Robótica'
-    tarefas = [
-        enviar_emails.s(emails_inscritos[i:i+tamanho_lote if i+tamanho_lote < len(emails_inscritos) else -1], content, subject)
-        for i in range(0, len(emails_inscritos), tamanho_lote)
-    ]
-    group(tarefas).apply_async()
+def agendar_task(task_name, task_path, eta, parametro=None):
+    schedule, _ = IntervalSchedule.objects.get_or_create(
+        every=1,
+        period=IntervalSchedule.MINUTES,
+    )
 
-@shared_task
-def enviar_emails(emails, content, subject):
-    for email in emails:
-        send_mail(
-            subject,
-            content,
-            settings.EMAIL_HOST_USER,
-            [email],
-            fail_silently=False,
-            html_message=content
-        )
+    args_json = json.dumps([parametro]) if parametro is not None else "[]"
 
-@shared_task
-def log_action(action, instance):
-    logger = getLogger('register')
-    user = get_current_user()
-    username = user.username if user else "Desconhecido"
-    logger.info(f'{action}: {instance._meta.model_name} | Usuário: {username} | ID: {instance.id} - {instance.__str__()}')
+    task, created = PeriodicTask.objects.get_or_create(
+        name=task_name,
+        defaults={
+            'interval': schedule,
+            'task': task_path,
+            'args': args_json,
+            'start_time': eta,
+            'one_off': True,
+        }
+    )
+
+    if not created:
+        task.start_time = eta
+        task.args = args_json
+        task.save()
+        print(f'Tarefa {task_name} atualizada para {eta}.')
+    else:
+        print(f'Tarefa {task_name} agendada para {eta}.')

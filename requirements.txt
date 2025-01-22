@@ -13,3 +13,4 @@ djangorestframework
 python-decouple
 celery
 cryptography
+django-celery-beat

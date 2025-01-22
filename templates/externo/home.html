@@ -11,14 +11,23 @@
                 <h4 class="alert-heading">As inscrições estão abertas!</h4>
                 <p>Caso ainda não tenha feito a sua, faça agora clicando <a href="{% url 'inscricao' %}" class="alert-link">AQUI</a>.</p>
                 <hr>
-                <p>Você tem até {{ inscricao|date:"d/m/Y" }} às {{ inscricao|date:"H:i" }} para fazer sua inscrição.</p>
+                <p>Você tem até {{ inscricao.inscricao_fim|date:"d/m/Y" }} às {{ inscricao.inscricao_fim|date:"H:i" }} para fazer a sua inscrição.</p>
+            </div>
+        {% endif %}
+
+        {% if matricula %}
+            <div class="alert alert-info mb-5" role="alert">
+                <h4 class="alert-heading">O período de matrículas chegou!</h4>
+                <hr>
+                <p>Caso você tenha sido sorteado, deve comparecer à mesma unidade da turma que se inscreveu entre os dias {{ matricula.matricula_sorte_inicio|date:"d/m/Y" }} e {{ matricula.matricula_sorte_fim|date:"d/m/Y" }} para realizar a sua matrícula.</p>
+
             </div>
         {% endif %}
         
         {% if matricula_fim %}
             <div class="alert alert-info mb-5" role="alert">
                 <h4>Para se informar sobre as vagas remanescentes, entre em contato conosco.</h4>
-                <p>Você tem até {{ matricula_fim|date:"d/m/Y" }} às {{ matricula_fim|date:"H:i" }} para fazer sua matrícula.</p>
+                <p>Você tem até {{ matricula_fim|date:"d/m/Y" }} às {{ matricula_fim|date:"H:i" }} para fazer a sua matrícula.</p>
             </div>
         {% endif %}
     

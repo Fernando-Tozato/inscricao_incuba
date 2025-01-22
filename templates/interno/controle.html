@@ -7,32 +7,73 @@
 {% block content %}
 
     <div class="container my-5">
-        <div class="p-5 border bg-body-secondary text-body-secondary rounded">
-            <div class="m-auto">
-                <a href="{% url 'controle_datetimes' %}" class="btn btn-primary">Controle de horários</a>
-                <a href="{% url 'planilhas' %}" class="btn btn-primary">Baixar planilhas</a>
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#email_modal">Enviar registros por E-mail</button>
+        {% if response %}
+            <div class="alert alert-success mb-3" role="alert">
+                {{ response }}
+            </div>
+        {% endif %}
+
+        <div class="p-5 border bg-body-secondary text-body-secondary rounded container text-center">
+            <div class="row justify-content-center">
+                <a href="{% url 'controle_datetimes' %}" class="btn btn-primary col-4">Controle de horários</a>
+            </div>
+            <div class="row justify-content-center my-3">
+                <button type="button" class="btn btn-primary col-4" data-bs-toggle="modal" data-bs-target="#planilha_model">Enviar planilhas por E-mail</button>
+            </div>
+            <div class="row justify-content-center">
+                <button type="button" class="btn btn-primary col-4" data-bs-toggle="modal" data-bs-target="#log_model">Enviar registros por E-mail</button>
             </div>
         </div>
     </div>
 
-    <div class="modal fade" id="email_modal" tabindex="-1" aria-labelledby="email_modal_label" aria-hidden="true">
+    <div class="modal fade" id="planilha_model" tabindex="-1" aria-labelledby="planilha_model_label" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="email_modal_label">Envio de registros por E-mail</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                Para enviar os registros do sistema, você deve preencher o campo abaixo com o E-mail de destino e clicar no botão "Enviar".
-                    <div class="row">
-
+                <form method="post" action="{% url 'planilhas' %}" class="container">
+                    {% csrf_token %}
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="planilha_model_label">Envio de registros por E-mail</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary">Enviar</button>
-                </div>
+                    <div class="modal-body px-4 py-4">
+                        <p>Para enviar as planilhas do sistema, você deve preencher o campo abaixo com o E-mail de destino e clicar no botão "Enviar".</p>
+
+                        <div class="row form-floating mt-2">
+                            {{ form.email }}
+                            <label for="{{ form.email.id_for_label }}" class="ms-2">E-mail</label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="float-start btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="float-end btn btn-primary">Enviar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="log_model" tabindex="-1" aria-labelledby="log_model_label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="post" action="{% url 'logs' %}" class="container">
+                    {% csrf_token %}
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="log_model_label">Envio de registros por E-mail</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body px-4 py-4">
+                        <p>Para enviar os registros do sistema, você deve preencher o campo abaixo com o E-mail de destino e clicar no botão "Enviar".</p>
+
+                        <div class="row form-floating mt-2">
+                            {{ form.email }}
+                            <label for="{{ form.email.id_for_label }}" class="ms-2">E-mail</label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="float-start btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="float-end btn btn-primary">Enviar</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

@@ -57,7 +57,8 @@ INSTALLED_APPS = [
     'interno',
     'database',
     'rest_framework',
-    "anymail"
+    "anymail",
+    'django_celery_beat',
 ]
 
 SITE_ID = 1
@@ -161,7 +162,10 @@ CELERY_BROKER_URL = 'amqp://guest:guest@localhost:5672//'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers.DatabaseScheduler'
 
+
+# Logging config
 
 LOGGING = {
     'version': 1,
@@ -226,3 +230,5 @@ LOGGING = {
         },
     },
 }
+
+LOGGER_SECRET_KEY = config('LOGGER_SECRET_KEY')

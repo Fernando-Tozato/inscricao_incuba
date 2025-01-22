@@ -1,11 +1,6 @@
 import json
-import logging
-import tempfile
-import zipfile
-from email.message import EmailMessage
 from io import BytesIO
 
-from cryptography.fernet import Fernet
 from django.contrib import messages
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -18,12 +13,19 @@ from django.db.utils import IntegrityError
 from django.http import HttpResponse, Http404, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.http import urlsafe_base64_decode
-from django.conf import settings
 
-from .criar_planilhas_coord import *
 from .forms import *
 from .functions import *
 from .tasks import *
+
+
+def test(request):
+    email = ['tozato.fernando2004@gmail.com']
+    content = 'test'
+    subject = 'test'
+    enviar_emails.delay(email, content, subject)
+
+    return HttpResponse("test")
 
 
 @login_required
@@ -357,7 +359,6 @@ def curso_editar(request, curso_id=None):
             try:
                 if is_allowed(request.user):
                     form.save()
-                    form.save_m2m()
 
                     messages.success(request, 'Dados da curso atualizados com sucesso!')
                     return render(request, 'interno/enviado_int.html')
@@ -474,27 +475,30 @@ def turma_excluir(request, turma_id=None):
 @user_passes_test(is_allowed)
 @login_required
 def controle(request):
-    return render(request, 'interno/controle.html')
+    return render(request, 'interno/controle.html', {'form': EmailForm()})
 
 
 @user_passes_test(is_allowed)
 @login_required
 def controle_datetimes(request):
+    controle = get_object_or_404(Controle, id=1)
+    print(controle)
     context = {}
 
     if request.method == 'POST':
-        form = ControleForm(request.POST)
+        form = ControleForm(request.POST, instance=controle)
         context.update({'form': form})
 
         if form.is_valid():
             try:
+                print('saving')
                 form.save()
 
                 sorteio_data = form.cleaned_data['sorteio_data']
                 agora = timezone.now()
 
                 if agora < sorteio_data:
-                    sortear.apply_async(eta=sorteio_data)
+                    agendar_task('Sortear', 'interno.tasks.sortear', sorteio_data)
 
             except IntegrityError as e:
                 messages.error(request,f'Houve um problema com os dados inseridos. Contate a equipe de suporte.\n\nErro: {e}')
@@ -504,13 +508,60 @@ def controle_datetimes(request):
                 return redirect('estatisticas')
 
     else:
-        controle = Controle.objects.first() if Controle.objects.first() else None
         form = ControleForm(instance=controle)
         context.update({'form': form})
 
     return render(request, 'interno/controle_datetimes.html', context)
 
+def planilhas(request):
+    context = {}
 
+    if request.method == 'POST':
+        form = EmailForm(request.POST)
+        context.update({'form': form})
+        if form.is_valid():
+            try:
+                email = form.cleaned_data['email']
+
+                preparar_planilhas.delay(email)
+            except IntegrityError as e:
+                messages.error(request, f'Houve um problema com os dados inseridos. Contate a equipe de suporte.\n\nErro: {e}')
+
+            except Exception as e:
+                messages.error(request, f'Erro: {e}')
+            else:
+                context.update({'response': f'Planilhas enviadas com sucesso para {email}!'})
+                context['form'] = EmailForm()
+
+    return render(request, 'interno/controle.html', context)
+
+
+def logs(request):
+    context = {}
+
+    if request.method == 'POST':
+        form = EmailForm(request.POST)
+        context.update({'form': form})
+        if form.is_valid():
+            try:
+                email = form.cleaned_data['email']
+
+                preparar_log.delay(email)
+            except IntegrityError as e:
+                messages.error(request, f'Houve um problema com os dados inseridos. Contate a equipe de suporte.\n\nErro: {e}')
+
+            except Exception as e:
+                messages.error(request, f'Erro: {e}')
+            else:
+                context.update({'response': f'Log de registro enviado com sucesso para {email}!'})
+                context['form'] = EmailForm()
+
+    return render(request, 'interno/controle.html', context)
+
+
+'''
+    AUTENTICAÇÃO
+'''
 def login_view(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
@@ -552,8 +603,7 @@ def reset_password_view(request):
             if users.exists():
                 for user in users:
                     subject = "Alteração de Senha"
-                    email_template_name = "interno/password_reset_email.html"
-                    c = {
+                    content = render_to_string("emails/password_reset_email.html", {
                         "email": user.email,
                         'domain': get_current_site(request).domain,
                         'site_name': 'Incubadora de Robótica',
@@ -561,11 +611,8 @@ def reset_password_view(request):
                         "user": user,
                         'token': default_token_generator.make_token(user),
                         'protocol': 'http',
-                    }
-                    email_content = render_to_string(email_template_name, c)
-                    email_message = EmailMultiAlternatives(subject, '', 'nao_responda@incubarobotica.com.br', [user.email])
-                    email_message.attach_alternative(email_content, "text/html")
-                    email_message.send()
+                    })
+                    enviar_emails.delay([email], content, subject, True)
                 return redirect('reset_password_sent')
     else:
         form = CustomPasswordResetForm()
@@ -584,15 +631,15 @@ def reset_password_confirm_view(request, uidb64, token):
         user = None
 
     if user is not None and default_token_generator.check_token(user, token):
-        print('ok')
         if request.method == 'POST':
-            print('ok')
             form = CustomSetPasswordForm(user, request.POST)
-            print('ok')
             if form.is_valid():
-                form.save()
-                print('ok')
+                try:
+                    form.save()
+                except Exception as e:
+                    print(e)
                 return redirect('reset_password_complete')
+
         else:
             form = CustomSetPasswordForm(user)
         return render(request, 'interno/accounts/password_reset_confirm.html', {'form': form})
@@ -602,155 +649,3 @@ def reset_password_confirm_view(request, uidb64, token):
 
 def reset_password_complete_view(request):
     return render(request, 'interno/accounts/password_reset_complete.html')
-
-
-def planilhas(request):
-    planilhas_dir = os.path.join(settings.MEDIA_ROOT, 'planilhas')
-
-    if not os.path.exists(planilhas_dir):
-        print('planilhas não existe')
-        raise Http404("A pasta 'planilhas' não foi encontrada")
-    print('planilhas existe')
-
-    filenames = os.listdir(planilhas_dir)
-
-    if not filenames:
-        print('planilhas vazio')
-        gerar_planilhas()
-        filenames = os.listdir(planilhas_dir)
-        if not filenames:
-            print('planilhas não geradas')
-            raise Http404("Não foi possível gerar as planilhas")
-        print('planilhas criadas')
-    print('planilhas não vazio')
-
-    zip_subdir = "planilhas"
-    zip_filename = f"{zip_subdir}.zip"
-
-    buffer = BytesIO()
-
-    with zipfile.ZipFile(buffer, "w") as zf:
-        for filename in filenames:
-            file_path = os.path.join(planilhas_dir, filename)
-            if os.path.exists(file_path):
-                with open(file_path, 'rb') as f:
-                    zip_path = os.path.join(zip_subdir, filename)
-                    zf.writestr(zip_path, f.read())
-            else:
-                raise Http404(f"{filename} não encontrado")
-
-    buffer.seek(0)
-
-    response = HttpResponse(buffer, content_type="application/zip")
-    response['Content-Disposition'] = f'attachment; filename={zip_filename}'
-
-    return response
-
-
-def sorteio(request):
-    logger = logging.getLogger(__name__)
-    handler = logging.FileHandler('media/sorteio/sorteio.log', encoding='utf-8')
-    formatter = logging.Formatter('%(asctime)s - %(message)s')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-    logger.setLevel(logging.INFO)
-    turmas = Turma.objects.all()
-    inscritos = Inscrito.objects.all()
-
-    print('inicio sorteio')
-    sortear(logger, turmas, inscritos)
-    print('fim sorteio')
-
-    # inscritos = Inscrito.objects.exclude(email__isnull=True)
-    #
-    # sorteados = inscritos.filter(ja_sorteado=True)
-    # nao_sorteados = inscritos.filter(ja_sorteado=False)
-    #
-    # emails_sorteados = [sorteado.email for sorteado in sorteados]
-    # emails_nao_sorteados = [nao_sorteado.email for nao_sorteado in nao_sorteados]
-    #
-    # print(emails_sorteados)
-    # print(emails_nao_sorteados)
-    #
-    # avisar_sorteados(request, emails_sorteados, True)
-    # avisar_sorteados(request, emails_nao_sorteados, False)
-
-    return redirect('resultado')
-
-
-def enviar_log(request, email: str):
-    cipher = Fernet(settings.SECRET_KEY)
-    log_file_path = os.path.join(settings.BASE_DIR, 'logs/register.log')
-
-    try:
-        with open(log_file_path, 'r', encoding='utf-8') as f:
-            decrypted_lines = []
-            for line in f:
-                try:
-                    decrypted_lines.append(cipher.decrypt(line.strip().encode()).decode())
-                except Exception as e:
-                    decrypted_lines.append(f'Erro ao descriptografar linha: {e}')
-
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.txt', mode='w', encoding='utf-8') as temp_file:
-            temp_file.write('\n'.join(decrypted_lines))
-            temp_file_path = temp_file.name
-
-        subject = 'Log de registro'
-        content = 'Segue em anexo o log de registro das unidades Centro e Inoã.'
-        email_message = EmailMessage(
-            subject,
-            content,
-            settings.EMAIL_HOST_USER,
-            [email],
-        )
-        email_message.attach_file(temp_file_path)
-        email_message.send()
-
-        os.remove(temp_file_path)
-
-        return HttpResponse('Log enviado com sucesso para ' + email)
-    except Exception as e:
-        return HttpResponse(f'Erro ao acessar ou enviar o log: {e}', status=500)
-
-
-def planilha_coord(request):
-    planilhas_dir = os.path.join(settings.MEDIA_ROOT, 'planilha_coord')
-
-    if not os.path.exists(planilhas_dir):
-        print('planilha_coord não existe')
-        raise Http404("A pasta 'planilha_coord' não foi encontrada")
-    print('planilha_coord existe')
-
-    filenames = os.listdir(planilhas_dir)
-
-    if not filenames:
-        print('planilha_coord vazio')
-        gerar_planilha_coord()
-        filenames = os.listdir(planilhas_dir)
-        if not filenames:
-            print('planilha_coord não gerada')
-            raise Http404("Não foi possível gerar a planilha")
-        print('planilha_coord criadas')
-    print('planilha_coord não vazio')
-
-    zip_subdir = "planilha_coord"
-    zip_filename = f"{zip_subdir}.zip"
-
-    buffer = BytesIO()
-
-    with zipfile.ZipFile(buffer, "w") as zf:
-        for filename in filenames:
-            file_path = os.path.join(planilhas_dir, filename)
-            if os.path.exists(file_path):
-                with open(file_path, 'rb') as f:
-                    zip_path = os.path.join(zip_subdir, filename)
-                    zf.writestr(zip_path, f.read())
-            else:
-                raise Http404(f"{filename} não encontrado")
-
-    buffer.seek(0)
-
-    response = HttpResponse(buffer, content_type="application/zip")
-    response['Content-Disposition'] = f'attachment; filename={zip_filename}'
-
-    return response
