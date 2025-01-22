@@ -17,43 +17,34 @@ from externo.functions import *
 
 
 def home(request):
-    agora = timezone.localtime(timezone.now())
-    controle = Controle.objects.first()
-    inscricao_inicio = timezone.localtime(controle.inscricao_inicio)
-    inscricao_fim = timezone.localtime(controle.inscricao_fim)
-    matricula_sorte_inicio = timezone.localtime(controle.matricula_sorte_inicio)
-    matricula_sorte_fim = timezone.localtime(controle.matricula_sorte_fim)
-    matricula_reman_inicio = timezone.localtime(controle.matricula_reman_inicio)
-    matricula_reman_fim = timezone.localtime(controle.matricula_reman_fim)
-
-    print(f'''
-        Agora: {agora}
-        Inscrição início: {inscricao_inicio}
-        Inscrição fim: {inscricao_fim}
-        Matrícula sorteados início: {matricula_sorte_inicio}
-        Matrícula sorteados fim: {matricula_sorte_fim}
-        Matrícula remanescente início: {matricula_reman_inicio}
-        Matrícula remanescente fim: {matricula_reman_fim}
-    ''')
-
     context = {}
 
-    if inscricao_inicio <= agora <= inscricao_fim:
-        context.update({'inscricao': {
-            'inscricao_inicio': inscricao_inicio,
-            'inscricao_fim': inscricao_fim,
-        }})
+    agora = timezone.localtime(timezone.now())
+    controle = Controle.objects.first()
+    if controle:
+        inscricao_inicio = timezone.localtime(controle.inscricao_inicio)
+        inscricao_fim = timezone.localtime(controle.inscricao_fim)
+        matricula_sorte_inicio = timezone.localtime(controle.matricula_sorte_inicio)
+        matricula_sorte_fim = timezone.localtime(controle.matricula_sorte_fim)
+        matricula_reman_inicio = timezone.localtime(controle.matricula_reman_inicio)
+        matricula_reman_fim = timezone.localtime(controle.matricula_reman_fim)
 
-    if matricula_sorte_inicio <= agora <= matricula_reman_fim:
-        context.update({'matricula': {
-            'matricula_sorte_inicio': matricula_sorte_inicio,
-            'matricula_sorte_fim': matricula_sorte_fim,
-            'matricula_reman_inicio': matricula_reman_inicio,
-            'matricula_reman_fim': matricula_reman_fim,
-        }})
+        if inscricao_inicio <= agora <= inscricao_fim:
+            context.update({'inscricao': {
+                'inscricao_inicio': inscricao_inicio,
+                'inscricao_fim': inscricao_fim,
+            }})
 
-    if agora > matricula_reman_fim:
-        context.update({'fim': True})
+        if matricula_sorte_inicio <= agora <= matricula_reman_fim:
+            context.update({'matricula': {
+                'matricula_sorte_inicio': matricula_sorte_inicio,
+                'matricula_sorte_fim': matricula_sorte_fim,
+                'matricula_reman_inicio': matricula_reman_inicio,
+                'matricula_reman_fim': matricula_reman_fim,
+            }})
+
+        if agora > matricula_reman_fim:
+            context.update({'fim': True})
 
     return render(request, 'externo/home.html', context)
 
@@ -96,15 +87,16 @@ def inscricao(request):
     else:
         agora = timezone.now()
         controle = Controle.objects.first()
-        inicio = timezone.localtime(controle.inscricao_inicio)
-        fim = timezone.localtime(controle.inscricao_fim)
-        matricula_inicio = timezone.localtime(controle.matricula_reman_inicio)
-        matricula_fim = timezone.localtime(controle.matricula_reman_fim)
+        if controle:
+            inicio = timezone.localtime(controle.inscricao_inicio)
+            fim = timezone.localtime(controle.inscricao_fim)
+            matricula_inicio = timezone.localtime(controle.matricula_reman_inicio)
+            matricula_fim = timezone.localtime(controle.matricula_reman_fim)
 
-        if agora < inicio:
-            return render(request, 'externo/antes_inscricao.html', {'data': inicio})
-        elif agora > fim:
-            return render(request, 'externo/depois_inscricao.html', {'data_inscricao': fim, 'matricula_inicio': matricula_inicio, 'matricula_fim': matricula_fim})
+            if agora < inicio:
+                return render(request, 'externo/antes_inscricao.html', {'data': inicio})
+            elif agora > fim:
+                return render(request, 'externo/depois_inscricao.html', {'data_inscricao': fim, 'matricula_inicio': matricula_inicio, 'matricula_fim': matricula_fim})
 
         context.update({'form': InscricaoForm})
 

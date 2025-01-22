@@ -481,8 +481,8 @@ def controle(request):
 @user_passes_test(is_allowed)
 @login_required
 def controle_datetimes(request):
-    controle = get_object_or_404(Controle, id=1)
-    print(controle)
+    controle = Controle.objects.first()
+
     context = {}
 
     if request.method == 'POST':
@@ -508,7 +508,7 @@ def controle_datetimes(request):
                 return redirect('estatisticas')
 
     else:
-        form = ControleForm(instance=controle)
+        form = ControleForm(instance=controle if controle else None)
         context.update({'form': form})
 
     return render(request, 'interno/controle_datetimes.html', context)
