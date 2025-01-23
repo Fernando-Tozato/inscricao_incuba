@@ -74,7 +74,7 @@ def inscricao(request):
         if form.is_valid():
 
             try:
-                inscrito = form.save()
+                inscrito: Inscrito = form.save()
             except ValidationError as e:
                 messages.error(request, f'Candidato já inscrito.')
             except IntegrityError as e:
@@ -82,7 +82,7 @@ def inscricao(request):
             except Exception as e:
                 messages.error(request, f'Erro: {e}')
             else:
-                return render(request, 'externo/enviado_ext.html', {'inscricao': inscrito.numero_inscricao})
+                return render(request, 'externo/enviado_ext.html', {'inscricao': inscrito.num_inscricao_formatado()})
 
     else:
         agora = timezone.now()

@@ -206,7 +206,7 @@ LOGGING = {
         },
         'file_register': {
             'level': 'INFO',
-            'class': 'incubadora.encrypt_logger.EncryptedFileHandler',
+            'class': 'logging.FileHandler',
             'filename': os.path.join(BASE_DIR, 'logs/register.log'),
             'formatter': 'register',
             'encoding': 'utf-8',

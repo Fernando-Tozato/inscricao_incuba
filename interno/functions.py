@@ -101,18 +101,20 @@ def verificar_inscritos(request, inscritos):
 
     agora = timezone.now()
     controle = Controle.objects.first()
-    matricula_sorteados = timezone.localtime(controle.matricula_sorteados)
-    matricula_geral = timezone.localtime(controle.matricula_geral)
-    matricula_fim = timezone.localtime(controle.matricula_fim)
+    matricula_sorte_inicio = timezone.localtime(controle.matricula_sorte_inicio)
+    matricula_sorte_fim = timezone.localtime(controle.matricula_sorte_fim)
+    matricula_reman_inicio = timezone.localtime(controle.matricula_reman_inicio)
+    matricula_reman_fim = timezone.localtime(controle.matricula_reman_fim)
 
-    if agora < matricula_sorteados:
-        return {'erro': 'O período de matrícula ainda não começou.'}
-
-    if matricula_sorteados <= agora < matricula_geral:
-        return inscritos.filter(ja_sorteado=True)
-
-    if agora > matricula_fim:
+    if agora < matricula_sorte_inicio:
+        return {'erro': 'O período de matrícula para sorteados ainda não começou.'}
+    if agora < matricula_reman_inicio:
+        return {'erro': 'O período de matrícula remanescente ainda não começou.'}
+    if agora > matricula_reman_fim:
         return {'erro': 'O período de matrícula já terminou.'}
+
+    if matricula_sorte_inicio <= agora <= matricula_sorte_fim:
+        return inscritos.exclude(ja_sorteado=False)
 
     return inscritos
 

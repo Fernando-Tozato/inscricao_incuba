@@ -28,6 +28,7 @@ from .middleware import get_current_user
 def enviar_emails(*args):
     if len(args) == 3:
         emails, content, subject = args
+        has_html = None
     else:
         emails, content, subject, has_html = args
 
@@ -38,7 +39,7 @@ def enviar_emails(*args):
             settings.EMAIL_HOST_USER,
             [email],
             fail_silently=False,
-            html_message=content if has_html else None,
+            html_message=content if has_html is not None else None,
         )
 
 @shared_task
@@ -173,7 +174,6 @@ def preparar_emails_sorteio(emails_inscritos, content):
 '''
     PREENCHIMENTO E ENVIO DE LOGS
 '''
-@shared_task
 def log_action(action, instance):
     logger = getLogger('register')
     user = get_current_user()
@@ -182,32 +182,12 @@ def log_action(action, instance):
 
 @shared_task
 def preparar_log(email):
-    cipher = Fernet(settings.LOGGER_SECRET_KEY)
     log_file_path = os.path.join(settings.BASE_DIR, 'logs/register.log')
-
-    decrypted_lines = []
-    with open(log_file_path, 'r', encoding='utf-8') as f:
-        for line in f:
-            try:
-                decrypted_line = cipher.decrypt(line.strip().encode()).decode()
-                decrypted_lines.append(decrypted_line)
-            except Exception as e:
-                decrypted_lines.append(f'Erro ao descriptografar linha: {e}')
-
-    temp_file_path = os.path.join(settings.BASE_DIR, 'registro.txt')
-    with open(temp_file_path, 'w', encoding='utf-8') as temp_file:
-        temp_file.write('\n'.join(decrypted_lines))
 
     subject = 'Log de registro'
     content = 'Segue em anexo o log de registro das unidades Centro e Inoã.'
 
-    enviar_email_arq.delay(email, content, subject, temp_file_path)
-
-
-@shared_task
-def apagar_log(temp_file_path):
-    os.remove(temp_file_path)
-
+    enviar_email_arq.delay(email, content, subject, log_file_path)
 
 '''
     GERAÇÃO E ENVIO DE PLANILHAS

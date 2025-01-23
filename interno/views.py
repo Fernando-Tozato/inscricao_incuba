@@ -190,15 +190,17 @@ def aluno_editar(request, aluno_id=None):
 
     context = {'dados': dados}
 
-    aluno = get_object_or_404(Aluno, id=aluno_id) if aluno_id else None
-
-    if aluno:
-        aluno.id_turma.num_alunos -= 1
-        aluno.id_turma.save()
+    aluno = None
+    if aluno_id:
+        aluno = get_object_or_404(Aluno, id=aluno_id)
+        context.update({'id_aluno': aluno.id})
 
     if request.method == 'POST':
         form = MatriculaForm(request.POST, instance=aluno)
         context.update({'form': form})
+
+        aluno.id_turma.num_alunos -= 1
+        aluno.id_turma.save()
 
         if form.is_valid():
             try:
@@ -215,7 +217,7 @@ def aluno_editar(request, aluno_id=None):
             else:
                 aluno.id_turma.num_alunos += 1
                 aluno.id_turma.save()
-                return redirect('busca_de_aluno')
+                return redirect('aluno')
         else:
             messages.error(request, 'Formulário inválido. Verifique os erros abaixo.')
     else:
@@ -505,7 +507,7 @@ def controle_datetimes(request):
             except Exception as e:
                 messages.error(request, f'Erro: {e}')
             else:
-                return redirect('estatisticas')
+                return redirect('controle')
 
     else:
         form = ControleForm(instance=controle if controle else None)

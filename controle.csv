@@ -1,2 +1,2 @@
-id,inscricao_inicio,inscricao_fim,sorteio_data,matricula_sorte_inicio,matricula_sorte_fim,matricula_reman_inicio,matricula_reman_fim,aulas_inicio,aulas_fim
-1,2025-02-03 11:30:00,2025-02-07 02:59:00,2025-02-07 15:00:00,2025-02-10 12:00:00,2025-02-14 21:00:00,2025-02-17 12:00:00,2025-02-19 21:00:00,2025-02-20 11:30:00,2025-04-30 23:30:00
+inscricao_inicio,inscricao_fim,sorteio_data,matricula_sorte_inicio,matricula_sorte_fim,matricula_reman_inicio,matricula_reman_fim,aulas_inicio,aulas_fim
+2025-02-03 11:30:00,2025-02-07 02:59:00,2025-02-07 15:00:00,2025-02-10 12:00:00,2025-02-14 21:00:00,2025-02-17 12:00:00,2025-02-19 21:00:00,2025-02-20 11:30:00,2025-04-30 23:30:00

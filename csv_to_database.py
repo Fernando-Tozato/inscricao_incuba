@@ -3,6 +3,7 @@ import os
 from datetime import datetime
 from pathlib import Path
 from typing import Any
+import pandas as pd
 
 import django
 
@@ -17,63 +18,79 @@ csv_file_path_unidades = Path('unidades.csv')
 csv_file_path_curso = Path('cursos.csv')
 csv_file_path_turmas = Path('turmas.csv')
 
-def csv_to_dict(csv_file_path: Path) -> list[dict[str | Any, str | Any]]:
+def csv_to_list(csv_file_path: Path) -> list[dict[str | Any, str | Any]]:
     with open(csv_file_path, encoding='utf-8') as csv_file:
         reader = csv.DictReader(csv_file)
         return list(reader)
 
-def dict_to_database(data: list, model):
+def csv_to_controle():
+    df = pd.read_csv(csv_file_path_controle)
+
+    for coluna in df.columns:
+        df[coluna] = pd.to_datetime(df[coluna], format='%Y-%m-%d %H:%M:%S', utc=True)
+        df[coluna] = df[coluna].dt.tz_convert('America/Sao_Paulo')
+
+    data = df.to_dict(orient='records')
+
+    Controle.objects.create(**data[0])
+
+def list_to_database(data, model):
+    objects = []
+    for line in data:
+        if 'horario_entrada' in line:
+            line['horario_entrada'] = datetime.strptime(line['horario_entrada'], '%H:%M').time()
+        if 'horario_saida' in line:
+            line['horario_saida'] = datetime.strptime(line['horario_saida'], '%H:%M').time()
+        obj = model.objects.create(**line)
+        objects.append(obj)
+    model.objects.bulk_create(objects)
+
+def list_to_curso(data):
     objects = []
 
     for line in data:
-        if "horario_entrada" in line:
-            line["horario_entrada"] = datetime.strptime(line["horario_entrada"], "%H:%M").time()
-        if "horario_saida" in line:
-            line["horario_saida"] = datetime.strptime(line["horario_saida"], "%H:%M").time()
+        m2m_field = 'unidades'
+        m2m_value = line.pop(m2m_field)
 
-        m2m_data, m2m_field = None, None
+        if ',' in m2m_value:
+            m2m_value = tuple(m2m_value.split(','))
 
-        if 'unidade' in line:
-            m2m_field = 'unidades'
-            m2m_data = line.pop(m2m_field, '')
-
-        obj = model.objects.create(**line)
-
-        if m2m_data == '':
-            ids = input(f"Digite os IDs para '{m2m_field}' do objeto '{obj}': ")
-            ids_list = [int(i) for i in ids.split(',') if i.strip().isdigit()]
-
-            if ids_list:
-                obj.unidades.set(ids_list)
-        elif m2m_data is not None:
-            obj.unidades.set(m2m_data)
+        obj = Curso.objects.create(**line)
+        obj.unidades.add(*m2m_value)
 
         objects.append(obj)
+    Curso.objects.bulk_create(objects)
 
-    model.objects.bulk_create(objects)
-    print(f'{len(objects)} registrados no banco de dados com sucesso!')
+
 
 
 def main():
-    if csv_file_path_controle.exists():
-        if Controle.objects.first() is None:
-            controle_list: list = csv_to_dict(csv_file_path_controle)
-            dict_to_database(controle_list, Controle)
+    if csv_file_path_controle.exists() and Controle.objects.first() is None:
+        try:
+            csv_to_controle()
+        except:
+            pass
 
-    if csv_file_path_unidades.exists():
-        if Unidade.objects.first() is None:
-            unidades_list: list = csv_to_dict(csv_file_path_unidades)
-            dict_to_database(unidades_list, Unidade)
+    if csv_file_path_unidades.exists() and Unidade.objects.first() is None:
+        try:
+            unidades_list: list = csv_to_list(csv_file_path_unidades)
+            list_to_database(unidades_list, Unidade)
+        except:
+            pass
 
-    if csv_file_path_curso.exists():
-        if Curso.objects.first() is None:
-            curso_list: list = csv_to_dict(csv_file_path_curso)
-            dict_to_database(curso_list, Curso)
+    if csv_file_path_curso.exists() and Curso.objects.first() is None:
+        try:
+            curso_list: list = csv_to_list(csv_file_path_curso)
+            list_to_curso(curso_list)
+        except:
+            pass
 
-    if csv_file_path_turmas.exists():
-        if Turma.objects.first() is None:
-            turmas_list: list = csv_to_dict(csv_file_path_turmas)
-            dict_to_database(turmas_list, Turma)
+    if csv_file_path_turmas.exists() and Turma.objects.first() is None:
+        try:
+            turmas_list: list = csv_to_list(csv_file_path_turmas)
+            list_to_database(turmas_list, Turma)
+        except:
+            pass
 
 
 if __name__ == '__main__':

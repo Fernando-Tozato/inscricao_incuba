@@ -32,7 +32,7 @@
                     <ul class="justify-content-center list-group" id="resultado_pesquisa">
                         {% for aluno in alunos %}
                             <li class="list-group-item">
-                                <a href="/interno/editar_aluno/{{ aluno.id }}/" style="text-decoration: none;" class="text-body-secondary">
+                                <a href="{% url 'aluno_editar' aluno.id %}" style="text-decoration: none;" class="text-body-secondary">
                                     {% if aluno.nome_social %}
                                         <h1>{{ aluno.nome_social }}</h1>
                                     {% else %}

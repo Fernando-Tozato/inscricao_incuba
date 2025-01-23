@@ -124,7 +124,7 @@ class Inscrito(models.Model):
     ja_sorteado = models.BooleanField(default=False) # inicialmente False, podendo ser alterado para True posteriormente
     id_turma = models.ForeignKey(Turma, on_delete=models.CASCADE)
     numero_inscricao = models.CharField(max_length=14, editable=False, unique=True) # gerado internamente em gerar_numero_inscricao(nome: str, cpf: str, nascimento: str) -> str
-    data_inscricao = models.DateTimeField(default=datetime.now())
+    data_inscricao = models.DateTimeField(default=datetime.now)
 
     def dict_for_matricula(self):
         return {
@@ -156,8 +156,11 @@ class Inscrito(models.Model):
     def cpf_formatado(self):
         return f"{self.cpf[:3]}.{self.cpf[3:6]}.{self.cpf[6:9]}-{self.cpf[9:]}"
 
+    def num_inscricao_formatado(self):
+        return f"{self.numero_inscricao[:4]}.{self.numero_inscricao[4:8]}.{self.numero_inscricao[8:]}"
+
     def save(self, *args, **kwargs):
-        self.nome_pesquisa = unidecode(self.nome_pesquisa.upper())
+        self.nome_pesquisa = unidecode(self.nome.upper())
         self.nome_social_pesquisa = unidecode(self.nome_social.upper()) if self.nome_social else None
         self.cpf = re.sub(r'\D', '', self.cpf)
         if not self.numero_inscricao:
@@ -167,14 +170,14 @@ class Inscrito(models.Model):
     def gerar_numero_inscricao(self):
         salt = uuid.uuid4().hex
         nascimento = self.nascimento.strftime('%d/%m/%Y')
-        return f'{self.gerar_hash(self.nome, salt)}.{self.gerar_hash(self.cpf, salt)}.{self.gerar_hash(nascimento, salt)}'
+        return f'{self.gerar_hash(self.nome, salt)}{self.gerar_hash(self.cpf, salt)}{self.gerar_hash(nascimento, salt)}'
 
     def gerar_hash(self, dado, salt):
         codigo_hash = hashlib.sha256((str(dado)+salt).encode()).hexdigest()
         return f'{int(codigo_hash, 16) % 10000:04d}'
 
     def __str__(self):
-        return f'{self.cpf}'
+        return f'{self.cpf_formatado()}'
 
 
 class Aluno(models.Model):
@@ -204,19 +207,19 @@ class Aluno(models.Model):
     ps = models.BooleanField(default=False)
     observacoes = models.TextField(null=True, default=None, blank=True)
     id_turma = models.ForeignKey(Turma, on_delete=models.CASCADE)
-    data_matricula = models.DateTimeField(default=datetime.now())
+    data_matricula = models.DateTimeField(default=datetime.now)
 
     def cpf_formatado(self):
         return f"{self.cpf[:3]}.{self.cpf[3:6]}.{self.cpf[6:9]}-{self.cpf[9:]}"
 
     def save(self, *args, **kwargs):
-        self.nome_pesquisa = unidecode(self.nome_pesquisa.upper())
+        self.nome_pesquisa = unidecode(self.nome.upper())
         self.nome_social_pesquisa = unidecode(self.nome_social.upper()) if self.nome_social else None
         self.cpf = re.sub(r'\D', '', self.cpf)
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f'{self.cpf}'
+        return f'{self.cpf_formatado()}'
 
 
 class Controle(models.Model):
