@@ -14,3 +14,5 @@ python-decouple
 celery
 cryptography
 django-celery-beat
+django-prometheus
+psycopg2

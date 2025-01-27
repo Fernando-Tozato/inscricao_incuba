@@ -348,6 +348,7 @@ function renderizar_turma() {
     let turma;
 
     for (let i = 0; i < turmas.length; i++) {
+        console.log(select_turma.value, turmas[i]['turma_id'].toString())
         if (select_turma.value === turmas[i]['turma_id'].toString()){
             turma = turmas[i];
         }
