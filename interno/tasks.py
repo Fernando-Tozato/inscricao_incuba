@@ -24,6 +24,29 @@ from .middleware import get_current_user
 '''
     ENVIO DE EMAILS
 '''
+# Task para enviar lista de emails com conteúdo e assunto, HTML e anexo opcionais
+@shared_task
+def enviar_emails(**kwargs):
+    # Parâmetros obrigatórios
+    emails: list[str]       = kwargs.get('emails')
+    content: str            = kwargs.get('content')
+    subject: str            = kwargs.get('subject')
+
+    # Parâmetros opcionais
+    has_html: bool          = kwargs.get('has_html', False)
+    file_path: [str, None]  = kwargs.get('file_path', None)
+
+    for email in emails:
+        email_message: EmailMessage = EmailMessage(
+            subject,
+            content,
+            settings.EMAIL_HOST_USER,
+            email,
+            html_message=content if has_html else None,
+        )
+
+
+
 @shared_task
 def enviar_emails(*args):
     if len(args) == 3:
@@ -43,7 +66,7 @@ def enviar_emails(*args):
         )
 
 @shared_task
-def enviar_email_arq(emails, content, subject, file_path):
+def enviar_emails_arq(emails, content, subject, file_path):
     email_message = EmailMessage(
         subject,
         content,
@@ -187,7 +210,12 @@ def preparar_log(email):
     subject = 'Log de registro'
     content = 'Segue em anexo o log de registro das unidades Centro e Inoã.'
 
-    enviar_email_arq.delay(email, content, subject, log_file_path)
+    enviar_emails.delay(
+        emails=[email],
+        content=content,
+        subject=subject,
+        file_path=log_file_path
+    )
 
 '''
     GERAÇÃO E ENVIO DE PLANILHAS
