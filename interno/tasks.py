@@ -46,37 +46,6 @@ def enviar_emails(**kwargs):
         )
 
 
-
-@shared_task
-def enviar_emails(*args):
-    if len(args) == 3:
-        emails, content, subject = args
-        has_html = None
-    else:
-        emails, content, subject, has_html = args
-
-    for email in emails:
-        send_mail(
-            subject,
-            content,
-            settings.EMAIL_HOST_USER,
-            [email],
-            fail_silently=False,
-            html_message=content if has_html is not None else None,
-        )
-
-@shared_task
-def enviar_emails_arq(emails, content, subject, file_path):
-    email_message = EmailMessage(
-        subject,
-        content,
-        settings.EMAIL_HOST_USER,
-        [emails],
-    )
-    email_message.attach_file(file_path)
-    email_message.send()
-
-
 '''
     SORTEIO E AVISO DE INSCRITOS
 '''
