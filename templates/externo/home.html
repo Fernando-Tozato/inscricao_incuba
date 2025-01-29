@@ -32,115 +32,198 @@
         {% endif %}
     
         <div class="text-center display-1 border-bottom mb-5">Nossos Cursos</div>
-        
-        <div class="row">
-            <div class="card col-sm mb-3 me-sm-3 px-0 bg-body-secondary" style="width: 18rem;">
-                <a href="{% url 'info_melhor_idade' %}">
-                    <img src="{% static 'img/info_melhor_idade.jpg' %}" class="card-img-top" alt="Informática para Iniciantes e Melhor Idade">
-                </a>
-                <div class="card-body">
-                    <h5 class="card-title">Informática para Iniciantes e Melhor Idade</h5>
-                    <p class="card-text">Aprender desde como ligar um computador, passando por todo o processo de comunicação através das redes sociais, internet e outros.</p>
-                    <a href="{% url 'info_melhor_idade' %}" class="btn btn-primary">Ver mais</a>
+
+        <div class="card mb-4 bg-body-secondary">
+            <div class="row g-0">
+                <div class="col-md-4">
+                    <img src="{% static 'img/info_melhor_idade.jpg' %}" class="img-fluid rounded-start" alt="Informática para Iniciantes e Melhor Idade">
                 </div>
-            </div>
-            <div class="card col-sm mb-3 px-0 bg-body-secondary" style="width: 18rem;">
-                <a href="{% url 'info_basica' %}">
-                    <img src="{% static 'img/info_basica.jpg' %}" class="card-img-top" alt="Informática Básica">
-                </a>
-                <div class="card-body">
-                    <h5 class="card-title">Informática Básica</h5>
-                    <p class="card-text">Capacitar o participante a utilizar as principais ferramentas do pacote office.</p>
-                    <a href="{% url 'info_basica' %}" class="btn btn-primary">Ver mais</a>
+                <div class="col-md-8">
+                    <div class="card-body">
+                        <h5 class="card-title">Informática para Iniciantes e Melhor Idade</h5>
+                        <p class="card-text">Curso adaptado às necessidades e ritmo de aprendizado de pessoas da terceira idade, visando inclusão digital e social, com o uso de ferramentas para comunicação online, redes sociais e operações básicas (redes sociais, internet e outros).</p>
+                        <a href="{% url 'info_melhor_idade' %}" class="stretched-link"></a>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="card col-sm mb-3 me-sm-3 px-0 bg-body-secondary" style="width: 18rem;">
-                <a href="{% url 'excel' %}">
-                    <img src="{% static 'img/excel.jpg' %}" class="card-img-top" alt="Excel">
-                </a>
-                <div class="card-body">
-                    <h5 class="card-title">Excel</h5>
-                    <p class="card-text">Realizar dinâmicas que vão aumentar a habilidade na movimentação pela planilha e rapidez na execução de seus trabalhos e auxiliará no avanço de conhecimentos com fórmulas de dificuldade intermediária, recursos de hipóteses, tabelas dinâmicas, dashboards e outros recursos essenciais.</p>
-                    <a href="{% url 'excel' %}" class="btn btn-primary">Ver mais</a>
+
+        <div class="card mb-4 bg-body-secondary">
+            <div class="row g-0">
+                <div class="col-md-8">
+                    <div class="card-body">
+                        <h5 class="card-title">Informática Básica</h5>
+                        <p class="card-text">Focado em introduzir os alunos ao uso do computador e da internet. Ideal para quem busca aprender a operar e aprofundar-se um pouco mais em sistemas operacionais, programas de produtividade (Word, Excel, PowerPoint) e navegar na web com segurança.</p>
+                        <a href="{% url 'info_basica' %}" class="stretched-link"></a>
+                    </div>
                 </div>
-            </div>
-            <div class="card col-sm mb-3 px-0 bg-body-secondary" style="width: 18rem;">
-                <a href="{% url 'design' %}">
-                    <img src="{% static 'img/design.jpg' %}" class="card-img-top" alt="Design e Modelagem 3D">
-                </a>
-                <div class="card-body">
-                    <h5 class="card-title">Design e Modelagem 3D</h5>
-                    <p class="card-text">Entender os fundamentos do design gráfico e modelagem 3D, aprofundando o conhecimento nos softwares de criação de imagem, arte vetorial e modelagem 3D, permitindo aos participantes alcançarem resultados de alta qualidade em suas criações visuais.</p>
-                    <a href="{% url 'design' %}" class="btn btn-primary">Ver mais</a>
+                <div class="col-md-4">
+                    <img src="{% static 'img/info_basica.jpg' %}" class="img-fluid rounded-start" alt="Informática Básica">
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="card col-sm mb-3 me-sm-3 px-0 bg-body-secondary" style="width: 18rem;">
-                <a href="{% url 'montagem' %}">
-                    <img src="{% static 'img/montagem.jpg' %}" class="card-img-top" alt="Montagem e Manutenção de Computadores">
-                </a>
-                <div class="card-body">
-                    <h5 class="card-title">Montagem e Manutenção de Computadores</h5>
-                    <p class="card-text">Proporcionar o conhecimento sobre os componentes primordiais e conseguir instalar tarefas para que um computador funcione. Explorar hardware em detalhes e compreender os princípios do software, incluindo prompt de comando.</p>
-                    <a href="{% url 'montagem' %}" class="btn btn-primary">Ver mais</a>
+
+        <div class="card mb-4 bg-body-secondary">
+            <div class="row g-0">
+                <div class="col-md-4">
+                    <img src="{% static 'img/excel.jpg' %}" class="img-fluid rounded-start" alt="Excel">
                 </div>
-            </div>
-            <div class="card col-sm mb-3 px-0 bg-body-secondary" style="width: 18rem;">
-                <a href="{% url 'robotica' %}">
-                    <img src="{% static 'img/robotica.jpg' %}" class="card-img-top" alt="Robótica e Automação">
-                </a>
-                <div class="card-body">
-                    <h5 class="card-title">Robótica e Automação</h5>
-                    <p class="card-text">Mostrar ao aluno os elementos essenciais para um projeto integrado de robótica, cobrindo lógica básica, programação em sistemas robóticos, operadores lógicos, estruturas de controle, variáveis homogêneas e heterogêneas, e a execução da primeira aplicação em qualquer linguagem.</p>
-                    <a href="{% url 'robotica' %}" class="btn btn-primary">Ver mais</a>
+                <div class="col-md-8">
+                    <div class="card-body">
+                        <h5 class="card-title">Excel</h5>
+                        <p class="card-text">Foco na utilização da ferramenta para gestão de dados, criação de planilhas dinâmicas, gráficos e fórmulas, preparando o aluno para o mercado corporativo.</p>
+                        <a href="{% url 'excel' %}" class="stretched-link"></a>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="card col-sm mb-3 me-sm-3 px-0 bg-body-secondary" style="width: 18rem;">
-                <a href="{% url 'gestao' %}">
-                    <img src="{% static 'img/gestao.jpg' %}" class="card-img-top" alt="Gestão de Pessoas">
-                </a>
-                <div class="card-body">
-                    <h5 class="card-title">Gestão de Pessoas</h5>
-                    <p class="card-text">Conhecer e desenvolver ferramentas e estratégias para gerir com eficiência o recrutamento e a seleção de bons profissionais, buscando autoeficiência.</p>
-                    <a href="{% url 'gestao' %}" class="btn btn-primary">Ver mais</a>
+
+        <div class="card mb-4 bg-body-secondary">
+            <div class="row g-0">
+                <div class="col-md-8">
+                    <div class="card-body">
+                        <h5 class="card-title">Power BI</h5>
+                        <p class="card-text">Oferece visualizações interativas e ferramentas de business intelligence (BI) por meio de uma interface intuitiva, permitindo que os usuários criem relatórios e dashboards personalizados, que podem ser aplicados em diversas áreas, como Finanças, Engenharia, Tecnologia da Informação, Marketing e Saúde.</p>
+                        <a href="{% url 'power_bi' %}" class="stretched-link"></a>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <img src="{% static 'img/power_bi.jpeg' %}" class="img-fluid rounded-start" alt="Power BI">
                 </div>
             </div>
-            <div class="card col-sm mb-3 px-0 bg-body-secondary" style="width: 18rem;">
-                <a href="{% url 'educacao' %}">
-                    <img src="{% static 'img/educacao.jpg' %}" class="card-img-top" alt="Educação Financeira">
-                </a>
-                <div class="card-body">
-                    <h5 class="card-title">Educação Financeira</h5>
-                    <p class="card-text">Conhecer a definição de educação financeira e identificar a importância da mesma no cotidiano dos cidadãos, além de tratar de métodos de planejamento e organização financeira.</p>
-                    <a href="{% url 'educacao' %}" class="btn btn-primary">Ver mais</a>
-                </div>
-            </div>
-            
         </div>
-        <div class="row">
-            <div class="card col-sm me-sm-3 px-0 bg-body-secondary" style="width: 18rem;">
-                <a href="{% url 'marketing_digital' %}">
-                    <img src="{% static 'img/marketing_digital.jpg' %}" class="card-img-top" alt="Marketing Digital">
-                </a>
-                <div class="card-body">
-                    <h5 class="card-title">Marketing Digital</h5>
-                    <p class="card-text">Identificar o papel do marketing no contexto da gestão organizacional e do comportamento do consumidor</p>
-                    <a href="{% url 'marketing_digital' %}" class="btn btn-primary">Ver mais</a>
+
+        <div class="card mb-4 bg-body-secondary">
+            <div class="row g-0">
+                <div class="col-md-4">
+                    <img src="{% static 'img/montagem.jpg' %}" class="img-fluid rounded-start" alt="Montagem e Manutenção de Computadores e Notebooks">
+                </div>
+                <div class="col-md-8">
+                    <div class="card-body">
+                        <h5 class="card-title">Montagem e Manutenção de Computadores e Notebooks</h5>
+                        <p class="card-text">Curso prático e teórico que ensina a montagem, diagnóstico de problemas e manutenção de computadores e notebooks, com ênfase na resolução de problemas comuns e práticas sustentáveis.</p>
+                        <a href="{% url 'montagem' %}" class="stretched-link"></a>
+                    </div>
                 </div>
             </div>
-            <div class="card col-sm px-0 bg-body-secondary" style="width: 18rem;">
-                <a href="{% url 'marketing_emp' %}">
-                    <img src="{% static 'img/marketing_emp.jpg' %}" class="card-img-top" alt="Marketing Empreendedor">
-                </a>
-                <div class="card-body">
-                    <h5 class="card-title">Marketing Empreendedor</h5>
-                    <p class="card-text">Aprender a criar perfis de freelancer atrativos, maximizar a remuneração no trabalho home office e dominar estratégias de anúncios online nas principais plataformas, como Facebook, Instagram, Google e YouTube.</p>
-                    <a href="{% url 'marketing_emp' %}" class="btn btn-primary">Ver mais</a>
+        </div>
+
+        <div class="card mb-4 bg-body-secondary">
+            <div class="row g-0">
+                <div class="col-md-8">
+                    <div class="card-body">
+                        <h5 class="card-title">Manutenção de Celulares</h5>
+                        <p class="card-text">Abrange a desmontagem, análise de problemas e reparos básicos de um celular. </p>
+                        <a href="{% url 'man_cel' %}" class="stretched-link"></a>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <img src="{% static 'img/man_cel.jpg' %}" class="img-fluid rounded-start" alt="Manutenção de Celulares">
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4 bg-body-secondary">
+            <div class="row g-0">
+                <div class="col-md-4">
+                    <img src="{% static 'img/robotica.jpg' %}" class="img-fluid rounded-start" alt="Robótica e Automação">
+                </div>
+                <div class="col-md-8">
+                    <div class="card-body">
+                        <h5 class="card-title">Robótica e Automação</h5>
+                        <p class="card-text">O curso de Robótica e Automação tem três níveis que vão do básico ao avançado, com Arduino, sensores, atuadores e controle PID. Abrange protocolos SPI e I2C, exibição de dados e robótica móvel, aplicando conceitos em projetos reais com Wi-Fi e automação inteligente.</p>
+                        <a href="{% url 'robotica' %}" class="stretched-link"></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4 bg-body-secondary">
+            <div class="row g-0">
+                <div class="col-md-8">
+                    <div class="card-body">
+                        <h5 class="card-title">Design e Modelagem 3D</h5>
+                        <p class="card-text">Dois níveis que capacitam os alunos com fundamentos do design gráfico e introdução à modelagem 3D, avançando para técnicas que permitem alcançar resultados de alta qualidade em criações visuais.</p>
+                        <a href="{% url 'design' %}" class="stretched-link"></a>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <img src="{% static 'img/design.jpg' %}" class="img-fluid rounded-start" alt="Design e Modelagem 3D">
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4 bg-body-secondary">
+            <div class="row g-0">
+                <div class="col-md-4">
+                    <img src="{% static 'img/educacao.jpg' %}" class="img-fluid rounded-start" alt="Educação Financeira">
+                </div>
+                <div class="col-md-8">
+                    <div class="card-body">
+                        <h5 class="card-title">Educação Financeira</h5>
+                        <p class="card-text">Abrange o planejamento financeiro, monitoramento de gastos e receitas, orçamento empresarial, gestão de fluxo de caixa e a importância do capital de giro. Inclui também a declaração anual de imposto de renda, com foco especial no MEI.</p>
+                        <a href="{% url 'educacao' %}" class="stretched-link"></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4 bg-body-secondary">
+            <div class="row g-0">
+                <div class="col-md-8">
+                    <div class="card-body">
+                        <h5 class="card-title">Gestão de Pessoas</h5>
+                        <p class="card-text">Cobre tópicos fundamentais como os cinco pilares (liderança, comunicação, treinamento e capacitação, motivação e trabalho em equipe) da gestão depessoas e processos de recrutamento e seleção. Inclui treinamento e desenvolvimento de pessoal, abordando a liderança e comunicação eficaz, além de estratégias de motivação e formação de equipes.</p>
+                        <a href="{% url 'gestao' %}" class="stretched-link"></a>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <img src="{% static 'img/gestao.jpg' %}" class="img-fluid rounded-start" alt="Gestão de Pessoas">
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4 bg-body-secondary">
+            <div class="row g-0">
+                <div class="col-md-4">
+                    <img src="{% static 'img/marketing_digital.jpg' %}" class="img-fluid rounded-start" alt="Marketing: Fundamentos, Consumidores e Planejamento Estratégico">
+                </div>
+                <div class="col-md-8">
+                    <div class="card-body">
+                        <h5 class="card-title">Marketing: Fundamentos, Consumidores e Planejamento Estratégico</h5>
+                        <p class="card-text">O participante aprende sobre os fundamentos do marketing, se capacitado para compreender o perfil dos consumidores, analisar tendências de mercado e elaborar planos estratégicos que gerem impacto positivo para marcas e negócios.</p>
+                        <a href="{% url 'marketing_digital' %}" class="stretched-link"></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4 bg-body-secondary">
+            <div class="row g-0">
+                <div class="col-md-8">
+                    <div class="card-body">
+                        <h5 class="card-title">Marketing Digital e Empreendedor</h5>
+                        <p class="card-text">Voltado para quem deseja utilizar as plataformas digitais para divulgar negócios e desenvolver um planejamento estratégico de marketing e vendas, com treinamento em ferramentas que visão otimizar a presença digital de empresas.</p>
+                        <a href="{% url 'marketing_emp_dig' %}" class="stretched-link"></a>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <img src="{% static 'img/marketing_emp_dig.png' %}" class="img-fluid rounded-start" alt="Marketing Digital e Empreendedor">
+                </div>
+            </div>
+        </div>
+
+        <div class="card bg-body-secondary">
+            <div class="row g-0">
+                <div class="col-md-4">
+                    <img src="{% static 'img/blockchain.png' %}" class="img-fluid rounded-start" alt="Blockchain">
+                </div>
+                <div class="col-md-8">
+                    <div class="card-body">
+                        <h5 class="card-title">Blockchain</h5>
+                        <p class="card-text">O curso tem como objetivo orientar a pesquisa e o egresso nas novas oportunidades criadas pela Web3 Blockchain, que é a tecnologia usada para o futuro da computação em nuvem.</p>
+                        <a href="{% url 'blockchain' %}" class="stretched-link"></a>
+                    </div>
                 </div>
             </div>
         </div>

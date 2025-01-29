@@ -13,10 +13,10 @@ django.setup()
 
 from database.models import Unidade, Controle, Curso, Turma
 
-csv_file_path_controle = Path('controle.csv')
-csv_file_path_unidades = Path('unidades.csv')
-csv_file_path_curso = Path('cursos.csv')
-csv_file_path_turmas = Path('turmas.csv')
+csv_file_path_controle = Path('csvs/controle.csv')
+csv_file_path_unidades = Path('csvs/unidades.csv')
+csv_file_path_curso = Path('csvs/cursos.csv')
+csv_file_path_turmas = Path('csvs/turmas.csv')
 
 def csv_to_list(csv_file_path: Path) -> list[dict[str | Any, str | Any]]:
     with open(csv_file_path, encoding='utf-8') as csv_file:

@@ -91,13 +91,11 @@ def ja_matriculado(cpf):
 
 
 def verificar_inscritos(request, inscritos):
-    if len(inscritos) == 0:
-        return {'erro': 'Nenhum inscrito encontrado.'}
-
     if is_allowed(request.user):
         return inscritos
 
     inscritos = inscritos.exclude(cpf__in=Aluno.objects.values_list('cpf', flat=True))
+
 
     agora = timezone.now()
     controle = Controle.objects.first()
@@ -108,16 +106,18 @@ def verificar_inscritos(request, inscritos):
 
     if agora < matricula_sorte_inicio:
         return {'erro': 'O período de matrícula para sorteados ainda não começou.'}
-    if agora < matricula_reman_inicio:
-        return {'erro': 'O período de matrícula remanescente ainda não começou.'}
-    if agora > matricula_reman_fim:
-        return {'erro': 'O período de matrícula já terminou.'}
 
     if matricula_sorte_inicio <= agora <= matricula_sorte_fim:
-        return inscritos.exclude(ja_sorteado=False)
+        inscritos = inscritos.filter(ja_sorteado=True)
+        return inscritos if len(inscritos) > 0 else {'erro': 'Nenhum sorteado encontrado.'}
 
-    return inscritos
+    if matricula_sorte_fim < agora < matricula_reman_inicio:
+        return {'erro': 'O período de matrícula remanescente ainda não começou.'}
 
+    if matricula_reman_inicio <= agora <= matricula_reman_fim:
+        return inscritos
+
+    return {'erro': 'O período de matrícula já terminou.'}
 
 def enviar_email_senha(request, user):
     subject = "Alteração de Senha"

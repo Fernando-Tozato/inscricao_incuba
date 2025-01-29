@@ -181,6 +181,36 @@ def resultado_id(request, id_turma):
     return render(request, 'externo/resultado.html',
                   {'cursos': cursos, 'sorteados': sorteados, 'busca': json.dumps(busca)})
 
+'''
+    CURSOS
+'''
+def info_melhor_idade(request):
+    return render(request, 'externo/cursos/info_melhor_idade.html')
+
+
+def info_basica(request):
+    return render(request, 'externo/cursos/info_basica.html')
+
+
+def excel(request):
+    return render(request, 'externo/cursos/excel.html')
+
+
+def power_bi(request):
+    return render(request, 'externo/cursos/power_bi.html')
+
+
+def montagem(request):
+    return render(request, 'externo/cursos/montagem.html')
+
+
+def man_cel(request):
+    return render(request, 'externo/cursos/man_cel.html')
+
+
+def robotica(request):
+    return render(request, 'externo/cursos/robotica.html')
+
 
 def design(request):
     return render(request, 'externo/cursos/design.html')
@@ -190,37 +220,25 @@ def educacao(request):
     return render(request, 'externo/cursos/educacao.html')
 
 
-def excel(request):
-    return render(request, 'externo/cursos/excel.html')
-
-
 def gestao(request):
     return render(request, 'externo/cursos/gestao.html')
-
-
-def info_basica(request):
-    return render(request, 'externo/cursos/info_basica.html')
-
-
-def info_melhor_idade(request):
-    return render(request, 'externo/cursos/info_melhor_idade.html')
 
 
 def marketing_digital(request):
     return render(request, 'externo/cursos/marketing_digital.html')
 
 
-def marketing_emp(request):
-    return render(request, 'externo/cursos/marketing_emp.html')
+def marketing_emp_dig(request):
+    return render(request, 'externo/cursos/marketing_emp_dig.html')
 
 
-def montagem(request):
-    return render(request, 'externo/cursos/montagem.html')
+def blockchain(request):
+    return render(request, 'externo/cursos/blockchain.html')
 
 
-def robotica(request):
-    return render(request, 'externo/cursos/robotica.html')
-
+'''
+    DOWNLOADS
+'''
 
 def download_validadores(request):
     planilhas_dir = os.path.join(settings.MEDIA_ROOT, 'sorteio')

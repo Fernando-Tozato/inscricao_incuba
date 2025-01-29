@@ -143,6 +143,7 @@ def enviado_int(request):
     return render(request, 'interno/enviado_int.html')
 
 
+@user_passes_test(is_allowed)
 @login_required
 def aluno(request):
     context = {}
@@ -170,6 +171,7 @@ def aluno(request):
     return render(request, 'interno/aluno.html', context)
 
 
+@user_passes_test(is_allowed)
 @login_required
 def aluno_editar(request, aluno_id=None):
     turmas = Turma.objects.select_related('unidade', 'curso').all()
@@ -238,6 +240,7 @@ def aluno_excluir(request, aluno_id=None):
     return redirect('aluno_editar', aluno_id=aluno.id)
 
 
+@user_passes_test(is_allowed)
 @login_required
 def unidade(request):
     return render(request, 'interno/ver_unidades.html', {'unidades': Unidade.objects.all()})
@@ -314,6 +317,7 @@ def unidade_excluir(request, unidade_id=None):
     return redirect('unidade_editar', unidade_id=unidade.id)
 
 
+@user_passes_test(is_allowed)
 @login_required
 def curso(request):
     return render(request, 'interno/ver_cursos.html', {'cursos': Curso.objects.all()})

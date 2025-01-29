@@ -10,8 +10,8 @@ django.setup()
 from database.models import Unidade, Controle
 
 # Caminho para o arquivo CSV
-csv_file_path_unidades = 'unidades.csv'
-csv_file_path_controle = 'controle.csv'
+csv_file_path_unidades = 'csvs/unidades.csv'
+csv_file_path_controle = 'csvs/controle.csv'
 
 
 # Função para importar os dados

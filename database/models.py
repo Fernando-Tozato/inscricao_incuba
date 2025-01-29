@@ -124,7 +124,7 @@ class Inscrito(models.Model):
     ja_sorteado = models.BooleanField(default=False) # inicialmente False, podendo ser alterado para True posteriormente
     id_turma = models.ForeignKey(Turma, on_delete=models.CASCADE)
     numero_inscricao = models.CharField(max_length=14, editable=False, unique=True) # gerado internamente em gerar_numero_inscricao(nome: str, cpf: str, nascimento: str) -> str
-    data_inscricao = models.DateTimeField(default=datetime.now)
+    data_inscricao = models.DateTimeField(auto_now_add=True)
 
     def dict_for_matricula(self):
         return {
@@ -207,7 +207,7 @@ class Aluno(models.Model):
     ps = models.BooleanField(default=False)
     observacoes = models.TextField(null=True, default=None, blank=True)
     id_turma = models.ForeignKey(Turma, on_delete=models.CASCADE)
-    data_matricula = models.DateTimeField(default=datetime.now)
+    data_matricula = models.DateTimeField(auto_now_add=True)
 
     def cpf_formatado(self):
         return f"{self.cpf[:3]}.{self.cpf[3:6]}.{self.cpf[6:9]}-{self.cpf[9:]}"
