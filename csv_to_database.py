@@ -65,33 +65,23 @@ def list_to_curso(data):
 
 
 def main():
-    if csv_file_path_controle.exists() and Controle.objects.first() is None:
-        try:
+    try:
+        if csv_file_path_controle.exists() and Controle.objects.first() is None:
             csv_to_controle()
-        except:
-            pass
 
-    if csv_file_path_unidades.exists() and Unidade.objects.first() is None:
-        try:
+        if csv_file_path_unidades.exists() and Unidade.objects.first() is None:
             unidades_list: list = csv_to_list(csv_file_path_unidades)
             list_to_database(unidades_list, Unidade)
-        except:
-            pass
 
-    if csv_file_path_curso.exists() and Curso.objects.first() is None:
-        try:
+        if csv_file_path_curso.exists() and Curso.objects.first() is None:
             curso_list: list = csv_to_list(csv_file_path_curso)
             list_to_curso(curso_list)
-        except:
-            pass
 
-    if csv_file_path_turmas.exists() and Turma.objects.first() is None:
-        try:
+        if csv_file_path_turmas.exists() and Turma.objects.first() is None:
             turmas_list: list = csv_to_list(csv_file_path_turmas)
             list_to_database(turmas_list, Turma)
-        except:
-            pass
-
+    except Exception as e:
+        print(e)
 
 if __name__ == '__main__':
     main()

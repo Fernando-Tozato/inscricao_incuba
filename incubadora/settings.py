@@ -15,6 +15,7 @@ import os
 
 from incubadora import context_processors
 from decouple import config
+from sshtunnel import SSHTunnelForwarder
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -109,12 +110,12 @@ AUTHENTICATION_BACKENDS = [
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME'),
-        'USER': config('DB_USER'),
-        'PASSWORD': config('DB_PASSWORD'),
-        'HOST': config('DB_HOST'),
-        'PORT': config('DB_PORT'),
-    }
+        'NAME': config('LOCAL_DB_NAME'),
+        'USER': config('LOCAL_DB_USER'),
+        'PASSWORD': config('LOCAL_DB_PASSWORD'),
+        'HOST': config('LOCAL_DB_HOST'),
+        'PORT': config('LOCAL_DB_PORT'),
+    },
 }
 
 
@@ -198,7 +199,7 @@ LOGGING = {
             'formatter': 'debug',
         },
         'file_debug': {
-            'level': 'ERROR',
+            'level': 'DEBUG',
             'class': 'logging.FileHandler',
             'filename': os.path.join(BASE_DIR, 'logs/debug.log'),
             'formatter': 'debug',
@@ -222,7 +223,7 @@ LOGGING = {
     'loggers': {
         'django': {
             'handlers': ['console', 'file_debug'],
-            'level': 'ERROR',
+            'level': 'INFO',
             'propagate': True,
         },
         'sorteio': {

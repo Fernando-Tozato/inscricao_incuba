@@ -75,7 +75,7 @@ class Curso(models.Model):
 
 class Turma(models.Model):
     curso = models.ForeignKey('Curso', on_delete=models.CASCADE)
-    dias = models.CharField(max_length=20)
+    dias = models.CharField(max_length=80)
     horario_entrada = models.TimeField()
     horario_saida = models.TimeField()
     vagas = models.IntegerField()
@@ -177,7 +177,7 @@ class Inscrito(models.Model):
         return f'{int(codigo_hash, 16) % 10000:04d}'
 
     def __str__(self):
-        return f'{self.cpf_formatado()}'
+        return f'{self.num_inscricao_formatado()}'
 
 
 class Aluno(models.Model):

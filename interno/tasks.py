@@ -41,9 +41,16 @@ def enviar_emails(**kwargs):
             subject,
             content,
             settings.EMAIL_HOST_USER,
-            email,
-            html_message=content if has_html else None,
+            [email],
         )
+
+        if has_html:
+            email_message.content_subtype = 'html'
+
+        if file_path is not None:
+            email_message.attach_file(file_path)
+
+        email_message.send()
 
 
 '''
@@ -98,7 +105,7 @@ def sorteio(logger: Logger, turmas: QuerySet[Turma], inscritos: QuerySet[Inscrit
     logger.info("Inicio do sorteio")  # Mostra o início do sorteio no log
 
     for turma in turmas:  # Itera sobre todas as turmas
-        logger.info(f"Turma: {turma.curso} - {turma.dias} - {turma.horario()}")  # Mostra no log a turma atual
+        logger.info(f"Turma:{turma.unidade} | {turma.curso.nome} | {turma.dias} | {turma.horario()}")  # Mostra no log a turma atual
 
         """
         Sorteio para vagas de cotas
@@ -118,7 +125,7 @@ def sorteio(logger: Logger, turmas: QuerySet[Turma], inscritos: QuerySet[Inscrit
 
         for sorteado in sorteados_cotas:  # Itera sobre todos os sorteados cotistas da turma atual
             logger.info(
-                f'{sorteado.nome_social if sorteado.nome_social else sorteado.nome} - Cota')  # Mostra o nome civil ou social do sorteado no log
+                f'{sorteado.nome_social if sorteado.nome_social else sorteado.nome} | {sorteado.num_inscricao_formatado()} | Cota')  # Mostra o nome civil ou social do sorteado no log
             sorteado.ja_sorteado = True  # Define o atributo ja_sorteado como verdadeiro
             sorteado.save()  # Salva a alteração
 
@@ -140,7 +147,7 @@ def sorteio(logger: Logger, turmas: QuerySet[Turma], inscritos: QuerySet[Inscrit
 
         for sorteado in sorteados_gerais:  # Itera sobre todos os sorteados de ampla concorrência da turma atual
             logger.info(
-                f'{sorteado.nome_social if sorteado.nome_social else sorteado.nome} - Ampla concorrência')  # Mostra o nome civil ou social do sorteado no log
+                f'{sorteado.nome_social if sorteado.nome_social else sorteado.nome} | {sorteado.num_inscricao_formatado()} | Ampla concorrência')  # Mostra o nome civil ou social do sorteado no log
             sorteado.ja_sorteado = True  # Define o atributo ja_sorteado como verdadeiro
             sorteado.save()  # Salva a alteração
 

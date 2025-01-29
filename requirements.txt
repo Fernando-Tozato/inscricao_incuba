@@ -16,3 +16,4 @@ cryptography
 django-celery-beat
 django-prometheus
 psycopg2
+sshtunnel
