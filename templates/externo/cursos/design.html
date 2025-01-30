@@ -1,90 +1,125 @@
 {% extends 'bases/base_externo.html' %}
 
-{% block title %}Design{% endblock %}
+{% block title %}Design e Modelagem 3D{% endblock %}
 
 {% load static %}
 
+{% block style %}
+    <link rel="stylesheet" href="{% static 'css/cursos.css' %}">
+{% endblock %}
+
 {% block content %}
+    <script src="{% static 'js/cursos.js' %}"></script>
+
     <div class="container my-5 px-5">
-        <div class="row">
-            <div class="col-sm px-0 me-sm-3 mb-3 card bg-body-secondary">
-                <div class="card-body">
-                    <h1 class="card-title">Design e Modelagem 3D</h1>
-                    <p class="card-text">Entender os fundamentos do design gráfico e modelagem 3D, aprofundando o conhecimento nos softwares de criação de imagem, arte vetorial e modelagem 3D, permitindo aos participantes alcançarem resultados de alta qualidade em suas criações visuais.</p>
+        <div class="row g-4 mb-5">
+            <div class="col-lg-7 animate-card" style="animation-delay: 0.2s;">
+                <div class="info-card h-100 p-4 hover-zoom">
+                    <h1 class="display-6 mb-4 fw-bold">Design e Modelagem 3D</h1>
+                    <p class="lead text-muted mb-4">
+                        Dois níveis que capacitam os alunos com fundamentos do design gráfico e introdução à
+                        modelagem 3D, avançando para técnicas que permitem alcançar resultados de alta qualidade em
+                        criações visuais.
+                    </p>
+                    <div class="d-grid gap-2 d-md-flex">
+                        <a class="btn btn-primary btn-lg px-4" href="{% url 'inscricao' %}">Inscreva-se</a>
+                    </div>
                 </div>
             </div>
-            <div class="col-sm px-0 mb-3">
-                <img src="{% static 'img/design.jpg' %}" alt="Design e Modelagem 3D" class="img-fluid rounded">
+
+            <div class="col-lg-5 animate-card" style="animation-delay: 0.4s;">
+                <div class="hover-zoom h-100">
+                    <img src="{% static 'img/design.jpg' %}"
+                         class="img-fluid rounded-3 shadow-lg"
+                         alt="Design e Modelagem 3D">
+                </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-sm px-0 me-sm-3 card bg-body-secondary">
-                <div class="card-body">
-                    <h2 class="card-title">Módulo 1</h2>
-                    <h5 class="card-subtitle mb-2">Noções de Design e Modelagem 3D</h5>
-                    <p class="card-text mb-4">Entendendo os fundamentos do design gráfico e modelagem 3D.</p>
-                    <h5 class="card-subtitle mb-2">Requisitos:</h5>
-                    <p class="card-text mb-4">
-                        - Idade mínima: 14 anos. <br>
-                        - Escolaridade mínima: Ensino Fundamental I Completo. <br> 
-                        - Conhecimento de informática.
-                    </p>
-                    <h5 class="card-subtitle mb-2">Dias e horários:</h5>
-                    <div class="row mb-3">
-                        <div class="col-md">
-                            <p class="card-text">Terça e quinta</p>
+
+        <div id="niveis" class="container">
+            <div id="basico" class="row g-4 mb-5">
+                <div class="col-lg-4 animate-card" style="animation-delay: 0.2s;">
+                    <div class="info-card h-100 p-4 hover-zoom">
+                        <div class="d-flex align-items-center mb-4">
+                            <h3 class="mb-0">Noções de Design e Modelagem 3D</h3>
                         </div>
-                        <div class="col-md">
-                            <p class="card-text">
-                                08:40 - 10:40<br>
-                                13:50 - 15:50
-                            </p>
-                        </div>
+                        <p class="lead mb-4">
+                            Capacita os alunos com conhecimentos em fundamentos do design gráfico e introduz a modelagem 3D.
+                        </p>
                     </div>
-                    <div class="row">
-                        <div class="col-md">
-                            <p class="card-text">Quarta e sexta</p>
-                        </div>
-                        <div class="col-md">
-                            <p class="card-text">
-                                10:50 - 12:50<br>
-                                16:00 - 18:00
+                </div>
+
+                <div class="col-lg-4 animate-card" style="animation-delay: 0.2s;">
+                    <div class="info-card h-100 p-4 hover-zoom">
+                        <h2 class="h3 mb-4 fw-bold">
+                            <i class="fa-regular fa-square-check me-2"></i>Requisitos
+                        </h2>
+                        <ul class="bullet-list fs-5">
+                            <li class="mb-3">Idade mínima: 14 anos</li>
+                            <li class="mb-3">Escolaridade mínima: 1º segmento do Ensino Fundamental completo</li>
+                            <li>Conhecimentos de informática</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 animate-card" style="animation-delay: 0.2s;">
+                    <div class="info-card h-100 p-4 hover-zoom">
+                        <h2 class="h3 mb-4 fw-bold">
+                            <i class="fa-regular fa-clock me-2"></i>Horários
+                        </h2>
+                        <div id="centro" class="mb-4">
+                            <h4 class="h5 mb-3 fw-bold">
+                                <i class="fa-solid fa-location-dot me-2"></i>Polo Centro
+                            </h4>
+
+                            <p>
+                                Horários disponíveis em breve.
                             </p>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-sm px-0 me-sm-3 card bg-body-secondary">
-                <div class="card-body">
-                    <h2 class="card-title">Módulo 2</h2>
-                    <h5 class="card-subtitle mb-2">Design e Modelagem 3D: Dominando os Softwares</h5>
-                    <p class="card-text mb-4">Conhecimento aprofundado nos softwares de criação de imagem, arte vetorial e modelagem 3D. Permitindo aos participantes alcançarem resultados de alta qualidade em suas criações visuais. </p>
-                    <h5 class="card-subtitle mb-2">Requisitos:</h5>
-                    <p class="card-text mb-4">
-                        - Idade mínima: 14 anos. <br>
-                        - Escolaridade mínima: Ensino Fundamental I Completo. <br>
-                        - Conhecimentos de informática, e noções básicas dos seguintes softwares photoshop, illustrator e blender. 
-                    </p>
-                    <h5 class="card-subtitle mb-2">Dias e horários:</h5>
-                    <div class="row mb-3">
-                        <div class="col-md">
-                            <p class="card-text">Terça e quinta</p>
+
+            <div id="intermediario" class="row g-4 mb-5">
+                <div class="col-lg-4 animate-card" style="animation-delay: 0.4s;">
+                    <div class="info-card h-100 p-4 hover-zoom">
+                        <div class="d-flex align-items-center mb-4">
+                            <h3 class="mb-0">Design e Modelagem 3D: Dominando os Softwares</h3>
                         </div>
-                        <div class="col-md">
-                            <p class="card-text">
-                                10:50 - 12:50<br>
-                                16:00 - 18:00
-                            </p>
-                        </div>
+                        <p class="lead mb-4">
+                            Aprofunda o conhecimento em  modelagem 3D, permitindo aos participantes alcançarem
+                            resultados de alta qualidade em suas criações visuais.
+                        </p>
                     </div>
-                    <div class="row">
-                        <div class="col-md">
-                            <p class="card-text">Quarta e sexta</p>
-                        </div>
-                        <div class="col-md">
-                            <p class="card-text">
-                                08:40 - 10:40<br>
-                                13:50 - 15:50
+                </div>
+
+                <div class="col-lg-4 animate-card" style="animation-delay: 0.4s;">
+                    <div class="info-card h-100 p-4 hover-zoom">
+                        <h2 class="h3 mb-4 fw-bold">
+                            <i class="fa-regular fa-square-check me-2"></i>Requisitos
+                        </h2>
+
+                        <ul class="bullet-list fs-5">
+                            <li class="mb-3">Idade mínima: 14 anos</li>
+                            <li class="mb-3">Escolaridade mínima: 1º segmento do Ensino Fundamental completo</li>
+                            <li>Conhecimentos de informática e noções básicas dos seguintes softwares Photoshop,
+                            Illustrator e Blender.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 animate-card" style="animation-delay: 0.4s;">
+                    <div class="info-card h-100 p-4 hover-zoom">
+                        <h2 class="h3 mb-4 fw-bold">
+                            <i class="fa-regular fa-clock me-2"></i>Horários
+                        </h2>
+                        <div id="centro" class="mb-4">
+                            <h4 class="h5 mb-3 fw-bold">
+                                <i class="fa-solid fa-location-dot me-2"></i>Polo Centro
+                            </h4>
+
+                            <p>
+                                Horários disponíveis em breve.
                             </p>
                         </div>
                     </div>
