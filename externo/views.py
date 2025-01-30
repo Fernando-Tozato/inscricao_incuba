@@ -224,8 +224,8 @@ def gestao(request):
     return render(request, 'externo/cursos/gestao.html')
 
 
-def marketing_digital(request):
-    return render(request, 'externo/cursos/marketing_digital.html')
+def marketing(request):
+    return render(request, 'externo/cursos/marketing.html')
 
 
 def marketing_emp_dig(request):

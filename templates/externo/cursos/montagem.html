@@ -1,56 +1,112 @@
 {% extends 'bases/base_externo.html' %}
 
-{% block title %}Montagem de Computadores{% endblock %}
+{% block title %}Montagem e Manutenção de Computadores e Notebooks{% endblock %}
 
 {% load static %}
 
+{% block style %}
+    <link rel="stylesheet" href="{% static 'css/cursos.css' %}">
+{% endblock %}
+
 {% block content %}
-    <div class="container my-5 px-5">
-        <div class="row">
-            <div class="col-sm px-0 me-sm-3 mb-3 card bg-body-secondary">
-                <div class="card-body">
-                    <h1 class="card-title">Montagem e Manutenção de Computadores</h1>
-                    <p class="card-text">Proporcionar o conhecimento sobre os componentes primordiais e conseguir instalar tarefas para que um computador funcione. Explorar hardware em detalhes e compreender os princípios do software, incluindo prompt de comando.</p>
+    <script src="{% static 'js/cursos.js' %}"></script>
+
+    <div class="container my-5">
+        <!-- Primeira Seção -->
+        <div class="row g-4 mb-5">
+            <div class="col-lg-7 animate-card" style="animation-delay: 0.2s;">
+                <div class="info-card h-100 p-4 hover-zoom">
+                    <h1 class="display-6 mb-4 fw-bold">Montagem e Manutenção de Computadores e Notebooks</h1>
+                    <p class="lead text-muted mb-4">
+                        Curso prático e teórico que ensina a montagem, diagnóstico de problemas e manutenção de
+                        computadores e notebooks, com ênfase na resolução de problemas comuns e práticas sustentáveis.
+                    </p>
+                    <div class="d-grid gap-2 d-md-flex">
+                        <a class="btn btn-primary btn-lg px-4" href="{% url 'inscricao' %}">Inscreva-se</a>
+                    </div>
                 </div>
             </div>
-            <div class="col-sm px-0 mb-3">
-                <img src="{% static 'img/montagem.jpg' %}" alt="Montagem e Manutenção de Computadores" class="img-fluid rounded">
+
+            <div class="col-lg-5 animate-card" style="animation-delay: 0.4s;">
+                <div class="hover-zoom h-100">
+                    <img src="{% static 'img/info_melhor_idade.jpg' %}"
+                         class="img-fluid rounded-3 shadow-lg"
+                         alt="Montagem e Manutenção de Computadores e Notebooks">
+                </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-sm px-0 me-sm-3 card bg-body-secondary">
-                <div class="card-body">
-                    <h2 class="card-title">Requisitos:</h2>
-                    <p class="card-text mb-4">
-                        - Idade mínima: 14 anos. <br>
-                        - Escolaridade mínima: Ensino Fundamental I Completo. <br> 
-                        - Conhecimento básico em informática.
-                    </p>
+
+        <!-- Segunda Seção -->
+        <div class="row g-4">
+            <!-- Requisitos -->
+            <div class="col-md-6 animate-card" style="animation-delay: 0.6s;">
+                <div class="info-card h-100 p-4 hover-zoom">
+                    <h2 class="h3 mb-4 fw-bold">
+                        <i class="fa-regular fa-square-check me-2"></i>Requisitos
+                    </h2>
+                    <ul class="bullet-list fs-5">
+                        <li class="mb-3">Idade mínima: 14 anos</li>
+                        <li class="mb-3">Escolaridade mínima: 1º segmento do Ensino Fundamental completo</li>
+                        <li>Conhecimento básico em informática.</li>
+                    </ul>
                 </div>
             </div>
-            <div class="col-sm px-0 me-sm-3 card bg-body-secondary">
-                <div class="card-body">
-                    <h2 class="card-title">Dias e Horários:</h2>
-                    <div class="row mb-3">
-                        <div class="col-md">
-                            <p class="card-text">Segunda, terça e quinta</p>
-                        </div>
-                        <div class="col-md">
-                            <p class="card-text">
-                                08:40 - 10:40<br>
-                                10:50 - 12:50
-                            </p>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md">
-                            <p class="card-text">Terça, quarta e sexta</p>
-                        </div>
-                        <div class="col-md">
-                            <p class="card-text">
-                                14:00 - 16:00<br>
-                                16:00 - 18:00
-                            </p>
+
+            <!-- Horários -->
+            <div class="col-md-6 animate-card" style="animation-delay: 0.8s;">
+                <div class="info-card h-100 p-4 hover-zoom">
+                    <h2 class="h3 mb-4 fw-bold">
+                        <i class="fa-regular fa-clock me-2"></i>Horários
+                    </h2>
+
+                    <div class="row g-3">
+                        <div class="col-xl-6">
+                            <h4 class="h5 mb-4 fw-bold">
+                                <i class="fa-solid fa-location-dot me-2"></i>Polo Inoã
+                            </h4>
+                            <div class="row g-3 mb-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="col-xl-6 col-lg-4 col-5">
+                                        <div class="badge bg-primary me-3">Seg e Qua</div>
+                                    </div>
+                                    <div class="col-xl-6 col-lg-8 col-7">
+                                        <div class="schedule-column">
+                                            <p class="mb-1">08:30 - 10:30</p>
+                                            <p class="mb-0">10:30 - 12:30</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row g-3 mb-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="col-xl-6 col-lg-4 col-5">
+                                        <div class="badge bg-primary me-3">Seg, Qua e Sex</div>
+                                    </div>
+                                    <div class="col-xl-6 col-lg-8 col-7">
+                                        <div class="schedule-column">
+                                            <p class="mb-1">13:30 - 15:30</p>
+                                            <p class="mb-0">15:30 - 17:30</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="col-xl-6 col-lg-4 col-5">
+                                        <div class="badge bg-primary me-3">Ter e Qui</div>
+                                    </div>
+                                    <div class="col-xl-6 col-lg-8 col-7">
+                                        <div class="schedule-column">
+                                            <p class="mb-1">08:30 - 10:30</p>
+                                            <p class="mb-1">10:30 - 12:30</p>
+                                            <p class="mb-1">13:30 - 15:30</p>
+                                            <p class="mb-0">15:30 - 17:30</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -1,0 +1,77 @@
+{% extends 'bases/base_externo.html' %}
+
+{% block title %}Blockchain{% endblock %}
+
+{% load static %}
+
+{% block style %}
+    <link rel="stylesheet" href="{% static 'css/cursos.css' %}">
+{% endblock %}
+
+{% block content %}
+    <script src="{% static 'js/cursos.js' %}"></script>
+
+     <div class="container my-5">
+        <!-- Primeira Seção -->
+        <div class="row g-4 mb-5">
+            <div class="col-lg-7 animate-card" style="animation-delay: 0.2s;">
+                <div class="info-card h-100 p-4 hover-zoom">
+                    <h1 class="display-6 mb-4 fw-bold">Blockchain</h1>
+                    <p class="lead text-muted mb-4">
+                        O curso tem como objetivo orientar   a pesquisa e o egresso nas novas oportunidades criadas
+                        pela Web3 Blockchain, que é a tecnologia usada para o futuro da computação em nuvem.
+                    </p>
+                    <div class="d-grid gap-2 d-md-flex">
+                        <a class="btn btn-primary btn-lg px-4" href="{% url 'inscricao' %}">Inscreva-se</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-5 animate-card" style="animation-delay: 0.4s;">
+                <div class="hover-zoom h-100">
+                    <img src="{% static 'img/blockchain.png' %}"
+                         class="img-fluid rounded-3 shadow-lg"
+                         alt="Blockchain">
+                </div>
+            </div>
+        </div>
+
+        <!-- Segunda Seção -->
+        <div class="row g-4">
+            <!-- Requisitos -->
+            <div class="col-md-6 animate-card" style="animation-delay: 0.6s;">
+                <div class="info-card h-100 p-4 hover-zoom">
+                    <h2 class="h3 mb-4 fw-bold">
+                        <i class="fa-regular fa-square-check me-2"></i>Requisitos
+                    </h2>
+                    <ul class="bullet-list fs-5">
+                        <li class="mb-3">Idade mínima: 14 anos</li>
+                        <li class="mb-3">Escolaridade mínima: Ensino Fundamental completo</li>
+                        <li>Conhecimentos básico de informática</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Horários -->
+            <div class="col-md-6 animate-card" style="animation-delay: 0.8s;">
+                <div class="info-card h-100 p-4 hover-zoom">
+                    <h2 class="h3 mb-4 fw-bold">
+                        <i class="fa-regular fa-clock me-2"></i>Horários
+                    </h2>
+
+                    <div class="row g-3">
+                        <div class="col-xl-6">
+                            <h4 class="h5 mb-4 fw-bold">
+                                <i class="fa-solid fa-location-dot me-2"></i>Polo Centro
+                            </h4>
+
+                            <p>
+                                Horários disponíveis em breve.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

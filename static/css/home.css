@@ -1,0 +1,62 @@
+/* Configurações gerais das animações */
+.card-container {
+  overflow: hidden;
+}
+
+.card-animation-left .col-xl-4 {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+
+.card-animation-left .col-xl-8 {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+.card-animation-right .col-xl-4 {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+.card-animation-right .col-xl-8 {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+
+/* Animação para cards com imagem à esquerda */
+.slide-in-left {
+  animation: slideInLeft 1s ease-out forwards;
+}
+
+@keyframes slideInLeft {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Animação para cards com imagem à direita */
+.slide-in-right {
+  animation: slideInRight 1s ease-out forwards;
+}
+
+@keyframes slideInRight {
+  0% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Atraso para o conteúdo */
+.delay-animation {
+  animation-delay: 0.3s;
+}
+

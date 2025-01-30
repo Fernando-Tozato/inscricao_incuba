@@ -1,0 +1,56 @@
+.level-card {
+    border: 3px solid;
+    transition: all 0.3s ease;
+    position: relative;
+    background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+}
+
+.level-card:hover {
+    transform: translateY(-10px) scale(1.05);
+}
+
+.tech-badge {
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    transform: scale(1.05);
+}
+
+/* Nível Avançado */
+.basic {
+    border-image: linear-gradient(45deg, #3498db, #2ecc71) 1;
+}
+.basic:hover {
+    box-shadow: 0 10px 20px rgba(52, 152, 219, 0.5);
+}
+.basic .tech-badge {
+    background: rgba(46, 204, 113, 0.2);
+    border-color: #2ecc71;
+    color: #2ecc71;
+}
+
+/* Nível Intermediário */
+.intermediate {
+    border-image: linear-gradient(45deg, #FF6B6B, #FFD93D) 1;
+}
+.intermediate:hover {
+    box-shadow: 0 10px 20px rgba(255, 107, 107, 0.5);
+}
+.intermediate .tech-badge {
+    background: rgba(255, 107, 107, 0.2);
+    border-color: #FF6B6B;
+    color: #FF6B6B;
+}
+
+
+/* Nível Avançado */
+.advanced {
+    border-image: linear-gradient(45deg, #9C27B0, #E91E63) 1;
+}
+.advanced:hover {
+    box-shadow: 0 10px 20px rgba(156, 39, 176, 0.5);
+}
+.advanced .tech-badge {
+    background: rgba(156, 39, 176, 0.2);
+    border-color: #9C27B0;
+    color: #9C27B0;
+}
