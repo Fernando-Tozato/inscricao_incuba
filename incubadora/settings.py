@@ -32,17 +32,16 @@ DEBUG = config('DJANGO_DEBUG', cast=bool)
 ALLOWED_HOSTS = ['*']
 
 LOGIN_URL = 'login'  # Nome da URL definida para a view de login
-LOGIN_REDIRECT_URL = 'busca_de_inscrito'
+LOGIN_REDIRECT_URL = 'estatisticas'
 
 # settings.py
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.hostinger.com'
 EMAIL_PORT = 465
-EMAIL_USE_TLS = False
+EMAIL_USE_SSL = True
 EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 
 # Application definition
@@ -59,11 +58,14 @@ INSTALLED_APPS = [
     'database',
     'rest_framework',
     "anymail",
+    'django_celery_beat',
+    'django_prometheus',
 ]
 
 SITE_ID = 1
 
 MIDDLEWARE = [
+    'django_prometheus.middleware.PrometheusBeforeMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -71,6 +73,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'interno.middleware.CurrentUserMiddleware',
+    'django_prometheus.middleware.PrometheusAfterMiddleware',
 ]
 
 ROOT_URLCONF = 'incubadora.urls'
@@ -154,3 +158,85 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Celery config
+
+CELERY_BROKER_URL = 'amqp://guest:guest@localhost:5672//'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers.DatabaseScheduler'
+
+
+# Logging config
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'debug': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+        'sorteio': {
+            'format': '{asctime} {message}',
+            'style': '{',
+        },
+        'register': {
+            'format': '{asctime} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'debug',
+        },
+        'file_debug': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs/debug.log'),
+            'formatter': 'debug',
+            'encoding': 'utf-8',
+        },
+        'file_sorteio': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'media/sorteio/sorteio.log'),
+            'formatter': 'sorteio',
+            'encoding': 'utf-8',
+        },
+        'file_register': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs/register.log'),
+            'formatter': 'register',
+            'encoding': 'utf-8',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'file_debug'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'sorteio': {
+            'handlers': ['file_sorteio'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'register': {
+            'handlers': ['file_register'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+}
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': 'redis://localhost:6379/1',
+    }
+}

@@ -7,6 +7,17 @@
 {% block content %}
     <script src="{% static 'js/login.js' %}"></script>
 
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
     <div class="container my-5">
         <div class="row justify-content-center">
             <div class="col-md-6">

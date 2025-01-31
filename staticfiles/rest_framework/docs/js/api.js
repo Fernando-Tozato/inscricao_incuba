@@ -1,3 +1,5 @@
+// noinspection SpellCheckingInspection
+
 var responseDisplay = 'data'
 var coreapi = window.coreapi
 var schema = window.schema

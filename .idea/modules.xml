@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/inscricao_incuba.iml" filepath="$PROJECT_DIR$/.idea/inscricao_incuba.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/Incubadora.iml" filepath="$PROJECT_DIR$/.idea/Incubadora.iml" />
     </modules>
   </component>
 </project>

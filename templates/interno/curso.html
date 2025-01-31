@@ -1,0 +1,130 @@
+{% extends 'bases/base_interno.html' %}
+
+{% block title %} {% if id_curso %}
+	Adicionar curso
+{% else %}
+    Editar curso
+{% endif %}  {% endblock %}
+
+{% load static %}
+
+{% block content %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/inputmask/4.0.9/inputmask/inputmask.min.js" integrity="sha512-DVfS/GbZzLMmxBL/CW92N84eHP2Fq9d+r9RKbvctcvzISVfu+WvD+MCvbK9j8I6nVLrntGo3UUVrNFUDX0ukBw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="{% static 'js/mascaras.js' %}"></script>
+    <script src="{% static 'js/validacao.js' %}"></script>
+    <script src="{% static 'js/curso.js' %}"></script>
+
+    <div class="container my-5 px-5">
+        <form method="post" class="needs-validation">
+            {% csrf_token %}
+
+            {% if messages %}
+            	<div class="messages">
+                {% for message in messages %}
+                	<div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="p-5 mb-5 border bg-body-secondary text-body-secondary rounded">
+                <h2>Curso</h2>
+
+                <div class="row">
+                    <div class="col-sm mt-3 form-floating">
+                        {{ form.nome }}
+                        <label for="{{ form.nome.id_for_label }}" class="ms-2">Nome <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm mt-3 form-floating">
+                        {{ form.descricao }}
+                        <label for="{{ form.descricao.id_for_label }}" class="ms-2">Descrição <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
+                    </div>
+                    <div class="col-sm mt-3 form-floating">
+                        {{ form.requisitos }}
+                        <label for="{{ form.requisitos.id_for_label }}" class="ms-2">Requisitos <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm mt-3 form-floating">
+                        {{ form.imagem }}
+                        <label for="{{ form.imagem.id_for_label }}" class="ms-2">Imagem</label>
+                    </div>
+                    <div class="col-sm mt-3 form-floating">
+                        {{ form.idade }}
+                        <label for="{{ form.idade.id_for_label }}" class="ms-2">Idade mínima <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm mt-3 form-floating">
+                        {{ form.escolaridade }}
+                        <label for="{{ form.escolaridade.id_for_label }}" class="ms-2">Escolaridade mínima <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
+                    </div>
+                    <div class="col-sm mt-3">
+                        <div class="bg-white border rounded px-2">
+                            <label for="id_unidades" class="form-label">Unidades disponíveis <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
+                            <div id="id_unidades" class="d-flex flex-wrap gap-3">
+                                {% for checkbox in form.unidades %}
+                                    <div class="form-check">
+                                        {{ checkbox.tag }}
+                                        <label for="{{ checkbox.id_for_label }}" class="form-check-label">{{ checkbox.choice_label }}</label>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <span class="mt-4 badge text-bg-danger" id="danger_badge">Os itens marcados com <i class="fa-solid fa-asterisk" style="color: #ffffff;"></i> são obrigatórios!</span>
+            </div>
+
+            <div class="container align-items-center my-3">
+                <div class="row">
+                    <div class="col-xl-8 col-md-6 col-4 mt-3 form-check">
+                        <input class="form-check-input required" type="checkbox" id="termos" required>
+                        <label class="form-check-label" for="termos">Marque para confirmar as informações. <i class="fa-solid fa-asterisk" style="color: #b20101;"></i></label>
+                        <div class="invalid-feedback">Você deve aceitar os termos para prosseguir.</div>
+                    </div>
+
+                    {% if id_curso %}
+                        <div class="col-xl-2 col-md-3 col-4 mt-3">
+                            <button class="btn btn-danger float-center" type="button" data-bs-toggle="modal" data-bs-target="#delete_modal">Excluir</button>
+                        </div>
+                    {% endif %}
+
+                    <div class="col-xl-2 col-md-3 col-4 mt-3">
+                        <button class="btn btn-primary float-end" type="submit">Enviar</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        {% if id_curso %}
+        <div class="modal fade" id="delete_modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="delete_modal_label">Tem certeza?</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Tem certeza de que deseja excluir este curso?</p>
+                        <p>Essa ação é <span class="text-danger"><strong>IRREVERSÍVEL</strong></span>!</p>
+                    </div>
+                    <div class="modal-footer">
+                        <form method="post" action="{% url 'curso_excluir' id_curso %}" class="container">
+                            {% csrf_token %}
+                            <button type="button" class="float-start btn btn-primary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="float-end btn btn-danger">Excluir</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+{% endblock %}

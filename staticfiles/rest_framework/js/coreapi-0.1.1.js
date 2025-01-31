@@ -1,3 +1,5 @@
+// noinspection GrazieInspection
+
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.coreapi = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 'use strict';
 
@@ -990,7 +992,7 @@ var required = require('requires-port')
  * 1. The property we should set when parsing this value.
  * 2. Indication if it's backwards or forward parsing, when set as number it's
  *    the value of extra chars that should be split off.
- * 3. Inherit from location if non existing in the parser.
+ * 3. Inherit from location if non-existing in the parser.
  * 4. `toLowerCase` the resulting value.
  */
 var rules = [
@@ -1203,7 +1205,7 @@ function URL(address, location, parser) {
 
 /**
  * This is convenience method for changing properties in the URL instance to
- * insure that they all propagate correctly.
+ * ensure that they all propagate correctly.
  *
  * @param {String} part          Property we need to adjust.
  * @param {Mixed} value          The newly assigned value.

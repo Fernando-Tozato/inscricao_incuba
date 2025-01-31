@@ -7,11 +7,12 @@
 {% block content %}
     <div class="container my-5" style="height: 49.5vh;">
         <div class="alert alert-warning" role="alert">
-            <h4 class="alert-heading">Atenção!</h4>
+            <h4 class="alert-heading">Que pena!</h4>
             <hr>
-            <p>As inscrições já terminaram.</p>
-            <p>As inscrições terminaram no dia {{ data_inscricao|date:"d/m/Y" }} às {{ data_inscricao|date:"H:i" }}.</p>
-            <p>O período de matrículas remanescentes inicia em {{ data_remanescente|date:"d/m/Y" }} às {{ data_remanescente|date:"H:i" }}.</p>
+            <p>O período de inscrição terminou no dia {{ data_inscricao|date:"d/m/Y" }} às {{ data_inscricao|date:"H:i" }}.</p>
+            <p>Caso ainda queira ser nosso aluno, você pode se matricular nas vagas que ainda não foram preenchidas por sorteados entre os dias {{ matricula_inicio|date:'d/m/Y' }} e {{ matricula_fim|date:'d/m/Y' }}.</p>
+            <hr>
+            <p>Para se informar sobre as vagas, entre em contato conosco no WhatsApp: (21) 3917-2020.</p>
           </div>
     </div>
 {% endblock %}

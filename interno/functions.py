@@ -1,3 +1,6 @@
+import os
+
+from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMultiAlternatives
@@ -91,31 +94,33 @@ def ja_matriculado(cpf):
 
 
 def verificar_inscritos(request, inscritos):
-    if len(inscritos) == 0:
-        return {'erro': 'Nenhum inscrito encontrado.'}
-
     if is_allowed(request.user):
         return inscritos
 
     inscritos = inscritos.exclude(cpf__in=Aluno.objects.values_list('cpf', flat=True))
 
+
     agora = timezone.now()
     controle = Controle.objects.first()
-    matricula_sorteados = timezone.localtime(controle.matricula_sorteados)
-    matricula_geral = timezone.localtime(controle.matricula_geral)
-    matricula_fim = timezone.localtime(controle.matricula_fim)
+    matricula_sorte_inicio = timezone.localtime(controle.matricula_sorte_inicio)
+    matricula_sorte_fim = timezone.localtime(controle.matricula_sorte_fim)
+    matricula_reman_inicio = timezone.localtime(controle.matricula_reman_inicio)
+    matricula_reman_fim = timezone.localtime(controle.matricula_reman_fim)
 
-    if agora < matricula_sorteados:
-        return {'erro': 'O período de matrícula ainda não começou.'}
+    if agora < matricula_sorte_inicio:
+        return {'erro': 'O período de matrícula para sorteados ainda não começou.'}
 
-    if matricula_sorteados <= agora < matricula_geral:
-        return inscritos.filter(ja_sorteado=True)
+    if matricula_sorte_inicio <= agora <= matricula_sorte_fim:
+        inscritos = inscritos.filter(ja_sorteado=True)
+        return inscritos if len(inscritos) > 0 else {'erro': 'Nenhum sorteado encontrado.'}
 
-    if agora > matricula_fim:
-        return {'erro': 'O período de matrícula já terminou.'}
+    if matricula_sorte_fim < agora < matricula_reman_inicio:
+        return {'erro': 'O período de matrícula remanescente ainda não começou.'}
 
-    return inscritos
+    if matricula_reman_inicio <= agora <= matricula_reman_fim:
+        return inscritos
 
+    return {'erro': 'O período de matrícula já terminou.'}
 
 def enviar_email_senha(request, user):
     subject = "Alteração de Senha"
@@ -137,6 +142,13 @@ def enviar_email_senha(request, user):
 
 
 def matricula_valida(request):
-    if is_allowed(request.user):
-        return True
-    return False
+    return is_allowed(request.user)
+
+
+def sorteio_realizado() -> bool:
+    file_path = os.path.join(settings.MEDIA_ROOT, 'sorteio/sorteio.log')
+
+    if not os.path.exists(file_path):
+        return False
+
+    return os.path.getsize(file_path) > 0

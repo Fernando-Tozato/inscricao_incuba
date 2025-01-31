@@ -1,0 +1,40 @@
+{% extends 'bases/base_interno.html' %}
+
+{% block title %}Cursos{% endblock %}
+
+{% load static %}
+
+{% block content %}
+    <div class="container my-5 px-5">
+        <div class="p-5 mb-5 border bg-body-secondary text-body-secondary rounded">
+            <h1>Cursos:</h1>
+
+            <div class="border-top p-3"></div>
+
+            {% if cursos.count >= 1 %}
+                <ul class="justify-content-center list-group">
+                    {% for curso in cursos %}
+                        <li class="list-group-item">
+                            <a href="{% url 'curso_editar' curso.id %}" style="text-decoration: none;" class="text-body-secondary">
+                                <h1>{{ curso.nome }}</h1>
+                                <div class="row">
+                                    <div class="col-md">
+                                        <h4>{{ curso.get_escolaridade_display }}</h4>
+                                    </div>
+                                    <div class="col-md">
+                                        <h4>Idade: {{ curso.idade }}</h4>
+                                    </div>
+                                </div>
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {%  else %}
+                <h3>Nenhum curso foi cadastrado no sistema.</h3>
+            {% endif %}
+        </div>
+        <div class="container align-items-center float-end">
+            <button class="btn btn-primary float-end" id="btn" type="button" onclick="window.location.href = '{% url 'curso_criar' %}'">Novo curso</button>
+        </div>
+    </div>
+{% endblock %}

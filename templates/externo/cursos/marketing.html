@@ -1,0 +1,99 @@
+{% extends 'bases/base_externo.html' %}
+
+{% block title %}Marketing: Fundamentos, Consumidores e Planejamento Estratégico{% endblock %}
+
+{% load static %}
+
+{% block style %}
+    <link rel="stylesheet" href="{% static 'css/cursos.css' %}">
+{% endblock %}
+
+{% block content %}
+    <script src="{% static 'js/cursos.js' %}"></script>
+
+     <div class="container my-5">
+        <!-- Primeira Seção -->
+        <div class="row g-4 mb-5">
+            <div class="col-lg-7 animate-card" style="animation-delay: 0.2s;">
+                <div class="info-card h-100 p-4 hover-zoom">
+                    <h1 class="display-6 mb-4 fw-bold">Marketing: Fundamentos, Consumidores e Planejamento Estratégico</h1>
+                    <p class="lead text-muted mb-4">
+                        O participante aprende sobre os fundamentos do marketing, se capacitado para compreender o
+                        perfil dos consumidores, analisar tendências de mercado e elaborar planos estratégicos que
+                        gerem impacto positivo para marcas e negócios.
+                    </p>
+                    <div class="d-grid gap-2 d-md-flex">
+                        <a class="btn btn-primary btn-lg px-4" href="{% url 'inscricao' %}">Inscreva-se</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-5 animate-card" style="animation-delay: 0.4s;">
+                <div class="hover-zoom h-100">
+                    <img src="{% static 'img/marketing.jpg' %}"
+                         class="img-fluid rounded-3 shadow-lg"
+                         alt="Marketing: Fundamentos, Consumidores e Planejamento Estratégico">
+                </div>
+            </div>
+        </div>
+
+        <!-- Segunda Seção -->
+        <div class="row g-4">
+            <!-- Requisitos -->
+            <div class="col-md-6 animate-card" style="animation-delay: 0.6s;">
+                <div class="info-card h-100 p-4 hover-zoom">
+                    <h2 class="h3 mb-4 fw-bold">
+                        <i class="fa-regular fa-square-check me-2"></i>Requisitos
+                    </h2>
+                    <ul class="bullet-list fs-5">
+                        <li class="mb-3">Idade mínima: 16 anos</li>
+                        <li>Escolaridade mínima: Ensino Fundamental completo</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Horários -->
+            <div class="col-md-6 animate-card" style="animation-delay: 0.8s;">
+                <div class="info-card h-100 p-4 hover-zoom">
+                    <h2 class="h3 mb-4 fw-bold">
+                        <i class="fa-regular fa-clock me-2"></i>Horários
+                    </h2>
+
+                    <div class="row g-3">
+                        <div class="col-xl-6">
+                            <h4 class="h5 mb-4 fw-bold">
+                                <i class="fa-solid fa-location-dot me-2"></i>Polo Centro
+                            </h4>
+
+                            <div class="row g-3 mb-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="col-xl-6 col-lg-4 col-5">
+                                        <div class="badge bg-primary me-3">Seg e Qua</div>
+                                    </div>
+                                    <div class="col-xl-6 col-lg-8 col-7">
+                                        <div class="schedule-column">
+                                            <p class="mb-0">16:30 - 18:30</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="col-xl-6 col-lg-4 col-5">
+                                        <div class="badge bg-primary me-3">Ter e Qui</div>
+                                    </div>
+                                    <div class="col-xl-6 col-lg-8 col-7">
+                                        <div class="schedule-column">
+                                            <p class="mb-0">09:30 - 11:30</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

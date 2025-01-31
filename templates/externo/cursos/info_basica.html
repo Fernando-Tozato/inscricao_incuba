@@ -4,66 +4,126 @@
 
 {% load static %}
 
+{% block style %}
+    <link rel="stylesheet" href="{% static 'css/cursos.css' %}">
+{% endblock %}
+
 {% block content %}
-    <div class="container my-5 px-5">
-        <div class="row">
-            <div class="col-sm px-0 me-sm-3 mb-3 card bg-body-secondary">
-                <div class="card-body">
-                    <h1 class="card-title">Informática Básica</h1>
-                    <p class="card-text">Capacitar o participante a utilizar as principais ferramentas do pacote office.</p>
+    <script src="{% static 'js/cursos.js' %}"></script>
+
+    <div class="container my-5">
+        <!-- Primeira Seção -->
+        <div class="row g-4 mb-5">
+            <div class="col-lg-7 animate-card" style="animation-delay: 0.2s;">
+                <div class="info-card h-100 p-4 hover-zoom">
+                    <h1 class="display-6 mb-4 fw-bold">Informática Básica</h1>
+                    <p class="lead text-muted mb-4">
+                        Focado em introduzir os alunos ao uso do computador e da internet. Ideal para quem busca aprender
+                        a operar e aprofundar-se um pouco mais em sistemas operacionais, programas de produtividade
+                        (Word, Excel, PowerPoint) e navegar na web com segurança.
+                    </p>
+                    <div class="d-grid gap-2 d-md-flex">
+                        <a class="btn btn-primary btn-lg px-4" href="{% url 'inscricao' %}">Inscreva-se</a>
+                    </div>
                 </div>
             </div>
-            <div class="col-sm px-0 mb-3">
-                <img src="{% static 'img/info_basica.jpg' %}" alt="Informática Básica" class="img-fluid rounded">
+
+            <div class="col-lg-5 animate-card" style="animation-delay: 0.4s;">
+                <div class="hover-zoom h-100">
+                    <img src="{% static 'img/info_basica.jpg' %}"
+                         class="img-fluid rounded-3 shadow-lg"
+                         alt="Informática Básica">
+                </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-sm px-0 me-sm-3 card bg-body-secondary">
-                <div class="card-body">
-                    <h2 class="card-title">Requisitos:</h2>
-                    <p class="card-text mb-4">
-                        - Idade mínima: 12 anos. <br>
-                        - Escolaridade mínima: Ensino Fundamental I Completo. <br> 
-                        - Conhecer e já ter exercido alguma função com o computador.
-                    </p>
+
+        <!-- Segunda Seção -->
+        <div class="row g-4">
+            <!-- Requisitos -->
+            <div class="col-md-6 animate-card" style="animation-delay: 0.6s;">
+                <div class="info-card h-100 p-4 hover-zoom">
+                    <h2 class="h3 mb-4 fw-bold">
+                        <i class="fa-regular fa-square-check me-2"></i>Requisitos
+                    </h2>
+                    <ul class="bullet-list fs-5">
+                        <li class="mb-3">Idade mínima: 12 anos</li>
+                        <li>Escolaridade mínima: 1º segmento do Ensino Fundamental completo</li>
+                    </ul>
                 </div>
             </div>
-            <div class="col-sm px-0 me-sm-3 card bg-body-secondary">
-                <div class="card-body">
-                    <h2 class="card-title">Dias e Horários:</h2>
-                    <div class="row mb-3">
-                        <div class="col-md">
-                            <p class="card-text">Segunda e quarta</p>
+
+            <!-- Horários -->
+            <div class="col-md-6 animate-card" style="animation-delay: 0.8s;">
+                <div class="info-card h-100 p-4 hover-zoom">
+                    <h2 class="h3 mb-4 fw-bold">
+                        <i class="fa-regular fa-clock me-2"></i>Horários
+                    </h2>
+
+                    <div class="row g-3">
+                        <div class="col-xl-6 mb-xl-0 mb-4">
+                            <h4 class="h5 mb-4 fw-bold">
+                                <i class="fa-solid fa-location-dot me-2"></i>Polo Centro
+                            </h4>
+
+                            <div class="row g-3 mb-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="col-xl-6 col-lg-4 col-5">
+                                        <div class="badge bg-primary me-3">Seg e Qua</div>
+                                    </div>
+                                    <div class="col-xl-6 col-lg-8 col-7">
+                                        <div class="schedule-column">
+                                            <p class="mb-0">08:30 - 10:30</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="col-xl-6 col-lg-4 col-5">
+                                        <div class="badge bg-primary me-3">Ter e Qui</div>
+                                    </div>
+                                    <div class="col-xl-6 col-lg-8 col-7">
+                                        <div class="schedule-column">
+                                            <p class="mb-0">12:00 - 14:00</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-md">
-                            <p class="card-text">
-                                10:00 - 11:10<br>
-                                11:20 - 12:20<br>
-                                14:50 - 16:00<br>
-                                16:10 - 17:20
-                            </p>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md">
-                            <p class="card-text">Terça e quinta</p>
-                        </div>
-                        <div class="col-md">
-                            <p class="card-text">
-                                10:00 - 11:10<br>
-                                11:20 - 12:30<br>
-                                14:50 - 16:00
-                            </p>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md">
-                            <p class="card-text">Sexta</p>
-                        </div>
-                        <div class="col-md">
-                            <p class="card-text">
-                                16:00 - 18:00
-                            </p>
+
+                        <div class="col-xl-6">
+                            <h4 class="h5 mb-4 fw-bold">
+                                <i class="fa-solid fa-location-dot me-2"></i>Polo Inoã
+                            </h4>
+                            <div class="row g-3 mb-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="col-xl-6 col-lg-4 col-5">
+                                        <div class="badge bg-primary me-3">Seg e Qua</div>
+                                    </div>
+                                    <div class="col-xl-6 col-lg-8 col-7">
+                                        <div class="schedule-column">
+                                            <p class="mb-1">10:30 - 12:30</p>
+                                            <p class="mb-0">15:30 - 17:30</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="col-xl-6 col-lg-4 col-5">
+                                        <div class="badge bg-primary me-3">Ter e Qui</div>
+                                    </div>
+                                    <div class="col-xl-6 col-lg-8 col-7">
+                                        <div class="schedule-column">
+                                            <p class="mb-1">08:30 - 10:30</p>
+                                            <p class="mb-1">13:30 - 15:30</p>
+                                            <p class="mb-0">15:30 - 17:30</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

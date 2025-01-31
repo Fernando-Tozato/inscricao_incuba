@@ -1,3 +1,5 @@
+// noinspection GrazieInspection
+
 /*!
  * Select2 4.0.13
  * https://select2.github.io

@@ -1,4 +1,6 @@
 // Core JavaScript helper functions
+// noinspection GrazieInspection
+
 'use strict';
 
 // quickElement(tagType, parentReference [, textInChildNode, attribute, attributeValue ...]);

@@ -8,9 +8,8 @@ from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.db.utils import IntegrityError
 from django.http import HttpResponse, Http404
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
-from unidecode import unidecode
 
 from database.models import *
 from externo.forms import InscricaoForm, ResultadoForm
@@ -18,105 +17,64 @@ from externo.functions import *
 
 
 def home(request):
-    agora = timezone.now()
-    controle = Controle.objects.first()
-    inscricao_inicio = timezone.localtime(controle.inscricao_inicio)
-    inscricao_fim = timezone.localtime(controle.inscricao_fim)
-    vagas_disponiveis = timezone.localtime(controle.vagas_disponiveis)
-    matricula_fim = timezone.localtime(controle.matricula_fim)
-
     context = {}
 
-    if inscricao_inicio <= agora <= inscricao_fim:
-        context.update({'inscricao': inscricao_fim})
+    agora = timezone.localtime(timezone.now())
+    controle = Controle.objects.first()
+    if controle:
+        inscricao_inicio = timezone.localtime(controle.inscricao_inicio)
+        inscricao_fim = timezone.localtime(controle.inscricao_fim)
+        matricula_sorte_inicio = timezone.localtime(controle.matricula_sorte_inicio)
+        matricula_sorte_fim = timezone.localtime(controle.matricula_sorte_fim)
+        matricula_reman_inicio = timezone.localtime(controle.matricula_reman_inicio)
+        matricula_reman_fim = timezone.localtime(controle.matricula_reman_fim)
 
-    if vagas_disponiveis <= agora <= matricula_fim:
-        context.update({'matricula_fim': matricula_fim})
+        if inscricao_inicio <= agora <= inscricao_fim:
+            context.update({'inscricao': {
+                'inscricao_inicio': inscricao_inicio,
+                'inscricao_fim': inscricao_fim,
+            }})
+
+        if matricula_sorte_inicio <= agora <= matricula_reman_fim:
+            context.update({'matricula': {
+                'matricula_sorte_inicio': matricula_sorte_inicio,
+                'matricula_sorte_fim': matricula_sorte_fim,
+                'matricula_reman_inicio': matricula_reman_inicio,
+                'matricula_reman_fim': matricula_reman_fim,
+            }})
+
+        if agora > matricula_reman_fim:
+            context.update({'fim': True})
 
     return render(request, 'externo/home.html', context)
 
 
 def inscricao(request):
-    turmas = get_turmas_as_json(['curso', 'dias', 'horario', 'idade', 'escolaridade'])
-    context = {'turmas': turmas}
+    turmas = Turma.objects.select_related('unidade', 'curso').all()
+
+    dados = []
+    for turma in turmas:
+        dados.append({
+            'unidade_id': turma.unidade.id,
+            'unidade_nome': turma.unidade.nome,
+            'curso_id': turma.curso.id,
+            'curso_nome': turma.curso.nome,
+            'curso_idade': turma.curso.idade,
+            'curso_escolaridade': turma.curso.escolaridade,
+            'turma_id': turma.id,
+            'turma_dias': turma.dias,
+            'turma_horario': turma.horario()
+        })
+
+    context = {'dados': dados}
 
     if request.method == 'POST':
         form = InscricaoForm(request.POST)
         context.update({'form': form})
         if form.is_valid():
-            nome = form.cleaned_data['nome']
-            nome_pesquisa = unidecode(form.cleaned_data['nome'].upper())
-            nome_social = form.cleaned_data['nome_social']
-            nome_social_pesquisa = unidecode(form.cleaned_data['nome_social'].upper())
-            nascimento = form.cleaned_data['nascimento']
-            cpf = form.cleaned_data['cpf']
-            rg = form.cleaned_data['rg']
-            data_emissao = form.cleaned_data['data_emissao']
-            orgao_emissor = form.cleaned_data['orgao_emissor']
-            uf_emissao = form.cleaned_data['uf_emissao']
-            filiacao = form.cleaned_data['filiacao']
-            escolaridade = form.cleaned_data['escolaridade']
-            email = form.cleaned_data['email']
-            telefone = form.cleaned_data['telefone']
-            celular = form.cleaned_data['celular']
-            cep = form.cleaned_data['cep']
-            rua = form.cleaned_data['rua']
-            numero = form.cleaned_data['numero']
-            complemento = form.cleaned_data['complemento']
-            bairro = form.cleaned_data['bairro']
-            cidade = form.cleaned_data['cidade']
-            uf = form.cleaned_data['uf']
-            pcd = form.cleaned_data['pcd']
-            ps = form.cleaned_data['ps']
-            curso = form.cleaned_data['curso']
-            dias = form.cleaned_data['dias']
-            horario = form.cleaned_data['horario']
-
-            horario_entrada = horario[:5]
-            horario_saida = horario[8:]
-
-            id_turma = Turma.objects.filter(
-                Q(curso=curso) &
-                Q(dias=dias) &
-                Q(horario_entrada=horario_entrada) &
-                Q(horario_saida=horario_saida)
-            )[0]
-
-            numero_inscricao = gerar_numero_inscricao(nome, cpf, nascimento)
-
-            inscrito = Inscrito(
-                nome=nome,
-                nome_pesquisa=nome_pesquisa,
-                nome_social=nome_social if nome_social != '' else None,
-                nome_social_pesquisa=nome_social_pesquisa if nome_social_pesquisa != '' else None,
-                nascimento=datetime.datetime.strptime(nascimento, '%d/%m/%Y'),
-                cpf=re.sub(r'\D', '', cpf),
-                rg=rg if rg != '' else None,
-                data_emissao=datetime.datetime.strptime(data_emissao, '%d/%m/%Y') if data_emissao != '' else None,
-                orgao_emissor=orgao_emissor if orgao_emissor != '' else None,
-                uf_emissao=uf_emissao if uf_emissao != '' else None,
-                filiacao=filiacao,
-                escolaridade=escolaridade,
-                email=email if email != '' else None,
-                telefone=telefone if telefone != '' else None,
-                celular=celular if celular != '' else None,
-                cep=cep,
-                rua=rua,
-                numero=numero,
-                complemento=complemento if complemento != '' else None,
-                bairro=bairro,
-                cidade=cidade,
-                uf=uf,
-                pcd=pcd,
-                ps=ps,
-                ja_sorteado=False,
-                id_turma=id_turma,
-                numero_inscricao=numero_inscricao
-            )
 
             try:
-                inscrito.full_clean()
-                inscrito.save()
+                inscrito: Inscrito = form.save()
             except ValidationError as e:
                 messages.error(request, f'Candidato já inscrito.')
             except IntegrityError as e:
@@ -124,19 +82,21 @@ def inscricao(request):
             except Exception as e:
                 messages.error(request, f'Erro: {e}')
             else:
-                return render(request, 'externo/enviado_ext.html', {'inscricao': numero_inscricao})
+                return render(request, 'externo/enviado_ext.html', {'inscricao': inscrito.num_inscricao_formatado()})
 
     else:
         agora = timezone.now()
         controle = Controle.objects.first()
-        inicio = timezone.localtime(controle.inscricao_inicio)
-        fim = timezone.localtime(controle.inscricao_fim)
-        remanescente = timezone.localtime(controle.matricula_geral)
+        if controle:
+            inicio = timezone.localtime(controle.inscricao_inicio)
+            fim = timezone.localtime(controle.inscricao_fim)
+            matricula_inicio = timezone.localtime(controle.matricula_reman_inicio)
+            matricula_fim = timezone.localtime(controle.matricula_reman_fim)
 
-        if agora < inicio:
-            return render(request, 'externo/antes_inscricao.html', {'data': inicio})
-        elif agora > fim:
-            return render(request, 'externo/depois_inscricao.html', {'data_inscricao': fim, 'data_remanescente': remanescente})
+            if agora < inicio:
+                return render(request, 'externo/antes_inscricao.html', {'data': inicio})
+            elif agora > fim:
+                return render(request, 'externo/depois_inscricao.html', {'data_inscricao': fim, 'matricula_inicio': matricula_inicio, 'matricula_fim': matricula_fim})
 
         context.update({'form': InscricaoForm})
 
@@ -151,33 +111,38 @@ def editais(request):
     return render(request, 'externo/editais.html')
 
 
-def resultado(request):
-    turmas = get_turmas_as_json(['curso', 'dias', 'horario'])
-    context = {'turmas': turmas}
+def resultado(request, turma_id=None):
+    turmas = Turma.objects.select_related('unidade', 'curso').all()
+
+    dados = []
+    for turma in turmas:
+        dados.append({
+            'unidade_id': turma.unidade.id,
+            'unidade_nome': turma.unidade.nome,
+            'curso_id': turma.curso.id,
+            'curso_nome': turma.curso.nome,
+            'curso_idade': turma.curso.idade,
+            'curso_escolaridade': turma.curso.escolaridade,
+            'turma_id': turma.id,
+            'turma_dias': turma.dias,
+            'turma_horario': turma.horario()
+        })
+
+    context = {'dados': dados}
+
+    turma = get_object_or_404(Turma, id=turma_id) if turma_id else None
+
+    if turma:
+        sorteados = Inscrito.objects.filter(Q(id_turma=turma) & Q(ja_sorteado=True))
+        context.update({'sorteados': sorteados})
 
     if request.method == 'POST':
-        form = ResultadoForm(request.POST)
+        form = ResultadoForm(request.POST, turma=turma)
         context.update({'form': form})
         if form.is_valid():
-            curso = form.cleaned_data['curso']
-            dias = form.cleaned_data['dias']
-            horario = form.cleaned_data['horario']
+            id_turma = form.cleaned_data['id_turma']
 
-            horario_entrada = horario[:5]
-            horario_saida = horario[8:]
-
-            id_turma = Turma.objects.filter(
-                Q(curso=curso) &
-                Q(dias=dias) &
-                Q(horario_entrada=horario_entrada) &
-                Q(horario_saida=horario_saida)
-            )[0]
-
-            sorteados = Inscrito.objects.filter(Q(id_turma=id_turma) & Q(ja_sorteado=True))
-            if len(sorteados) == 0:
-                context.update({'sorteados': -1})
-            else:
-                context.update({'sorteados':sorteados})
+            return redirect('resultado_id', turma_id=int(id_turma.id))
 
     else:
         agora = timezone.now()
@@ -187,7 +152,7 @@ def resultado(request):
         if agora < sorteio:
             return render(request, 'externo/antes_resultado.html', {'data': sorteio})
 
-        context.update({'form': ResultadoForm})
+        context.update({'form': ResultadoForm(turma=turma)})
 
     return render(request, 'externo/resultado.html', context)
 
@@ -216,6 +181,36 @@ def resultado_id(request, id_turma):
     return render(request, 'externo/resultado.html',
                   {'cursos': cursos, 'sorteados': sorteados, 'busca': json.dumps(busca)})
 
+'''
+    CURSOS
+'''
+def info_melhor_idade(request):
+    return render(request, 'externo/cursos/info_melhor_idade.html')
+
+
+def info_basica(request):
+    return render(request, 'externo/cursos/info_basica.html')
+
+
+def excel(request):
+    return render(request, 'externo/cursos/excel.html')
+
+
+def power_bi(request):
+    return render(request, 'externo/cursos/power_bi.html')
+
+
+def montagem(request):
+    return render(request, 'externo/cursos/montagem.html')
+
+
+def man_cel(request):
+    return render(request, 'externo/cursos/man_cel.html')
+
+
+def robotica(request):
+    return render(request, 'externo/cursos/robotica.html')
+
 
 def design(request):
     return render(request, 'externo/cursos/design.html')
@@ -225,37 +220,25 @@ def educacao(request):
     return render(request, 'externo/cursos/educacao.html')
 
 
-def excel(request):
-    return render(request, 'externo/cursos/excel.html')
-
-
 def gestao(request):
     return render(request, 'externo/cursos/gestao.html')
 
 
-def info_basica(request):
-    return render(request, 'externo/cursos/info_basica.html')
+def marketing(request):
+    return render(request, 'externo/cursos/marketing.html')
 
 
-def info_melhor_idade(request):
-    return render(request, 'externo/cursos/info_melhor_idade.html')
+def marketing_emp_dig(request):
+    return render(request, 'externo/cursos/marketing_emp_dig.html')
 
 
-def marketing_digital(request):
-    return render(request, 'externo/cursos/marketing_digital.html')
+def blockchain(request):
+    return render(request, 'externo/cursos/blockchain.html')
 
 
-def marketing_emp(request):
-    return render(request, 'externo/cursos/marketing_emp.html')
-
-
-def montagem(request):
-    return render(request, 'externo/cursos/montagem.html')
-
-
-def robotica(request):
-    return render(request, 'externo/cursos/robotica.html')
-
+'''
+    DOWNLOADS
+'''
 
 def download_validadores(request):
     planilhas_dir = os.path.join(settings.MEDIA_ROOT, 'sorteio')

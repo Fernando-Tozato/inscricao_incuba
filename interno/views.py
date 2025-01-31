@@ -1,101 +1,92 @@
-import re
-import threading
-
-from django.utils import timezone
-from unidecode import unidecode
-import datetime
-import json
-import os
-import time
-import zipfile
-from io import BytesIO
-
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth.tokens import default_token_generator
 from django.core.exceptions import ValidationError
-from django.core.mail import EmailMultiAlternatives
-from django.db.models import Sum, Q
+from django.core.serializers.json import DjangoJSONEncoder
+from django.db.models import Count
+from django.db.models.functions import TruncDate
 from django.db.utils import IntegrityError
-from django.http import HttpResponse, Http404
-from django.http import JsonResponse
-from django.shortcuts import render, redirect
-from django.utils.encoding import force_bytes
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.views.decorators.csrf import csrf_protect
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import render, redirect, get_object_or_404
+from django.utils.http import urlsafe_base64_decode
 
-from externo.functions import get_turmas_as_json
 from .forms import *
 from .functions import *
 from .tasks import *
-from .criar_planilhas_coord import *
 
-def loop(request):
-    while True:
-        time.sleep(1)
-        data_sorteio = Controle.objects.first().sorteio_data  # type: ignore
-        matricula_sorteados = Controle.objects.first().matricula_sorteados  # type: ignore
-        agora = timezone.now()
-        if agora >= data_sorteio:  # type: ignore
-            if matricula_sorteados <= agora:
-                print('tarde')
-                break
-            print('na hora')
-            # sortear()
 
-            # inscritos = Inscrito.objects.exclude(email__isnull=True)
-            # num_threads = 10
-            # num_inscritos_por_thread = len(inscritos) // num_threads
-            # threads = []
+def test(request):
+    agora = timezone.now()
 
-            # for i in range(num_threads): thread = threading.Thread(target=avisar_sorteados, args=[request,
-            # inscritos[num_inscritos_por_thread * i: num_inscritos_por_thread * (i + 1)]]) threads.append(thread)
+    sortear.apply_async(eta=agora + timedelta(seconds=10))
 
-            # if i + 1 == num_threads: thread = threading.Thread(target=avisar_sorteados, args=[request, inscritos[
-            # num_inscritos_por_thread * (i + 1):]]) threads.append(thread)
-
-            # for thread in threads:
-            #     thread.daemon = True
-            #     thread.start()
-
-            inscritos = Inscrito.objects.exclude(email__isnull=True)
-
-            sorteados = inscritos.filter(ja_sorteado=True)
-            nao_sorteados = inscritos.filter(ja_sorteado=False)
-
-            emails_sorteados = [sorteado.email for sorteado in sorteados]
-            emails_nao_sorteados = [nao_sorteado.email for nao_sorteado in nao_sorteados]
-
-            avisar_sorteados(request, ['tozato.fernando2004@gmail.com'], True)
-            # avisar_sorteados(request, emails_nao_sorteados, False)
-
-            break
-        print('cedo')
+    return HttpResponse("test")
 
 
 @login_required
-def busca_de_inscrito(request):
-    vagas = Turma.objects.values('curso').annotate(vagas=(Sum('vagas') - Sum('num_alunos')))
+def estatisticas(request):
+    controle = Controle.objects.first()
+    if not controle:
+        return redirect('controle_datetimes')
+    return render(request, 'interno/estatisticas.html')
 
-    context = {'vagas': vagas}
+
+def get_estatisticas(request):
+    inscritos = Inscrito.objects.all() \
+        .annotate(date=TruncDate('data_inscricao')) \
+        .values('date') \
+        .annotate(count=Count('id')) \
+        .order_by('date')
+
+    alunos = Aluno.objects.all() \
+        .annotate(date=TruncDate('data_matricula')) \
+        .values('date') \
+        .annotate(count=Count('id')) \
+        .order_by('date')
+
+    data = {
+        'inscritos': list(inscritos),
+        'alunos': list(alunos)
+    }
+
+    return JsonResponse(data)
+
+
+# noinspection PyTypeChecker
+@login_required
+def inscrito(request):
+    cursos = Curso.objects.values('id', 'nome')
+
+    for curso in cursos:
+        turmas_centro = Turma.objects.filter(curso_id=curso['id'], unidade_id=1)
+        turmas_inoa = Turma.objects.filter(curso_id=curso['id'], unidade_id=2)
+
+        vagas_centro = 0
+        vagas_inoa = 0
+        for turma in turmas_centro:
+            vagas_centro += turma.vagas_restantes()
+
+
+        print(f'Curso: {curso["nome"]} | Vagas Centro: {vagas_centro} | Vagas Inoa: {vagas_inoa}\n\n')
+
+    context = {}
 
     if request.method == 'POST':
         form = BuscaForm(request.POST)
         if form.is_valid():
             busca = form.cleaned_data['busca']
 
-            if any(char.isalpha() for char in busca):
+            if any(char.isdigit() for char in busca):
+                busca = re.sub(r'\D', '', busca)
+                resultado_cpf = Inscrito.objects.filter(cpf__contains=busca)
+                resultado_inscricao = Inscrito.objects.filter(numero_inscricao__contains=busca)
+                inscritos = resultado_cpf | resultado_inscricao
+            else:
                 busca = unidecode(busca.upper())
                 resultados_nome_social = Inscrito.objects.filter(nome_social_pesquisa__contains=busca)
                 resultados_nome = (Inscrito.objects.filter(nome_pesquisa__contains=busca)
                                    .filter(Q(nome_social='') | Q(nome_social__isnull=True)))
                 inscritos = resultados_nome_social | resultados_nome
-            else:
-                busca = re.sub(r'\D', '', busca)
-
-                inscritos = Inscrito.objects.filter(cpf__contains=busca)
 
             inscritos = verificar_inscritos(request, inscritos)
 
@@ -103,126 +94,65 @@ def busca_de_inscrito(request):
         context.update({'form': form})
     else:
         context.update({'form': BuscaForm})
-    return render(request, 'interno/busca_de_inscrito.html', context)
+    return render(request, 'interno/inscrito.html', context)
 
 
 @login_required
 def matricula(request, inscrito_id=None):
-    turmas: str = get_turmas_as_json(['curso', 'dias', 'horario', 'idade', 'escolaridade'])
-    context: dict[str: str | MatriculaForm] = {'turmas': turmas}
+    turmas = Turma.objects.select_related('unidade', 'curso').all()
+
+    dados = []
+    for turma in turmas:
+        dados.append({
+            'unidade_id': turma.unidade.id,
+            'unidade_nome': turma.unidade.nome,
+            'curso_id': turma.curso.id,
+            'curso_nome': turma.curso.nome,
+            'curso_idade': turma.curso.idade,
+            'curso_escolaridade': turma.curso.escolaridade,
+            'turma_id': turma.id,
+            'turma_dias': turma.dias,
+            'turma_horario': turma.horario()
+        })
+
+    context = {'dados': dados}
+
+    inscrito = get_object_or_404(Inscrito, id=inscrito_id) if inscrito_id else None
 
     if request.method == 'POST':
-        form = MatriculaForm(request.POST, inscrito=get_object_or_404(Inscrito, id=inscrito_id) if inscrito_id else None)
+        form = MatriculaForm(request.POST, inscrito=inscrito.dict_for_matricula() if inscrito_id else None)
         context.update({'form': form})
 
-        print(request.POST)
-
         if form.is_valid():
-
-            nome = form.cleaned_data['nome']
-            nome_pesquisa = unidecode(form.cleaned_data['nome'].upper())
-            nome_social = form.cleaned_data['nome_social']
-            nome_social_pesquisa = unidecode(form.cleaned_data['nome_social'].upper())
-            nascimento = form.cleaned_data['nascimento']
-            cpf = form.cleaned_data['cpf']
-            rg = form.cleaned_data['rg']
-            data_emissao = form.cleaned_data['data_emissao']
-            orgao_emissor = form.cleaned_data['orgao_emissor']
-            uf_emissao = form.cleaned_data['uf_emissao']
-            filiacao = form.cleaned_data['filiacao']
-            escolaridade = form.cleaned_data['escolaridade']
-            observacoes = form.cleaned_data['observacoes']
-            email = form.cleaned_data['email']
-            telefone = form.cleaned_data['telefone']
-            celular = form.cleaned_data['celular']
-            cep = form.cleaned_data['cep']
-            rua = form.cleaned_data['rua']
-            numero = form.cleaned_data['numero']
-            complemento = form.cleaned_data['complemento']
-            bairro = form.cleaned_data['bairro']
-            cidade = form.cleaned_data['cidade']
-            uf = form.cleaned_data['uf']
-            pcd = form.cleaned_data['pcd']
-            ps = form.cleaned_data['ps']
-            curso = form.cleaned_data['curso']
-            dias = form.cleaned_data['dias']
-            horario = form.cleaned_data['horario']
-
-            horario_entrada = horario[:5]
-            horario_saida = horario[8:]
-
-            id_turma = Turma.objects.filter(
-                Q(curso=curso) &
-                Q(dias=dias) &
-                Q(horario_entrada=horario_entrada) &
-                Q(horario_saida=horario_saida)
-            )[0]
-
-            aluno = Aluno(
-                nome=nome,
-                nome_pesquisa=nome_pesquisa,
-                nome_social=nome_social if nome_social != '' else None,
-                nome_social_pesquisa=nome_social_pesquisa if nome_social_pesquisa != '' else None,
-                nascimento=datetime.datetime.strptime(nascimento, '%d/%m/%Y'),
-                cpf=re.sub(r'\D', '', cpf),
-                rg=rg if rg != '' else None,
-                data_emissao=datetime.datetime.strptime(data_emissao, '%d/%m/%Y') if data_emissao != '' else None,
-                orgao_emissor=orgao_emissor if orgao_emissor != '' else None,
-                uf_emissao=uf_emissao if uf_emissao != '' else None,
-                filiacao=filiacao,
-                escolaridade=escolaridade,
-                observacoes=observacoes if observacoes != '' else None,
-                email=email if email != '' else None,
-                telefone=telefone if telefone != '' else None,
-                celular=celular if celular != '' else None,
-                cep=cep,
-                rua=rua,
-                numero=numero,
-                complemento=complemento if complemento != '' else None,
-                bairro=bairro,
-                cidade=cidade,
-                uf=uf,
-                pcd=pcd,
-                ps=ps,
-                id_turma=id_turma
-            )
-
             try:
-                if matricula_valida(request):
-                    id_turma.num_alunos += 1
-
-                    aluno.full_clean()
-                    aluno.save()
-
-                    id_turma.full_clean()
-                    id_turma.save()
-                else:
-                    messages.error(request, 'Turma cheia.')
-                    return render(request, 'interno/matricula.html', context)
+                aluno = form.save()
             except ValidationError as e:
-                messages.error(request, f'Aluno já matriculado.')
+                messages.error(request, f'Aluno já matriculado.\n{e}')
             except IntegrityError as e:
-                messages.error(request, f'Erro de integridade: {e}')
+                messages.error(request, f'Aluno já matriculado.\n{e}')
             except Exception as e:
-                messages.error(request, f'Erro: {e}')
+                messages.error(request, f'Erro:\n{e}')
             else:
+                aluno.id_turma.num_alunos += 1
+                aluno.id_turma.save()
                 return render(request, 'interno/enviado_int.html')
 
         else:
             print('invalid')
             print(form.errors)
     else:
-        context.update({'form': MatriculaForm(inscrito=get_object_or_404(Inscrito, id=inscrito_id) if inscrito_id else None)})
+        context.update({'form': MatriculaForm(inscrito=inscrito.dict_for_matricula() if inscrito_id else None)})
     return render(request, 'interno/matricula.html', context)
 
 
 @login_required
-def enviado(request):
+def enviado_int(request):
     return render(request, 'interno/enviado_int.html')
 
 
+@user_passes_test(is_allowed)
 @login_required
-def busca_de_aluno(request):
+def aluno(request):
     context = {}
 
     if request.method == 'POST':
@@ -245,87 +175,287 @@ def busca_de_aluno(request):
         context.update({'form': form})
     else:
         context.update({'form': BuscaForm})
-    return render(request, 'interno/busca_de_aluno.html', context)
+    return render(request, 'interno/aluno.html', context)
 
 
+@user_passes_test(is_allowed)
 @login_required
-def editar_aluno(request, aluno_id=None):
-    turmas: str = get_turmas_as_json(['curso', 'dias', 'horario', 'idade', 'escolaridade'])
-    context: dict[str: str | MatriculaForm] = {'turmas': turmas}
+def aluno_editar(request, aluno_id=None):
+    turmas = Turma.objects.select_related('unidade', 'curso').all()
 
-    aluno = get_object_or_404(Aluno, id=aluno_id) if aluno_id else None
+    dados = []
+    for turma in turmas:
+        dados.append({
+            'unidade_id': turma.unidade.id,
+            'unidade_nome': turma.unidade.nome,
+            'curso_id': turma.curso.id,
+            'curso_nome': turma.curso.nome,
+            'curso_idade': turma.curso.idade,
+            'curso_escolaridade': turma.curso.escolaridade,
+            'turma_id': turma.id,
+            'turma_dias': turma.dias,
+            'turma_horario': turma.horario()
+        })
 
-    turma_old = aluno.id_turma
+    context = {'dados': dados}
+
+    aluno = None
+    if aluno_id:
+        aluno = get_object_or_404(Aluno, id=aluno_id)
+        context.update({'id_aluno': aluno.id})
 
     if request.method == 'POST':
-        form = MatriculaForm(request.POST, inscrito=aluno)
+        form = MatriculaForm(request.POST, instance=aluno)
+        context.update({'form': form})
+
+        aluno.id_turma.num_alunos -= 1
+        aluno.id_turma.save()
+
+        if form.is_valid():
+            try:
+                if is_allowed(request.user):
+                    aluno = form.save()
+                else:
+                    messages.error(request, 'Você não tem permissão para executar essa ação.')
+            except ValidationError as e:
+                messages.error(request, f'Erro de validação: {e}')
+            except IntegrityError as e:
+                messages.error(request, f'Erro de integridade: {e}')
+            except Exception as e:
+                messages.error(request, f'Erro ao salvar dados: {e}')
+            else:
+                aluno.id_turma.num_alunos += 1
+                aluno.id_turma.save()
+                return redirect('aluno')
+        else:
+            messages.error(request, 'Formulário inválido. Verifique os erros abaixo.')
+    else:
+        form = MatriculaForm(instance=aluno)
+        context.update({'form': form})
+
+    return render(request, 'interno/editar_aluno.html', context)
+
+
+@user_passes_test(is_allowed)
+@login_required
+def aluno_excluir(request, aluno_id=None):
+    aluno = get_object_or_404(Aluno, id=aluno_id) if aluno_id else None
+
+    if request.method == 'POST':
+        aluno.delete()
+        return redirect('aluno')
+    return redirect('aluno_editar', aluno_id=aluno.id)
+
+
+@user_passes_test(is_allowed)
+@login_required
+def unidade(request):
+    return render(request, 'interno/ver_unidades.html', {'unidades': Unidade.objects.all()})
+
+
+@user_passes_test(is_allowed)
+@login_required
+def unidade_criar(request):
+    context = {}
+
+    if request.method == 'POST':
+        form = UnidadeForm(request.POST)
+        context.update({'form': form})
+        if form.is_valid():
+            try:
+                form.save()
+            except IntegrityError as e:
+                messages.error(request,
+                               f'Houve um problema com os dados inseridos. Contate a equipe de suporte.\n\nErro: {e}')
+            except Exception as e:
+                messages.error(request, f'Erro: {e}')
+            else:
+                return redirect('unidade')
+
+    else:
+        context.update({'form': UnidadeForm})
+
+    return render(request, 'interno/unidade.html', context)
+
+
+@user_passes_test(is_allowed)
+@login_required
+def unidade_editar(request, unidade_id=None):
+    context = {}
+
+    unidade = get_object_or_404(Unidade, id=unidade_id) if unidade_id else None
+    context.update({'id_unidade': unidade.id})
+
+    if request.method == 'POST':
+        form = UnidadeForm(request.POST, instance=unidade)
         context.update({'form': form})
 
         if form.is_valid():
             try:
-                # Atualizar manualmente os campos do objeto Aluno
-                aluno.nome = form.cleaned_data['nome']
-                aluno.nome_social = form.cleaned_data['nome_social']
-                aluno.nascimento = datetime.datetime.strptime(form.cleaned_data['nascimento'], '%d/%m/%Y')
-                aluno.cpf = re.sub(r'\D', '', form.cleaned_data['cpf'])
-                aluno.rg = form.cleaned_data['rg']
-                aluno.data_emissao = datetime.datetime.strptime(form.cleaned_data['data_emissao'], '%d/%m/%Y') if \
-                form.cleaned_data['data_emissao'] else None
-                aluno.orgao_emissor = form.cleaned_data['orgao_emissor']
-                aluno.uf_emissao = form.cleaned_data['uf_emissao']
-                aluno.filiacao = form.cleaned_data['filiacao']
-                aluno.escolaridade = form.cleaned_data['escolaridade']
-                aluno.observacoes = form.cleaned_data['observacoes']
-                aluno.email = form.cleaned_data['email']
-                aluno.telefone = form.cleaned_data['telefone']
-                aluno.celular = form.cleaned_data['celular']
-                aluno.cep = form.cleaned_data['cep']
-                aluno.rua = form.cleaned_data['rua']
-                aluno.numero = form.cleaned_data['numero']
-                aluno.complemento = form.cleaned_data['complemento']
-                aluno.bairro = form.cleaned_data['bairro']
-                aluno.cidade = form.cleaned_data['cidade']
-                aluno.uf = form.cleaned_data['uf']
-                aluno.pcd = form.cleaned_data['pcd']
-                aluno.ps = form.cleaned_data['ps']
+                if is_allowed(request.user):
+                    form.save()
 
-                # Verificando os dados da turma
-                curso = form.cleaned_data['curso']
-                dias = form.cleaned_data['dias']
-                horario = form.cleaned_data['horario']
-                horario_entrada = horario[:5]
-                horario_saida = horario[8:]
+                    return redirect('unidade')
+                else:
+                    messages.error(request, 'Você não tem permissão para executar essa ação.')
+            except ValidationError as e:
+                messages.error(request, f'Erro de validação: {e}')
+            except IntegrityError as e:
+                messages.error(request, f'Erro de integridade: {e}')
+            except Exception as e:
+                messages.error(request, f'Erro ao salvar dados: {e}')
+        else:
+            messages.error(request, 'Formulário inválido. Verifique os erros abaixo.')
+    else:
+        form = UnidadeForm(instance=unidade)
+        context.update({'form': form})
 
-                # Buscar a turma com base nos critérios
-                id_turma = Turma.objects.filter(
-                    Q(curso=curso) &
-                    Q(dias=dias) &
-                    Q(horario_entrada=horario_entrada) &
-                    Q(horario_saida=horario_saida)
-                ).first()
+    return render(request, 'interno/unidade.html', context)
 
-                if id_turma and matricula_valida(request):
-                    aluno.id_turma = id_turma
 
-                    aluno.full_clean()
-                    aluno.save()
+@user_passes_test(is_allowed)
+@login_required
+def unidade_excluir(request, unidade_id=None):
+    unidade = get_object_or_404(Unidade, id=unidade_id) if unidade_id else None
 
-                    print(f'\n\n\n\nold: {turma_old.pk}\nnew: {id_turma.pk}')
-                    if turma_old != id_turma:
-                        print("diferente")
-                        turma_old.num_alunos -= 1
-                        print(f'old: {turma_old.num_alunos}')
-                        turma_old.full_clean()
-                        turma_old.save()
+    if request.method == 'POST':
+        unidade.delete()
+        return redirect('unidade')
+    return redirect('unidade_editar', unidade_id=unidade.id)
 
-                    # Atualizar a turma
-                    id_turma.num_alunos += 1
-                    print(f'new: {id_turma.num_alunos}')
-                    id_turma.full_clean()
-                    id_turma.save()
 
-                    messages.success(request, 'Dados do aluno atualizados com sucesso!')
-                    return render(request, 'interno/enviado_int.html')
+@user_passes_test(is_allowed)
+@login_required
+def curso(request):
+    return render(request, 'interno/ver_cursos.html', {'cursos': Curso.objects.all()})
+
+
+@user_passes_test(is_allowed)
+@login_required
+def curso_criar(request):
+    context = {}
+
+    if request.method == 'POST':
+        form = CursoForm(request.POST)
+        context.update({'form': form})
+        if form.is_valid():
+
+            try:
+                form.save()
+            except IntegrityError as e:
+                messages.error(request,
+                               f'Houve um problema com os dados inseridos. Contate a equipe de suporte.\n\nErro: {e}')
+            except Exception as e:
+                messages.error(request, f'Erro: {e}')
+            else:
+                return redirect('curso')
+
+    else:
+        context.update({'form': CursoForm})
+
+    return render(request, 'interno/curso.html', context)
+
+
+@user_passes_test(is_allowed)
+@login_required
+def curso_editar(request, curso_id=None):
+    context = {}
+
+    curso = get_object_or_404(Curso, id=curso_id) if curso_id else None
+    context.update({'id_curso': curso.id})
+
+    if request.method == 'POST':
+        form = CursoForm(request.POST, instance=curso)
+        context.update({'form': form})
+
+        if form.is_valid():
+            try:
+                if is_allowed(request.user):
+                    form.save()
+
+                    messages.success(request, 'Dados da curso atualizados com sucesso!')
+                    return redirect('curso')
+                else:
+                    messages.error(request, 'Você não tem permissão para executar essa ação.')
+            except ValidationError as e:
+                messages.error(request, f'Erro de validação: {e}')
+            except IntegrityError as e:
+                messages.error(request, f'Erro de integridade: {e}')
+            except Exception as e:
+                messages.error(request, f'Erro ao salvar dados: {e}')
+        else:
+            messages.error(request, 'Formulário inválido. Verifique os erros abaixo.')
+    else:
+        form = CursoForm(instance=curso)
+        context.update({'form': form})
+
+    return render(request, 'interno/curso.html', context)
+
+
+@user_passes_test(is_allowed)
+@login_required
+def curso_excluir(request, curso_id=None):
+    curso = get_object_or_404(Curso, id=curso_id) if curso_id else None
+
+    if request.method == 'POST':
+        curso.delete()
+        return redirect('curso')
+    return redirect('curso_editar', curso_id=curso.id)
+
+
+@login_required
+def turma(request):
+    return render(request, 'interno/ver_turmas.html', {'turmas': Turma.objects.all()})
+
+
+@user_passes_test(is_allowed)
+@login_required
+def turma_criar(request):
+    context = {"cursos": list(Curso.objects.all().values('id', 'unidades__id')),
+               'unidades': list(Unidade.objects.all().values('id', 'nome'))}
+
+    if request.method == 'POST':
+        form = TurmaForm(request.POST)
+        context.update({'form': form})
+        if form.is_valid():
+            try:
+                form.save()
+            except IntegrityError as e:
+                messages.error(request,
+                               f'Houve um problema com os dados inseridos. Contate a equipe de suporte.\n\nErro: {e}')
+            except Exception as e:
+                messages.error(request, f'Erro: {e}')
+            else:
+                return redirect('turma')
+
+    else:
+        context.update({'form': TurmaForm})
+
+    return render(request, 'interno/turma.html', context)
+
+
+@user_passes_test(is_allowed)
+@login_required
+def turma_editar(request, turma_id=None):
+    cursos = list(Curso.objects.all().values('id', 'unidades__id'))
+    unidades = list(Unidade.objects.all().values('id', 'nome'))
+    context = {"cursos": json.dumps(cursos, cls=DjangoJSONEncoder),
+               "unidades": json.dumps(unidades, cls=DjangoJSONEncoder)}
+
+    turma = get_object_or_404(Turma, id=turma_id) if turma_id else None
+    context.update({'id_turma': turma.id})
+
+    if request.method == 'POST':
+        form = TurmaForm(request.POST, instance=turma)
+        context.update({'form': form})
+
+        if form.is_valid():
+            try:
+                if is_allowed(request.user):
+                    form.save()
+
+                    messages.success(request, 'Dados da turma atualizados com sucesso!')
+                    return redirect('turma')
                 else:
                     messages.error(request, 'Você não tem permissão para executar essa ação.')
             except ValidationError as e:
@@ -338,149 +468,112 @@ def editar_aluno(request, aluno_id=None):
             messages.error(request, 'Formulário inválido. Verifique os erros abaixo.')
     else:
         # Preencher o formulário com os dados do aluno existente
-        form = MatriculaForm(inscrito=aluno)
+        form = TurmaForm(instance=turma)
         context.update({'form': form})
 
-    return render(request, 'interno/editar_aluno.html', context)
-
-
-@login_required
-def turma(request):
-    return render(request, 'interno/turma.html', {'turmas': Turma.objects.all()})
+    return render(request, 'interno/turma.html', context)
 
 
 @user_passes_test(is_allowed)
 @login_required
-def turma_novo(request):
-    return render(request, 'interno/turma_novo.html')
+def turma_excluir(request, turma_id=None):
+    turma = get_object_or_404(Turma, id=turma_id) if turma_id else None
 
-
-@user_passes_test(is_allowed)
-@login_required
-def turma_editar(request, turma_id):
-    turma = get_object_or_404(Turma, id=turma_id)
-    return render(request, 'interno/turma_editar.html', {'turma': turma})
-
-
-@csrf_protect
-def turma_criar(request):
     if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-
-            curso = data['curso']
-            dias = data['dias']
-            entrada = datetime.strptime(data['entrada'], '%H:%M')
-            saida = datetime.strptime(data['saida'], '%H:%M')
-            vagas = data['vagas']
-            escolaridade = data['escolaridade']
-            idade = data['idade']
-            professor = data['professor']
-
-            turma = Turma(
-                curso=curso,
-                dias=dias,
-                horario_entrada=entrada,
-                horario_saida=saida,
-                vagas=vagas,
-                escolaridade=escolaridade,
-                idade=idade,
-                professor=professor
-            )
-
-            try:
-                turma.full_clean()
-                turma.save()
-                return JsonResponse({'success': 'Sucesso no envio'}, status=200)
-            except ValidationError as e:
-                return JsonResponse({'error': e.message_dict}, status=400)
-        except json.JSONDecodeError:
-            return JsonResponse({'error': 'Dados JSON inválidos'}, status=400)
-    else:
-        return JsonResponse({'error': 'Método não permitido'}, status=405)
-
-
-@csrf_protect
-def turma_view_editar(request):
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-        except json.JSONDecodeError:
-            return JsonResponse({'error': 'Dados JSON inválidos'}, status=400)
-
-        turma_id = data.get('id')
-        if not turma_id:
-            return JsonResponse({'error': 'ID inválido'}, status=400)
-
-        try:
-            turma = Turma.objects.get(id=turma_id)
-        except Turma.DoesNotExist:
-            return JsonResponse({'error': 'Turma não encontrada'}, status=404)
-
-        updated_fields = []
-        for field, value in data.items():
-            if field == 'id':
-                continue
-            if hasattr(turma, field) and getattr(turma, field) != value:
-                setattr(turma, field, value)
-                updated_fields.append(field)
-
-        if not updated_fields:
-            return JsonResponse({'Sucesso': 'Sem mudanças detectadas'}, status=200)
-
-        turma.save(update_fields=updated_fields)
-
-        return JsonResponse({'Sucesso': 'Sucesso na atualização'}, status=200)
-    else:
-        return JsonResponse({'error': 'Método não permitido'}, status=400)
+        turma.delete()
+        return redirect('turma')
+    return redirect('turma_editar', turma_id=turma.id)
 
 
 @user_passes_test(is_allowed)
 @login_required
 def controle(request):
+    context = {
+        'form': EmailForm(),
+        'sorteio': sorteio_realizado()
+    }
+
+    return render(request, 'interno/controle.html', context)
+
+
+@user_passes_test(is_allowed)
+@login_required
+def controle_datetimes(request):
     controle = Controle.objects.first()
 
+    context = {}
+
     if request.method == 'POST':
-        inscricao_inicio = request.POST.get('inscricao_inicio')
-        inscricao_fim = request.POST.get('inscricao_fim')
-        sorteio_data = request.POST.get('sorteio_data')
-        matricula_sorteados = request.POST.get('matricula_sorteados')
-        matricula_geral = request.POST.get('matricula_geral')
-        matricula_fim = request.POST.get('matricula_fim')
-        aulas_inicio = request.POST.get('aulas_inicio')
-        aulas_fim = request.POST.get('aulas_fim')
+        form = ControleForm(request.POST, instance=controle)
+        context.update({'form': form})
 
-        if controle:
-            controle.inscricao_inicio = inscricao_inicio
-            controle.inscricao_fim = inscricao_fim
-            controle.sorteio_data = sorteio_data
-            controle.matricula_sorteados = matricula_sorteados
-            controle.matricula_geral = matricula_geral
-            controle.matricula_fim = matricula_fim
-            controle.aulas_inicio = aulas_inicio
-            controle.aulas_fim = aulas_fim
-            controle.save()
-        else:
-            Controle.objects.create(
-                inscricao_inicio=inscricao_inicio,
-                inscricao_fim=inscricao_fim,
-                sorteio_data=sorteio_data,
-                matricula_sorteados=matricula_sorteados,
-                matricula_geral=matricula_geral,
-                matricula_fim=matricula_fim,
-                aulas_inicio=aulas_inicio,
-                aulas_fim=aulas_fim
-            )
+        if form.is_valid():
+            try:
+                print('saving')
+                form.save()
 
-        thread = threading.Thread(target=loop, args=[request])
-        thread.daemon = True
-        thread.start()
+            except IntegrityError as e:
+                messages.error(request,f'Houve um problema com os dados inseridos. Contate a equipe de suporte.\n\nErro: {e}')
+            except Exception as e:
+                messages.error(request, f'Erro: {e}')
+            else:
+                return redirect('controle')
 
-        return redirect('busca_de_inscrito')
+    else:
+        form = ControleForm(instance=controle if controle else None)
+        context.update({'form': form})
 
-    return render(request, 'interno/controle.html', {'controle': controle})
+    return render(request, 'interno/controle_datetimes.html', context)
+
+def planilhas(request):
+    context = {}
+
+    if request.method == 'POST':
+        form = EmailForm(request.POST)
+        context.update({'form': form})
+        if form.is_valid():
+            try:
+                email = form.cleaned_data['email']
+
+                preparar_planilhas.delay(email)
+            except IntegrityError as e:
+                messages.error(request, f'Houve um problema com os dados inseridos. Contate a equipe de suporte.\n\nErro: {e}')
+
+            except Exception as e:
+                messages.error(request, f'Erro: {e}')
+            else:
+                context.update({'response': f'Planilhas enviadas com sucesso para {email}!'})
+                context['form'] = EmailForm()
+
+    return render(request, 'interno/controle.html', context)
 
 
+def logs(request):
+    context = {}
+
+    if request.method == 'POST':
+        form = EmailForm(request.POST)
+        context.update({'form': form})
+        if form.is_valid():
+            try:
+                email = form.cleaned_data['email']
+
+                preparar_log.delay(email)
+            except IntegrityError as e:
+                messages.error(request, f'Houve um problema com os dados inseridos. Contate a equipe de suporte.\n\nErro: {e}')
+
+            except Exception as e:
+                messages.error(request, f'Erro: {e}')
+            else:
+                context.update({'response': f'Log de registro enviado com sucesso para {email}!'})
+                context['form'] = EmailForm()
+
+    return render(request, 'interno/controle.html', context)
+
+
+'''
+    AUTENTICAÇÃO
+'''
 def login_view(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
@@ -490,7 +583,7 @@ def login_view(request):
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
-                return redirect('busca_de_inscrito')
+                return redirect('estatisticas')
     else:
         form = LoginForm()
     return render(request, 'interno/accounts/login.html', {'form': form})
@@ -522,8 +615,7 @@ def reset_password_view(request):
             if users.exists():
                 for user in users:
                     subject = "Alteração de Senha"
-                    email_template_name = "interno/password_reset_email.html"
-                    c = {
+                    content = render_to_string("emails/password_reset_email.html", {
                         "email": user.email,
                         'domain': get_current_site(request).domain,
                         'site_name': 'Incubadora de Robótica',
@@ -531,11 +623,8 @@ def reset_password_view(request):
                         "user": user,
                         'token': default_token_generator.make_token(user),
                         'protocol': 'http',
-                    }
-                    email_content = render_to_string(email_template_name, c)
-                    email_message = EmailMultiAlternatives(subject, '', 'nao_responda@incubarobotica.com.br', [user.email])
-                    email_message.attach_alternative(email_content, "text/html")
-                    email_message.send()
+                    })
+                    enviar_emails.delay([email], content, subject, True)
                 return redirect('reset_password_sent')
     else:
         form = CustomPasswordResetForm()
@@ -554,15 +643,15 @@ def reset_password_confirm_view(request, uidb64, token):
         user = None
 
     if user is not None and default_token_generator.check_token(user, token):
-        print('ok')
         if request.method == 'POST':
-            print('ok')
             form = CustomSetPasswordForm(user, request.POST)
-            print('ok')
             if form.is_valid():
-                form.save()
-                print('ok')
+                try:
+                    form.save()
+                except Exception as e:
+                    print(e)
                 return redirect('reset_password_complete')
+
         else:
             form = CustomSetPasswordForm(user)
         return render(request, 'interno/accounts/password_reset_confirm.html', {'form': form})
@@ -574,109 +663,8 @@ def reset_password_complete_view(request):
     return render(request, 'interno/accounts/password_reset_complete.html')
 
 
-def planilhas(request):
-    planilhas_dir = os.path.join(settings.MEDIA_ROOT, 'planilhas')
-
-    if not os.path.exists(planilhas_dir):
-        print('planilhas não existe')
-        raise Http404("A pasta 'planilhas' não foi encontrada")
-    print('planilhas existe')
-
-    filenames = os.listdir(planilhas_dir)
-
-    if not filenames:
-        print('planilhas vazio')
-        gerar_planilhas()
-        filenames = os.listdir(planilhas_dir)
-        if not filenames:
-            print('planilhas não geradas')
-            raise Http404("Não foi possível gerar as planilhas")
-        print('planilhas criadas')
-    print('planilhas não vazio')
-
-    zip_subdir = "planilhas"
-    zip_filename = f"{zip_subdir}.zip"
-
-    buffer = BytesIO()
-
-    with zipfile.ZipFile(buffer, "w") as zf:
-        for filename in filenames:
-            file_path = os.path.join(planilhas_dir, filename)
-            if os.path.exists(file_path):
-                with open(file_path, 'rb') as f:
-                    zip_path = os.path.join(zip_subdir, filename)
-                    zf.writestr(zip_path, f.read())
-            else:
-                raise Http404(f"{filename} não encontrado")
-
-    buffer.seek(0)
-
-    response = HttpResponse(buffer, content_type="application/zip")
-    response['Content-Disposition'] = f'attachment; filename={zip_filename}'
-
-    return response
-
-
 def sorteio(request):
-    print('inicio sorteio')
-    sortear()
-    print('fim sorteio')
+    agora = timezone.now()
 
-    # inscritos = Inscrito.objects.exclude(email__isnull=True)
-    #
-    # sorteados = inscritos.filter(ja_sorteado=True)
-    # nao_sorteados = inscritos.filter(ja_sorteado=False)
-    #
-    # emails_sorteados = [sorteado.email for sorteado in sorteados]
-    # emails_nao_sorteados = [nao_sorteado.email for nao_sorteado in nao_sorteados]
-    #
-    # print(emails_sorteados)
-    # print(emails_nao_sorteados)
-    #
-    # avisar_sorteados(request, emails_sorteados, True)
-    # avisar_sorteados(request, emails_nao_sorteados, False)
-
-    return redirect('resultado')
-
-
-def planilha_coord(request):
-    planilhas_dir = os.path.join(settings.MEDIA_ROOT, 'planilha_coord')
-
-    if not os.path.exists(planilhas_dir):
-        print('planilha_coord não existe')
-        raise Http404("A pasta 'planilha_coord' não foi encontrada")
-    print('planilha_coord existe')
-
-    filenames = os.listdir(planilhas_dir)
-
-    if not filenames:
-        print('planilha_coord vazio')
-        gerar_planilha_coord()
-        filenames = os.listdir(planilhas_dir)
-        if not filenames:
-            print('planilha_coord não gerada')
-            raise Http404("Não foi possível gerar a planilha")
-        print('planilha_coord criadas')
-    print('planilha_coord não vazio')
-
-    zip_subdir = "planilha_coord"
-    zip_filename = f"{zip_subdir}.zip"
-
-    buffer = BytesIO()
-
-    with zipfile.ZipFile(buffer, "w") as zf:
-        for filename in filenames:
-            file_path = os.path.join(planilhas_dir, filename)
-            if os.path.exists(file_path):
-                with open(file_path, 'rb') as f:
-                    zip_path = os.path.join(zip_subdir, filename)
-                    zf.writestr(zip_path, f.read())
-            else:
-                raise Http404(f"{filename} não encontrado")
-
-    buffer.seek(0)
-
-    response = HttpResponse(buffer, content_type="application/zip")
-    response['Content-Disposition'] = f'attachment; filename={zip_filename}'
-
-    return response
+    sortear.apply_async(eta=agora + timedelta(seconds=10))
+    return redirect('estatisticas')

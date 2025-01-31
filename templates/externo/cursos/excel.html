@@ -4,43 +4,93 @@
 
 {% load static %}
 
+{% block style %}
+    <link rel="stylesheet" href="{% static 'css/cursos.css' %}">
+{% endblock %}
+
 {% block content %}
-    <div class="container my-5 px-5">
-        <div class="row">
-            <div class="col-sm px-0 me-sm-3 mb-3 card bg-body-secondary">
-                <div class="card-body">
-                    <h1 class="card-title">Excel</h1>
-                    <p class="card-text">Realizar dinâmicas que vão aumentar a habilidade na movimentação pela planilha e rapidez na execução de seus trabalhos e auxiliará no avanço de conhecimentos com fórmulas de dificuldade intermediária, recursos de hipóteses, tabelas dinâmicas, dashboards e outros recursos essenciais.</p>
+    <script src="{% static 'js/cursos.js' %}"></script>
+
+     <div class="container my-5">
+        <!-- Primeira Seção -->
+        <div class="row g-4 mb-5">
+            <div class="col-lg-7 animate-card" style="animation-delay: 0.2s;">
+                <div class="info-card h-100 p-4 hover-zoom">
+                    <h1 class="display-6 mb-4 fw-bold">Excel</h1>
+                    <p class="lead text-muted mb-4">
+                        Foco na utilização da ferramenta para gestão de dados, criação de planilhas dinâmicas,
+                        gráficos e fórmulas, preparando o aluno para o mercado corporativo.
+                    </p>
+                    <div class="d-grid gap-2 d-md-flex">
+                        <a class="btn btn-primary btn-lg px-4" href="{% url 'inscricao' %}">Inscreva-se</a>
+                    </div>
                 </div>
             </div>
-            <div class="col-sm px-0 mb-3">
-                <img src="{% static 'img/excel.jpg' %}" alt="Excel" class="img-fluid rounded">
+
+            <div class="col-lg-5 animate-card" style="animation-delay: 0.4s;">
+                <div class="hover-zoom h-100">
+                    <img src="{% static 'img/excel.jpg' %}"
+                         class="img-fluid rounded-3 shadow-lg"
+                         alt="Excel">
+                </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-sm px-0 me-sm-3 card bg-body-secondary">
-                <div class="card-body">
-                    <h2 class="card-title">Requisitos:</h2>
-                    <p class="card-text mb-4">
-                        - Idade mínima: 14 anos. <br>
-                        - Escolaridade mínima: Ensino Fundamental I Completo. <br> 
-                        - Noções básicas do programa Microsoft Excel.
-                    </p>
+
+        <!-- Segunda Seção -->
+        <div class="row g-4">
+            <!-- Requisitos -->
+            <div class="col-md-6 animate-card" style="animation-delay: 0.6s;">
+                <div class="info-card h-100 p-4 hover-zoom">
+                    <h2 class="h3 mb-4 fw-bold">
+                        <i class="fa-regular fa-square-check me-2"></i>Requisitos
+                    </h2>
+                    <ul class="bullet-list fs-5">
+                        <li class="mb-3">Idade mínima: 14 anos</li>
+                        <li class="mb-3">Escolaridade mínima: 1º segmento do Ensino Fundamental completo</li>
+                        <li>Noções básicas do pacote Office</li>
+                    </ul>
                 </div>
             </div>
-            <div class="col-sm px-0 me-sm-3 card bg-body-secondary">
-                <div class="card-body">
-                    <h2 class="card-title">Dias e Horários:</h2>
-                    <div class="row">
-                        <div class="col-md">
-                            <p class="card-text">Terça e quinta</p>
-                        </div>
-                        <div class="col-md">
-                            <p class="card-text">
-                                08:40 - 09:50<br>
-                                13:30 - 14:40<br>
-                                16:10 - 17:20
-                            </p>
+
+            <!-- Horários -->
+            <div class="col-md-6 animate-card" style="animation-delay: 0.8s;">
+                <div class="info-card h-100 p-4 hover-zoom">
+                    <h2 class="h3 mb-4 fw-bold">
+                        <i class="fa-regular fa-clock me-2"></i>Horários
+                    </h2>
+
+                    <div class="row g-3">
+                        <div class="col-xl-6">
+                            <h4 class="h5 mb-4 fw-bold">
+                                <i class="fa-solid fa-location-dot me-2"></i>Polo Centro
+                            </h4>
+
+                            <div class="row g-3 mb-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="col-xl-6 col-lg-4 col-5">
+                                        <div class="badge bg-primary me-3">Seg, Qua e Sex</div>
+                                    </div>
+                                    <div class="col-xl-6 col-lg-8 col-7">
+                                        <div class="schedule-column">
+                                            <p class="mb-1">10:30 - 12:30</p>
+                                            <p class="mb-0">15:30 - 17:30</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="col-xl-6 col-lg-4 col-5">
+                                        <div class="badge bg-primary me-3">Ter e Qui</div>
+                                    </div>
+                                    <div class="col-xl-6 col-lg-8 col-7">
+                                        <div class="schedule-column">
+                                            <p class="mb-0">16:30 - 18:30</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

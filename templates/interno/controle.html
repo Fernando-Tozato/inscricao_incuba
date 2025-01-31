@@ -5,89 +5,82 @@
 {% load static %}
 
 {% block content %}
+
     <div class="container my-5">
-        <div class="p-5 mb-5 border bg-body-secondary text-body-secondary rounded">
-            <form method="post" action="{% url 'controle' %}">
-                {% csrf_token %}
-                {% if controle %}
-                    <div class="mb-3">
-                        <label for="inscricao_inicio" class="form-label">Início das Inscrições</label>
-                        <input type="datetime-local" class="form-control" id="inscricao_inicio" name="inscricao_inicio" required value="{{ controle.inscricao_inicio|date:'Y-m-d\TH:i' }}">
-                    </div>
-                    <div class="mb-3">
-                        <label for="inscricao_fim" class="form-label">Fim das Inscrições</label>
-                        <input type="datetime-local" class="form-control" id="inscricao_fim" name="inscricao_fim" required value="{{ controle.inscricao_fim|date:'Y-m-d\TH:i' }}">
-                    </div>
-                    <div class="mb-3">
-                        <label for="sorteio_data" class="form-label">Data e Hora do Sorteio</label>
-                        <input type="datetime-local" class="form-control" id="sorteio_data" name="sorteio_data" required value="{{ controle.sorteio_data|date:'Y-m-d\TH:i' }}">
-                    </div>
-                    <div class="mb-3">
-                        <label for="matricula_sorteados" class="form-label">Início da Matrícula para sorteados</label>
-                        <input type="datetime-local" class="form-control" id="matricula_sorteados" name="matricula_sorteados" required value="{{ controle.matricula_sorteados|date:'Y-m-d\TH:i' }}">
-                    </div>
-                    <div class="mb-3">
-                        <label for="matricula_geral" class="form-label">Início da Matrícula geral</label>
-                        <input type="datetime-local" class="form-control" id="matricula_geral" name="matricula_geral" required value="{{ controle.matricula_geral|date:'Y-m-d\TH:i' }}">
-                    </div>
-                    <div class="mb-3">
-                        <label for="matricula_fim" class="form-label">Fim das Matrículas</label>
-                        <input type="datetime-local" class="form-control" id="matricula_fim" name="matricula_fim" required value="{{ controle.matricula_fim|date:'Y-m-d\TH:i' }}">
-                    </div>
-                    <div class="mb-3">
-                        <label for="aulas_inicio" class="form-label">Início das Aulas</label>
-                        <input type="datetime-local" class="form-control" id="aulas_inicio" name="aulas_inicio" required value="{{ controle.aulas_inicio|date:'Y-m-d\TH:i' }}">
-                    </div>
-                    <div class="mb-3">
-                        <label for="aulas_fim" class="form-label">Fim das Aulas</label>
-                        <input type="datetime-local" class="form-control" id="aulas_fim" name="aulas_fim" required value="{{ controle.aulas_fim|date:'Y-m-d\TH:i' }}">
-                    </div>
-                {% else %}
-                    <div class="mb-3">
-                        <label for="inscricao_inicio" class="form-label">Início das Inscrições</label>
-                        <input type="datetime-local" class="form-control" id="inscricao_inicio" name="inscricao_inicio" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="inscricao_fim" class="form-label">Fim das Inscrições</label>
-                        <input type="datetime-local" class="form-control" id="inscricao_fim" name="inscricao_fim" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="sorteio_data" class="form-label">Data e Hora do Sorteio</label>
-                        <input type="datetime-local" class="form-control" id="sorteio_data" name="sorteio_data" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="matricula_sorteados" class="form-label">Início da Matrícula para sorteados</label>
-                        <input type="datetime-local" class="form-control" id="matricula_sorteados" name="matricula_sorteados" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="matricula_geral" class="form-label">Início da Matrícula geral</label>
-                        <input type="datetime-local" class="form-control" id="matricula_geral" name="matricula_geral" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="matricula_fim" class="form-label">Fim das Matrículas</label>
-                        <input type="datetime-local" class="form-control" id="matricula_fim" name="matricula_fim" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="aulas_inicio" class="form-label">Início das Aulas</label>
-                        <input type="datetime-local" class="form-control" id="aulas_inicio" name="aulas_inicio" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="aulas_fim" class="form-label">Fim das Aulas</label>
-                        <input type="datetime-local" class="form-control" id="aulas_fim" name="aulas_fim" required>
-                    </div>
-                {% endif %}
-                <div class="row">
-                    <div class="col">
-                        <button type="submit" class="btn btn-primary">Salvar Configurações</button>
-                    </div>
-                    <div class="col">
-                        <a href="{% url 'planilhas' %}" class="btn btn-primary">Baixar planilhas</a>
-                    </div>
-                    <div class="col">
-                        <a href="{% url 'planilha_coord' %}" class="btn btn-primary">Baixar planilha geral</a>
-                    </div>
+        {% if response %}
+            <div class="alert alert-success mb-3" role="alert">
+                {{ response }}
+            </div>
+        {% endif %}
+
+        <div class="p-5 border bg-body-secondary text-body-secondary rounded container text-center">
+            <div class="row justify-content-center mb-3">
+                <a href="{% url 'controle_datetimes' %}" class="btn btn-primary col-4">Controle de horários</a>
+            </div>
+            <div class="row justify-content-center mb-3">
+                <button type="button" class="btn btn-primary col-4" data-bs-toggle="modal" data-bs-target="#planilha_model">Enviar planilhas por E-mail</button>
+            </div>
+            <div class="row justify-content-center">
+                <button type="button" class="btn btn-primary col-4" data-bs-toggle="modal" data-bs-target="#log_model">Enviar registros por E-mail</button>
+            </div>
+
+            {% if not sorteio %}
+                <div class="row justify-content-center mt-3">
+                    <a href="{% url 'sorteio' %}" class="btn btn-primary col-4">Realizar sorteio</a>
                 </div>
-            </form>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="modal fade" id="planilha_model" tabindex="-1" aria-labelledby="planilha_model_label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="post" action="{% url 'planilhas' %}" class="container">
+                    {% csrf_token %}
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="planilha_model_label">Envio de registros por E-mail</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body px-4 py-4">
+                        <p>Para enviar as planilhas do sistema, você deve preencher o campo abaixo com o E-mail de destino e clicar no botão "Enviar".</p>
+
+                        <div class="row form-floating mt-2">
+                            {{ form.email }}
+                            <label for="{{ form.email.id_for_label }}" class="ms-2">E-mail</label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="float-start btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="float-end btn btn-primary">Enviar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="log_model" tabindex="-1" aria-labelledby="log_model_label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="post" action="{% url 'logs' %}" class="container">
+                    {% csrf_token %}
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="log_model_label">Envio de registros por E-mail</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body px-4 py-4">
+                        <p>Para enviar os registros do sistema, você deve preencher o campo abaixo com o E-mail de destino e clicar no botão "Enviar".</p>
+
+                        <div class="row form-floating mt-2">
+                            {{ form.email }}
+                            <label for="{{ form.email.id_for_label }}" class="ms-2">E-mail</label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="float-start btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="float-end btn btn-primary">Enviar</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 {% endblock %}

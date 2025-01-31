@@ -4,3 +4,6 @@ from django.apps import AppConfig
 class InternoConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'interno'
+
+    def ready(self):
+        import interno.signals

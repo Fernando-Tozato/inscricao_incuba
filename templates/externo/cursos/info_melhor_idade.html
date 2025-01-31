@@ -1,56 +1,94 @@
 {% extends 'bases/base_externo.html' %}
 
-{% block title %}Informática para Iniciantes{% endblock %}
+{% block title %}Informática para Melhor Idade{% endblock %}
 
 {% load static %}
 
+{% block style %}
+    <link rel="stylesheet" href="{% static 'css/cursos.css' %}">
+{% endblock %}
+
 {% block content %}
-    <div class="container my-5 px-5">
-        <div class="row">
-            <div class="col-sm px-0 me-sm-3 mb-3 card bg-body-secondary">
-                <div class="card-body">
-                    <h1 class="card-title">Informática para Iniciantes e Melhor Idade</h1>
-                    <p class="card-text">Aprender desde como ligar um computador, passando por todo o processo de comunicação através das redes sociais, internet e outros.</p>
+    <script src="{% static 'js/cursos.js' %}"></script>
+
+    <div class="container my-5">
+        <!-- Primeira Seção -->
+        <div class="row g-4 mb-5">
+            <div class="col-lg-7 animate-card" style="animation-delay: 0.2s;">
+                <div class="info-card h-100 p-4 hover-zoom">
+                    <h1 class="display-6 mb-4 fw-bold">Informática para Melhor Idade</h1>
+                    <p class="lead text-muted mb-4">
+                        Curso adaptado às necessidades e ritmo de aprendizado de pessoas da terceira idade,
+                        visando inclusão digital e social com uso de ferramentas modernas de comunicação.
+                    </p>
+                    <div class="d-grid gap-2 d-md-flex">
+                        <a class="btn btn-primary btn-lg px-4" href="{% url 'inscricao' %}">Inscreva-se</a>
+                    </div>
                 </div>
             </div>
-            <div class="col-sm px-0 mb-3">
-                <img src="{% static 'img/info_melhor_idade.jpg' %}" alt="Informática para Iniciantes e Melhor Idade" class="img-fluid rounded">
+
+            <div class="col-lg-5 animate-card" style="animation-delay: 0.4s;">
+                <div class="hover-zoom h-100">
+                    <img src="{% static 'img/info_melhor_idade.jpg' %}"
+                         class="img-fluid rounded-3 shadow-lg"
+                         alt="Informática para Melhor Idade">
+                </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-sm px-0 me-sm-3 card bg-body-secondary">
-                <div class="card-body">
-                    <h2 class="card-title">Requisitos:</h2>
-                    <p class="card-text mb-4">
-                        - Idade mínima: 12 anos. <br>
-                        - Escolaridade mínima: Ser Alfabetizado(a).
-                    </p>
+
+        <!-- Segunda Seção -->
+        <div class="row g-4">
+            <!-- Requisitos -->
+            <div class="col-md-6 animate-card" style="animation-delay: 0.6s;">
+                <div class="info-card h-100 p-4 hover-zoom">
+                    <h2 class="h3 mb-4 fw-bold">
+                        <i class="fa-regular fa-square-check me-2"></i>Requisitos
+                    </h2>
+                    <ul class="bullet-list fs-5">
+                        <li class="mb-3">Idade mínima: 12 anos</li>
+                        <li>Escolaridade mínima: Ser Alfabetizado(a)</li>
+                    </ul>
                 </div>
             </div>
-            <div class="col-sm px-0 me-sm-3 card bg-body-secondary">
-                <div class="card-body">
-                    <h2 class="card-title">Dias e Horários:</h2>
-                    <div class="row mb-3">
-                        <div class="col-md">
-                            <p class="card-text">Segunda e quarta</p>
-                        </div>
-                        <div class="col-md">
-                            <p class="card-text">
-                                08:40 - 09:50<br>
-                                13:30 - 14:40
-                            </p>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md">
-                            <p class="card-text">Sexta</p>
-                        </div>
-                        <div class="col-md">
-                            <p class="card-text">
-                                08:40 - 10:40<br>
-                                11:00 - 13:00<br>
-                                14:00 - 16:00
-                            </p>
+
+            <!-- Horários -->
+            <div class="col-md-6 animate-card" style="animation-delay: 0.8s;">
+                <div class="info-card h-100 p-4 hover-zoom">
+                    <h2 class="h3 mb-4 fw-bold">
+                        <i class="fa-regular fa-clock me-2"></i>Horários
+                    </h2>
+
+                    <div class="row g-3">
+                        <div class="col-xl-6">
+                            <h4 class="h5 mb-4 fw-bold">
+                                <i class="fa-solid fa-location-dot me-2"></i>Polo Inoã
+                            </h4>
+                            <div class="row g-3 mb-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="col-xl-6 col-lg-4 col-5">
+                                        <div class="badge bg-primary me-3">Seg e Qua</div>
+                                    </div>
+                                    <div class="col-xl-6 col-lg-8 col-7">
+                                        <div class="schedule-column">
+                                            <p class="mb-1">08:30 - 10:30</p>
+                                            <p class="mb-0">13:30 - 15:30</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="col-xl-6 col-lg-4 col-5">
+                                        <div class="badge bg-primary me-3">Ter e Qui</div>
+                                    </div>
+                                    <div class="col-xl-6 col-lg-8 col-7">
+                                        <div class="schedule-column">
+                                            <p class="mb-0">10:30 - 12:30</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

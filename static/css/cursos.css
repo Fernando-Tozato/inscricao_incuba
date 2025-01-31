@@ -1,0 +1,49 @@
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-card {
+    animation: fadeInUp 0.6s ease-out forwards;
+    opacity: 0;
+}
+
+.hover-zoom {
+    transition: transform 0.3s ease;
+}
+
+.hover-zoom:hover {
+    transform: scale(1.03);
+}
+
+/* Custom Styles */
+.info-card {
+    background: rgba(255, 255, 255, 0.9) !important;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: none;
+}
+
+.schedule-column {
+    border-left: 3px solid #6c757d;
+    padding-left: 1.5rem;
+}
+
+.bullet-list {
+    list-style: none;
+    padding-left: 1.5rem;
+}
+
+.bullet-list li::before {
+    content: "•";
+    display: inline-block;
+    width: 1em;
+    margin-left: -1em;
+}

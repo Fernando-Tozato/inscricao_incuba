@@ -1,13 +1,10 @@
 import datetime
-import hashlib
 import json
-import re
-import uuid
 
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models import QuerySet
 
-from database.models import Turma, Inscrito
+from database.models import Turma
 
 
 def get_turmas_as_json(campos: list[str] | None = None) -> str:
@@ -36,20 +33,3 @@ def get_turmas_as_json(campos: list[str] | None = None) -> str:
         turmas_list.append(turma_dict)
 
     return json.dumps(turmas_list, cls=DjangoJSONEncoder)
-
-
-def gerar_hash(dado: str, salt: str) -> str:
-    dado_com_salt: str = dado + salt
-    codigo_hash: str = hashlib.sha256(dado_com_salt.encode()).hexdigest()
-    numero_inteiro = int(codigo_hash, 16)
-    return f'{(numero_inteiro % 10000):04d}'
-
-
-def gerar_numero_inscricao(nome: str, cpf: str, nascimento: str) -> str:
-    salt: str = uuid.uuid4().hex
-
-    hash_nome: str = gerar_hash(nome, salt)
-    hash_cpf: str = gerar_hash(cpf, salt)
-    hash_nascimento: str = gerar_hash(nascimento, salt)
-
-    return f'{hash_nome}.{hash_cpf}.{hash_nascimento}'
