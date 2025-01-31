@@ -6,9 +6,8 @@ from datetime import timedelta
 from logging import getLogger, Logger
 
 from celery import shared_task, group
-from cryptography.fernet import Fernet
 from django.conf import settings
-from django.core.mail import send_mail, EmailMessage
+from django.core.mail import EmailMessage
 from django.db.models import Q, QuerySet
 from django.db.models.functions import Coalesce
 from django.template.loader import render_to_string
