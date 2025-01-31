@@ -108,13 +108,9 @@ AUTHENTICATION_BACKENDS = [
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('LOCAL_DB_NAME'),
-        'USER': config('LOCAL_DB_USER'),
-        'PASSWORD': config('LOCAL_DB_PASSWORD'),
-        'HOST': config('LOCAL_DB_HOST'),
-        'PORT': config('LOCAL_DB_PORT'),
-    },
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / "db.sqlite3",
+    }
 }
 
 

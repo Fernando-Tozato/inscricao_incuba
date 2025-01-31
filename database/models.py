@@ -38,8 +38,8 @@ class UfChoices(models.TextChoices):
 
 
 class EscolaridadeChoices(models.TextChoices):
-    N_ALF = 'N_ALF', 'Não Alfabetizado'
-    ALF = 'ALF', 'Alfabetizado'
+    N_ALF = 'N_ALF', 'Não Alfabetizado (a)'
+    ALF = 'ALF', 'Alfabetizado (a)'
     EF1_INC = 'EF1_INC', 'Ensino Fundamental 1 Incompleto'
     EF1_COM = 'EF1_COM', 'Ensino Fundamental 1 Completo'
     EF2_INC = 'EF2_INC', 'Ensino Fundamental 2 Incompleto'

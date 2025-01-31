@@ -1,65 +1,78 @@
 dias,horario_entrada,horario_saida,vagas,professor,num_alunos,curso_id,unidade_id
-Segunda e Quarta,08:30,10:30,12,n/d,0,7,2
-Segunda e Quarta,10:30,12:30,12,n/d,0,7,2
-"Segunda, Quarta e Sexta",13:30,15:30,12,n/d,0,8,2
-"Segunda, Quarta e Sexta",15:30,17:30,12,n/d,0,7,2
-Terça e Quinta,08:30,10:30,12,n/d,0,8,2
-Terça e Quinta,10:30,12:30,12,n/d,0,7,2
-Terça e Quinta,13:30,15:30,12,n/d,0,7,2
-Terça e Quinta,15:30,17:30,12,n/d,0,7,2
-Segunda e Quarta,08:30,10:30,24,Celso,0,10,2
-Segunda e Quarta,10:30,12:30,24,Celso,0,10,2
-"Segunda, Quarta e Sexta",13:30,15:30,24,Celso,0,10,2
-"Segunda, Quarta e Sexta",15:30,17:30,24,Celso,0,10,2
-Terça e Quinta,08:30,10:30,24,Celso,0,10,2
-Terça e Quinta,10:30,12:30,24,Celso,0,10,2
-Terça e Quinta,13:30,15:30,24,Celso,0,10,2
-Terça e Quinta,15:30,17:30,24,Celso,0,10,2
-Segunda e Quarta,08:30,10:30,24,Cláudia,0,11,2
-Segunda e Quarta,10:30,12:30,24,Cláudia,0,1,2
-"Segunda, Quarta e Sexta",13:30,15:30,24,Cláudia,0,11,2
-"Segunda, Quarta e Sexta",15:30,17:30,24,Cláudia,0,1,2
-Terça e Quinta,08:30,10:30,24,Cláudia,0,1,2
-Terça e Quinta,10:30,12:30,24,Cláudia,0,11,2
-Terça e Quinta,13:30,15:30,24,Cláudia,0,1,2
-Terça e Quinta,15:30,17:30,24,Cláudia,0,1,2
-Segunda e Quarta,08:30,10:30,19,Erika,0,1,1
-"Segunda, Quarta e Sexta",10:30,12:30,19,Erika,0,2,1
-"Segunda, Quarta e Sexta",13:30,15:30,19,Erika,0,3,1
-"Segunda, Quarta e Sexta",15:30,17:30,19,Erika,0,2,1
-Terça e Quinta,12:00,14:00,19,Erika,0,1,1
-Terça e Quinta,14:00,16:00,19,Erika,0,3,1
-Terça e Quinta,16:30,18:30,19,Erika,0,2,1
-Terça e Quinta,18:30,20:30,19,Erika,0,3,1
-Segunda e Quarta,08:30,10:30,15,Keven,0,4,1
-"Segunda, Quarta e Sexta",10:30,12:30,15,Keven,0,4,1
-"Segunda, Quarta e Sexta",13:30,15:30,15,Keven,0,4,1
-"Segunda, Quarta e Sexta",15:30,17:30,15,Keven,0,4,1
-Terça e Quinta,12:00,14:00,15,Keven,0,4,1
-Terça e Quinta,14:00,16:00,15,Keven,0,4,1
-Terça e Quinta,16:30,18:30,15,Keven,0,4,1
-Terça e Quinta,18:30,20:30,15,Keven,0,4,1
-Segunda e Quarta,08:30,10:30,8,Freitas,0,5,1
-"Segunda, Quarta e Sexta",10:30,12:30,8,Freitas,0,6,1
-"Segunda, Quarta e Sexta",13:30,15:30,8,Freitas,0,6,1
-"Segunda, Quarta e Sexta",15:30,17:30,8,Freitas,0,5,1
-Terça e Quinta,12:00,14:00,8,Freitas,0,6,1
-Terça e Quinta,14:00,16:00,8,Freitas,0,5,1
-Terça e Quinta,16:30,18:30,8,Freitas,0,5,1
-Terça e Quinta,18:30,20:30,8,Freitas,0,6,1
-"Segunda, Quarta e Sexta",10:45,12:45,12,Marco Túlio,0,7,1
-"Segunda, Quarta e Sexta",13:45,15:45,12,Marco Túlio,0,8,1
-"Segunda, Quarta e Sexta",16:00,18:00,12,Marco Túlio,0,7,1
-"Segunda, Quarta e Sexta",18:15,20:15,12,Marco Túlio,0,8,1
+Segunda e Quarta,08:30,10:30,24,Cláudia,0,1,2
+Segunda e Quarta,13:30,15:30,24,Cláudia,0,1,2
+Terça e Quinta,10:30,12:30,24,Cláudia,0,1,2
+Segunda e Quarta,08:30,10:30,19,Erika,0,2,1
+Terça e Quinta,12:00,14:00,19,Erika,0,2,1
+Segunda e Quarta,10:30,12:30,24,Cláudia,0,2,2
+Segunda e Quarta,15:30,17:30,24,Cláudia,0,2,2
+Terça e Quinta,08:30,10:30,24,Cláudia,0,2,2
+Terça e Quinta,13:30,15:30,24,Cláudia,0,2,2
+Terça e Quinta,15:30,17:30,24,Cláudia,0,2,2
+"Segunda, Quarta e Sexta",10:30,12:30,19,Erika,0,3,1
+"Segunda, Quarta e Sexta",15:30,17:30,19,Erika,0,3,1
+Terça e Quinta,16:30,18:30,19,Erika,0,3,1
+"Segunda, Quarta e Sexta",13:30,15:30,19,Erika,0,4,1
+Terça e Quinta,14:00,16:00,19,Erika,0,4,1
+Terça e Quinta,18:30,20:30,19,Erika,0,4,1
+Segunda e Quarta,08:30,10:30,24,Celso,0,5,2
+Segunda e Quarta,10:30,12:30,24,Celso,0,5,2
+"Segunda, Quarta e Sexta",13:30,15:30,24,Celso,0,5,2
+"Segunda, Quarta e Sexta",15:30,17:30,24,Celso,0,5,2
+Terça e Quinta,08:30,10:30,24,Celso,0,5,2
+Terça e Quinta,10:30,12:30,24,Celso,0,5,2
+Terça e Quinta,13:30,15:30,24,Celso,0,5,2
+Terça e Quinta,15:30,17:30,24,Celso,0,5,2
+Segunda e Quarta,08:30,10:30,15,Keven,0,6,1
+"Segunda, Quarta e Sexta",10:30,12:30,15,Keven,0,6,1
+"Segunda, Quarta e Sexta",13:30,15:30,15,Keven,0,6,1
+"Segunda, Quarta e Sexta",15:30,17:30,15,Keven,0,6,1
+Terça e Quinta,08:30,10:30,15,Keven,0,6,1
+Terça e Quinta,10:30,12:30,15,Keven,0,6,1
+Terça e Quinta,13:30,15:30,15,Keven,0,6,1
+Terça e Quinta,15:30,17:30,15,Keven,0,6,1
+"Segunda, Quarta e Sexta",10:30,12:30,12,Marco Túlio,0,7,1
+"Segunda, Quarta e Sexta",15:30,17:30,12,Marco Túlio,0,7,1
 Terça e Quinta,08:30,10:30,12,Marco Túlio,0,7,1
-Terça e Quinta,10:45,12:45,12,Marco Túlio,0,8,1
-Terça e Quinta,13:45,15:45,12,Marco Túlio,0,7,1
-Terça e Quinta,16:00,18:00,12,Marco Túlio,0,9,1
-Segunda e Quarta,08:30,10:30,12,Ramon,0,12,1
-"Segunda, Quarta e Sexta",10:30,12:30,12,Ramon,0,13,1
-"Segunda, Quarta e Sexta",13:30,15:30,12,Ramon,0,12,1
-"Segunda, Quarta e Sexta",15:30,17:30,12,Ramon,0,13,1
-Terça e Quinta,09:30,11:30,12,Ramon,0,12,1
-Terça e Quinta,11:30,13:30,12,Ramon,0,12,1
-Terça e Quinta,14:30,16:30,12,Ramon,0,13,1
-Terça e Quinta,16:30,18:30,12,Ramon,0,12,1
+Terça e Quinta,13:30,15:30,12,Marco Túlio,0,7,1
+Segunda e Quarta,08:30,10:30,12,Emanuel,0,7,2
+Segunda e Quarta,10:30,12:30,12,Emanuel,0,7,2
+Segunda e Quarta,15:30,17:30,12,Emanuel,0,7,2
+Segunda e Quarta,17:30,19:30,12,Emanuel,0,7,2
+Terça,10:30,12:30,12,Emanuel,0,7,2
+Terça,13:30,15:30,12,Emanuel,0,7,2
+Terça,17:30,19:30,12,Emanuel,0,7,2
+Sexta,15:30,17:30,12,Emanuel,0,7,2
+Sexta,17:30,19:30,12,Emanuel,0,7,2
+"Segunda, Quarta e Sexta",13:30,15:30,12,Marco Túlio,0,8,1
+"Segunda, Quarta e Sexta",17:30,19:30,12,Marco Túlio,0,8,1
+Terça e Quinta,10:30,12:30,12,Marco Túlio,0,8,1
+Segunda e Quarta,13:30,15:30,12,Emanuel,0,8,2
+Terça,08:30,10:30,12,Emanuel,0,8,2
+Terça,15:30,17:30,12,Emanuel,0,8,2
+Sexta,13:30,15:30,12,Emanuel,0,8,2
+Terça e Quinta,15:30,17:30,12,Marco Túlio,0,9,1
+Segunda e Quarta,08:30,10:30,12,Ramon,0,10,1
+"Segunda, Quarta e Sexta",13:30,15:30,12,Ramon,0,10,1
+Terça e Quinta,09:30,11:30,12,Ramon,0,10,1
+Terça e Quinta,11:30,13:30,12,Ramon,0,10,1
+Terça e Quinta,16:30,18:30,12,Ramon,0,10,1
+"Segunda, Quarta e Sexta",10:30,12:30,12,Ramon,0,11,1
+"Segunda, Quarta e Sexta",15:30,17:30,12,Ramon,0,11,1
+Terça e Quinta,14:30,16:30,12,Ramon,0,11,1
+Segunda e Quarta,09:30,11:30,23,Alessandra,0,12,1
+Segunda e Quarta,14:30,16:30,23,Alessandra,0,12,1
+Terça e Quinta,14:30,16:30,23,Alessandra,0,12,1
+Segunda e Quarta,11:30,13:30,23,Alessandra,0,13,1
+Terça e Quinta,11:30,13:30,23,Alessandra,0,13,1
+Terça e Quinta,16:30,18:30,23,Alessandra,0,13,1
+Segunda e Quarta,16:30,18:30,23,Alessandra,0,14,1
+Terça e Quinta,09:30,11:30,23,Alessandra,0,14,1
+"Segunda, Quarta e Sexta",10:30,12:30,8,Freitas,0,15,1
+"Segunda, Quarta e Sexta",13:30,15:30,8,Freitas,0,15,1
+Terça e Quinta,12:00,14:00,8,Freitas,0,15,1
+Terça e Quinta,18:30,20:30,8,Freitas,0,15,1
+Segunda e Quarta,08:30,10:30,8,Freitas,0,16,1
+"Segunda, Quarta e Sexta",15:30,17:30,8,Freitas,0,16,1
+Terça e Quinta,14:00,16:00,8,Freitas,0,16,1
+Terça e Quinta,16:30,18:30,8,Freitas,0,16,1

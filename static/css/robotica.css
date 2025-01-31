@@ -1,12 +1,60 @@
+/*.level-card {*/
+/*    position: relative;*/
+/*    border-radius: 15px;*/
+/*    padding: 20px;*/
+/*    transition: transform 0.3s ease, border 0.3s ease;*/
+/*    background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);*/
+/*    border: 3px solid transparent;*/
+/*    background-clip: padding-box;*/
+/*}*/
+
+/*.level-card::before {*/
+/*    content: "";*/
+/*    position: absolute;*/
+/*    top: -3px;*/
+/*    left: -3px;*/
+/*    right: -3px;*/
+/*    bottom: -3px;*/
+/*    border-radius: inherit;*/
+/*    background: conic-gradient(from 0deg, #ff416c, #ff4b2b, #ff416c);*/
+/*    z-index: -1;*/
+/*}*/
+
 .level-card {
-    border: 3px solid;
-    transition: all 0.3s ease;
     position: relative;
-    background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+    background: rgba(255, 255, 255, 0.9) !important;
+    border-radius: 3%;
+    border: none;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
 }
 
-.level-card:hover {
-    transform: translateY(-10px) scale(1.05);
+.level-card::before {
+    content: "";
+    position: absolute;
+    width: 200%;
+    height: 150%;
+}
+
+.level-card:hover::before {
+    animation: rotate-border 5s linear infinite;
+}
+
+.level-card::after {
+    content: "";
+    position: absolute;
+    background: rgba(255, 255, 255, 0.9) !important;
+    inset: 1%;
+    border-radius: 2.5%;
+}
+
+.content {
+    z-index: 1;
+    justify-content: start;
+    align-items: baseline;
 }
 
 .tech-badge {
@@ -15,9 +63,9 @@
     transform: scale(1.05);
 }
 
-/* Nível Avançado */
-.basic {
-    border-image: linear-gradient(45deg, #3498db, #2ecc71) 1;
+/* Nível Básico */
+.basic::before {
+    background: linear-gradient(45deg, #3498db, #2ecc71);
 }
 .basic:hover {
     box-shadow: 0 10px 20px rgba(52, 152, 219, 0.5);
@@ -29,8 +77,8 @@
 }
 
 /* Nível Intermediário */
-.intermediate {
-    border-image: linear-gradient(45deg, #FF6B6B, #FFD93D) 1;
+.intermediate::before {
+    background: linear-gradient(45deg, #FF6B6B, #FFD93D);
 }
 .intermediate:hover {
     box-shadow: 0 10px 20px rgba(255, 107, 107, 0.5);
@@ -43,8 +91,8 @@
 
 
 /* Nível Avançado */
-.advanced {
-    border-image: linear-gradient(45deg, #9C27B0, #E91E63) 1;
+.advanced::before {
+    background: linear-gradient(45deg, #9B2590, #E91E63);
 }
 .advanced:hover {
     box-shadow: 0 10px 20px rgba(156, 39, 176, 0.5);
@@ -53,4 +101,10 @@
     background: rgba(156, 39, 176, 0.2);
     border-color: #9C27B0;
     color: #9C27B0;
+}
+
+@keyframes rotate-border {
+    100% {
+        transform: rotate(360deg);
+    }
 }

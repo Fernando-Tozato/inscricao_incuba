@@ -27,7 +27,7 @@ def csv_to_controle():
     df = pd.read_csv(csv_file_path_controle)
 
     for coluna in df.columns:
-        df[coluna] = pd.to_datetime(df[coluna], format='%Y-%m-%d %H:%M:%S', utc=True)
+        df[coluna] = pd.to_datetime(df[coluna], format='%d/%m/%Y %H:%M', utc=True)
         df[coluna] = df[coluna].dt.tz_convert('America/Sao_Paulo')
 
     data = df.to_dict(orient='records')
