@@ -17,7 +17,6 @@ django.setup()
 from database.models import Inscrito, Turma, Aluno
 
 # Definindo algumas constantes
-NUM_TURMAS = 6
 INSCRITOS_POR_TURMA = 50
 
 

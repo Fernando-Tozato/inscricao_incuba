@@ -1,3 +1,6 @@
+import os
+
+from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMultiAlternatives
@@ -140,3 +143,12 @@ def enviar_email_senha(request, user):
 
 def matricula_valida(request):
     return is_allowed(request.user)
+
+
+def sorteio_realizado() -> bool:
+    file_path = os.path.join(settings.MEDIA_ROOT, 'sorteio/sorteio.log')
+
+    if not os.path.exists(file_path):
+        return False
+
+    return os.path.getsize(file_path) > 0

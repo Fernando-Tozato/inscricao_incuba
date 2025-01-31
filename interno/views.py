@@ -1,16 +1,12 @@
-import json
-from io import BytesIO
-
 from django.contrib import messages
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.exceptions import ValidationError
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models import Count
-from django.db.models import Sum
 from django.db.models.functions import TruncDate
 from django.db.utils import IntegrityError
-from django.http import HttpResponse, Http404, JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.http import urlsafe_base64_decode
 
@@ -20,10 +16,9 @@ from .tasks import *
 
 
 def test(request):
-    email = ['tozato.fernando2004@gmail.com']
-    content = 'test'
-    subject = 'test'
-    enviar_emails.delay(email, content, subject)
+    agora = timezone.now()
+
+    sortear.apply_async(eta=agora + timedelta(seconds=10))
 
     return HttpResponse("test")
 
@@ -60,9 +55,21 @@ def get_estatisticas(request):
 # noinspection PyTypeChecker
 @login_required
 def inscrito(request):
-    vagas = Turma.objects.values('curso__nome').annotate(vagas=(Sum('vagas') - Sum('num_alunos')))
+    cursos = Curso.objects.values('id', 'nome')
 
-    context = {'vagas': vagas}
+    for curso in cursos:
+        turmas_centro = Turma.objects.filter(curso_id=curso['id'], unidade_id=1)
+        turmas_inoa = Turma.objects.filter(curso_id=curso['id'], unidade_id=2)
+
+        vagas_centro = 0
+        vagas_inoa = 0
+        for turma in turmas_centro:
+            vagas_centro += turma.vagas_restantes()
+
+
+        print(f'Curso: {curso["nome"]} | Vagas Centro: {vagas_centro} | Vagas Inoa: {vagas_inoa}\n\n')
+
+    context = {}
 
     if request.method == 'POST':
         form = BuscaForm(request.POST)
@@ -481,7 +488,12 @@ def turma_excluir(request, turma_id=None):
 @user_passes_test(is_allowed)
 @login_required
 def controle(request):
-    return render(request, 'interno/controle.html', {'form': EmailForm()})
+    context = {
+        'form': EmailForm(),
+        'sorteio': sorteio_realizado()
+    }
+
+    return render(request, 'interno/controle.html', context)
 
 
 @user_passes_test(is_allowed)
@@ -499,12 +511,6 @@ def controle_datetimes(request):
             try:
                 print('saving')
                 form.save()
-
-                sorteio_data = form.cleaned_data['sorteio_data']
-                agora = timezone.now()
-
-                if agora < sorteio_data:
-                    agendar_task('Sortear', 'interno.tasks.sortear', sorteio_data)
 
             except IntegrityError as e:
                 messages.error(request,f'Houve um problema com os dados inseridos. Contate a equipe de suporte.\n\nErro: {e}')
@@ -655,3 +661,10 @@ def reset_password_confirm_view(request, uidb64, token):
 
 def reset_password_complete_view(request):
     return render(request, 'interno/accounts/password_reset_complete.html')
+
+
+def sorteio(request):
+    agora = timezone.now()
+
+    sortear.apply_async(eta=agora + timedelta(seconds=10))
+    return redirect('estatisticas')

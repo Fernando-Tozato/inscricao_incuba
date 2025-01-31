@@ -71,18 +71,20 @@ def sortear():
 
     content_sorteados = render_to_string("emails/aviso_sorteado.html", {
         'domain': 'incubarobotica.com.br',
-        'protocol': 'http',
-        'data_matricula_inicio': controle.matricula_sorteados,  # type: ignore
-        'data_matricula_fim': controle.matricula_fim,  # type: ignore
-        'data_aulas_inicio': controle.aulas_inicio,  # type: ignore
+        'protocol': 'https',
+        'matricula_sorte_inicio': controle.matricula_sorte_inicio,  # type: ignore
+        'matricula_sorte_fim': controle.matricula_sorte_fim,  # type: ignore
+        'matricula_reman_inicio': controle.matricula_reman_inicio,  # type: ignore
+        'matricula_reman_fim': controle.matricula_reman_fim,  # type: ignore
+        'aulas_inicio': controle.aulas_inicio,  # type: ignore
     })
 
     content_nao_sorteados = render_to_string("emails/aviso_nao_sorteado.html", {
         'domain': 'incubarobotica.com.br',
-        'protocol': 'http',
-        'data_matricula_inicio': controle.matricula_sorteados,  # type: ignore
-        'data_matricula_fim': controle.matricula_fim,  # type: ignore
-        'data_aulas_inicio': controle.aulas_inicio,  # type: ignore
+        'protocol': 'https',
+        'matricula_reman_inicio': controle.matricula_reman_inicio,  # type: ignore
+        'matricula_reman_fim': controle.matricula_reman_fim,  # type: ignore
+        'aulas_inicio': controle.aulas_inicio,  # type: ignore
     })
 
     tarefas = [
@@ -164,7 +166,12 @@ def preparar_emails_sorteio(emails_inscritos, content):
     tamanho_lote = 100
     subject = 'Incubadora de Robótica'
     tarefas = [
-        enviar_emails.s(emails_inscritos[i:i+tamanho_lote if i+tamanho_lote < len(emails_inscritos) else -1], content, subject, True)
+        enviar_emails.s(
+            emails=emails_inscritos[i:i+tamanho_lote if i+tamanho_lote < len(emails_inscritos) else -1],
+            content=content,
+            subject=subject,
+            has_html=True
+        )
         for i in range(0, len(emails_inscritos), tamanho_lote)
     ]
     group(tarefas).apply_async()

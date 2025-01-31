@@ -12,15 +12,25 @@
             <table class="table table-striped border">
                 <thead>
                     <tr>
+                        <th scope="col">Centro</th>
+                        <th scope="col"></th>
+                        <th scope="col">Inoã</th>
+                        <th scope="col"></th>
+                    </tr>
+                    <tr>
+                        <th scope="col">Curso</th>
+                        <th scope="col">Total de Vagas</th>
                         <th scope="col">Curso</th>
                         <th scope="col">Total de Vagas</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for curso in vagas %}
+                    {% for vaga in vagas %}
                         <tr>
-                            <td>{{ curso.curso__nome }}</td>
-                            <td>{{ curso.vagas }}</td>
+                            <td>{{ vaga.vaga_centro.curso__nome }}</td>
+                            <td>{{ vaga.vaga_centro.vagas }}</td>
+                            <td>{{ vaga.vaga_inoa.curso__nome }}</td>
+                            <td>{{ vaga.vaga_inoa.vagas }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>

@@ -14,15 +14,21 @@
         {% endif %}
 
         <div class="p-5 border bg-body-secondary text-body-secondary rounded container text-center">
-            <div class="row justify-content-center">
+            <div class="row justify-content-center mb-3">
                 <a href="{% url 'controle_datetimes' %}" class="btn btn-primary col-4">Controle de horários</a>
             </div>
-            <div class="row justify-content-center my-3">
+            <div class="row justify-content-center mb-3">
                 <button type="button" class="btn btn-primary col-4" data-bs-toggle="modal" data-bs-target="#planilha_model">Enviar planilhas por E-mail</button>
             </div>
             <div class="row justify-content-center">
                 <button type="button" class="btn btn-primary col-4" data-bs-toggle="modal" data-bs-target="#log_model">Enviar registros por E-mail</button>
             </div>
+
+            {% if not sorteio %}
+                <div class="row justify-content-center mt-3">
+                    <a href="{% url 'sorteio' %}" class="btn btn-primary col-4">Realizar sorteio</a>
+                </div>
+            {% endif %}
         </div>
     </div>
 
