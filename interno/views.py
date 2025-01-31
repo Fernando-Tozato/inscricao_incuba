@@ -624,7 +624,12 @@ def reset_password_view(request):
                         'token': default_token_generator.make_token(user),
                         'protocol': 'http',
                     })
-                    enviar_emails.delay([email], content, subject, True)
+                    enviar_emails.delay(
+                        emails=[email],
+                        content=content,
+                        subject=subject,
+                        has_html=True,
+                    )
                 return redirect('reset_password_sent')
     else:
         form = CustomPasswordResetForm()

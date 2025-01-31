@@ -239,7 +239,12 @@ def preparar_planilhas(email):
     subject = 'Planilhas pedagógicas'
     content = 'Segue em anexo um arquivo zipado com as planilhas de presença.'
 
-    enviar_emails.delay(email, content, subject, zip_filename)
+    enviar_emails.delay(
+        emails=[email],
+        content=content,
+        subject=subject,
+        file_path=zip_path,
+    )
 
 
 def ajustar_colunas(ws):
