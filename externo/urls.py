@@ -7,6 +7,7 @@ urlpatterns = [
     path('editais/', editais, name='editais'),
     path('resultado/', resultado, name='resultado'),
     path('resultado/<int:turma_id>/', resultado, name='resultado_id'),
+    path('polos/', polos, name='polos'),
     path('info_melhor_idade/', info_melhor_idade, name='info_melhor_idade'),
     path('info_basica/', info_basica, name='info_basica'),
     path('excel/', excel, name='excel'),
@@ -23,4 +24,5 @@ urlpatterns = [
     path('download_validadores', download_validadores, name='download_validadores'),
     path('download_1/', download_1, name='download_1'),
     path('download_2/', download_2, name='download_2'),
+    path('download_3/', download_3, name='download_3'),
 ]

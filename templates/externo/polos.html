@@ -1,0 +1,42 @@
+{% extends 'bases/base_externo.html' %}
+
+{% block title %}Polos{% endblock %}
+
+{% load static %}
+
+{% block style %}
+    <link rel="stylesheet" href="{% static 'css/polos.css' %}">
+{% endblock %}
+
+{% block content %}
+    <script src="{% static 'js/cursos.js' %}"></script>
+
+    <div class="container my-5 px-5">
+        <div class="row g-4 mb-5">
+            <div class="col-lg-6 animate-card" style="animation-delay: 0.2s;">
+                <div class="info-card h-100 p-4 hover-zoom">
+                    <h1 class="display-6 mb-4 fw-bold"><i class="fa-solid fa-location-dot me-2"></i>Polo Centro</h1>
+
+                    <ul class="bullet-list fs-5">
+                        <li class="mb-3">Rua Pedro Afonso Ferreira, n° 17, Centro (em frente ao Instituto Darcy Ribeiro) – Local com acessibilidade para cadeirantes.</li>
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d231.17684531656533!2d-42.81635438462497!3d-22.916897966733384!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x99ed998b099baf%3A0x7e9f5cf593c367bd!2sR.%20Pedro%20Afonso%20Ferreira%2C%2017-72%20-%20Eldorado%2C%20Maric%C3%A1%20-%20RJ%2C%2024900-000!5e1!3m2!1spt-BR!2sbr!4v1738520881215!5m2!1spt-BR!2sbr" width="400" height="300" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+
+                        <li class="mt-5 mb-3">Av. Roberto Silveira, n° 168, Centro (acima da Drogaria Max).</li>
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d231.17732208018222!2d-42.81620431464744!3d-22.916618464181713!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zMjLCsDU0JzU5LjYiUyA0MsKwNDgnNTguMSJX!5e1!3m2!1spt-BR!2sbr!4v1738521012241!5m2!1spt-BR!2sbr" width="400" height="300" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-lg-6 animate-card" style="animation-delay: 0.4s;">
+                <div class="info-card h-100 p-4 hover-zoom">
+                    <h1 class="display-6 mb-4 fw-bold"><i class="fa-solid fa-location-dot me-2"></i>Polo Inoã</h1>
+
+                    <ul class="bullet-list fs-5">
+                        <li class="mb-3">Rua Quatro, n° 534, Inoã.</li>
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d282.9695546639543!2d-42.932222887368496!3d-22.91849124244348!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x998ddb336818d7%3A0x18e7a053e7284850!2sR.%20Quatro%2C%20534%20-%20Itaupua%C3%A7u%2C%20Maric%C3%A1%20-%20RJ%2C%2024942-395!5e1!3m2!1spt-BR!2sbr!4v1738521102753!5m2!1spt-BR!2sbr" width="400" height="300" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
