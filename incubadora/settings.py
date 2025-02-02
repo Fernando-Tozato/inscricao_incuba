@@ -57,7 +57,6 @@ INSTALLED_APPS = [
     'interno',
     'database',
     'rest_framework',
-    "anymail",
     'django_celery_beat',
     'django_prometheus',
 ]

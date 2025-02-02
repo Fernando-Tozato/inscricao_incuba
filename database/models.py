@@ -95,6 +95,9 @@ class Turma(models.Model):
     def __str__(self):
         return f'{self.unidade.__str__()} - {self.curso.__str__()} - {self.dias} - {self.horario()}'
 
+    def vagas_restantes(self):
+        return self.vagas - self.num_alunos
+
 
 class Inscrito(models.Model):
     nome = models.CharField(max_length=100)

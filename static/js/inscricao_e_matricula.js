@@ -41,6 +41,8 @@ document.addEventListener('DOMContentLoaded', function ()  {
     adicionar_validacao([input_nascimento, input_cpf, select_escolaridade,
             input_cep, select_unidade, select_curso, select_dias]);
 
+    aviso_cursos();
+
     input_nascimento.addEventListener('blur', () => {
         let value = input_nascimento.value;
 
@@ -59,9 +61,7 @@ document.addEventListener('DOMContentLoaded', function ()  {
         try {
             idade = moment().diff(moment(data, 'YYYY/MM/DD'), 'years');
         } finally {
-            if (idade && escolaridade) {
-                definir_unidades();
-            }
+            aviso_cursos();
         }
     });
 
@@ -86,9 +86,7 @@ document.addEventListener('DOMContentLoaded', function ()  {
             return;
         }
 
-        if (idade && escolaridade) {
-            definir_unidades();
-        }
+        aviso_cursos();
     });
 
     input_cep.addEventListener('blur', () => {
@@ -377,4 +375,34 @@ function renderizar_turma() {
     select_horario.value = horario
 
     select_horario.dispatchEvent(new Event('change'))
+}
+
+function aviso_cursos() {
+    console.log('aviso_cursos')
+
+    let texto_idade_escolaridade = "<h4>Os campos <a href=\"#id_nascimento\">\"Data de Nascimento\"</a> e <a href=\"#id_escolaridade\">\"Escolaridade\"</a> devem ser preenchidos antes de escolher um curso.</h4>"
+    let texto_falta_idade = "<h4>O campo <a href=\"#id_nascimento\">\"Data de Nascimento\"</a> deve ser preenchido antes de escolher um curso.</h4>"
+    let texto_falta_escolaridade = "<h4>O campo <a href=\"#id_escolaridade\">\"Escolaridade\"</a> deve ser preenchido antes de escolher um curso.</h4>"
+    let texto_muito_novo = "<h4>Infelizmente, você ainda não possui idade suficiente para se inscrever em nossos cursos.</h4>"
+    let texto_escolaridade_baixa = "<h4>Infelizmente, você não cumpre nossos requisitos de escolaridade.</h4>"
+
+    let aviso_cursos = document.getElementById('aviso_cursos');
+
+    console.log(idade, escolaridade)
+    if (!idade && !escolaridade) {
+        aviso_cursos.innerHTML = texto_idade_escolaridade;
+    } else if (!idade) {
+        aviso_cursos.innerHTML =  texto_falta_idade;
+    } else if (!escolaridade) {
+        aviso_cursos.innerHTML =  texto_falta_escolaridade;
+    } else if (idade < 12) {
+        aviso_cursos.innerHTML =  texto_muito_novo;
+    } else if (hierarchy[escolaridade] === hierarchy['N_ALF']) {
+        aviso_cursos.innerHTML =  texto_escolaridade_baixa;
+    } else {
+        aviso_cursos.innerHTML = '';
+        definir_unidades();
+    }
+
+    console.log(aviso_cursos.innerHTML)
 }

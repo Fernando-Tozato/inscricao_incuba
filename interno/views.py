@@ -57,6 +57,8 @@ def get_estatisticas(request):
 def inscrito(request):
     cursos = Curso.objects.values('id', 'nome')
 
+    vagas = []
+
     for curso in cursos:
         turmas_centro = Turma.objects.filter(curso_id=curso['id'], unidade_id=1)
         turmas_inoa = Turma.objects.filter(curso_id=curso['id'], unidade_id=2)
@@ -66,10 +68,16 @@ def inscrito(request):
         for turma in turmas_centro:
             vagas_centro += turma.vagas_restantes()
 
+        for turma in turmas_inoa:
+            vagas_inoa += turma.vagas_restantes()
 
-        print(f'Curso: {curso["nome"]} | Vagas Centro: {vagas_centro} | Vagas Inoa: {vagas_inoa}\n\n')
+        vagas.append({
+            'curso': curso['nome'],
+            'vagas_centro': vagas_centro,
+            'vagas_inoa': vagas_inoa
+        })
 
-    context = {}
+    context = {'vagas': vagas}
 
     if request.method == 'POST':
         form = BuscaForm(request.POST)

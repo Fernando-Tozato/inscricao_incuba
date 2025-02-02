@@ -243,5 +243,5 @@ fabric.properties
 
 media/sorteio/sorteio.log
 media/planilhas/*
-media/planilha_coord/*
 *.tar.gz
+logs/*.log

@@ -1,17 +1,14 @@
 ###### Requirements without Version Specifiers ######
 
 django
-Pillow
+pillow
 django_rest_framework
 pandas
 faker
 cpf_generator
-django-anymail[mailgun]
 openpyxl
 unidecode
-djangorestframework
 python-decouple
 celery
-cryptography
 django-celery-beat
 django-prometheus
