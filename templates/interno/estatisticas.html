@@ -16,7 +16,9 @@
         </div>
     </div>
 
-        <script>
+    <script>
+        let grafico = null;
+
         function formatDate(dateString) {
             const [year, month, day] = dateString.split("-");
             return `${day}/${month}/${year}`;
@@ -31,6 +33,10 @@
                     return;
                 }
 
+                if (grafico) {
+                    grafico.destroy();
+                }
+
                 const labels = data.inscritos.map(item => formatDate(item.date));
                 const inscritos = data.inscritos.map(item => item.count);
                 const alunos = data.alunos.map(item => item.count);
@@ -39,7 +45,7 @@
                 const maxYValue = Math.max(...inscritos, ...alunos);
 
                 const ctx = document.getElementById('grafico').getContext('2d');
-                new Chart(ctx, {
+                grafico = new Chart(ctx, {
                     type: 'line',
                     data: {
                         labels: labels,
@@ -82,6 +88,4 @@
             setInterval(update_grafico, 15 * 1000);
         });
     </script>
-
-
 {% endblock %}

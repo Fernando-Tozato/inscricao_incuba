@@ -10,6 +10,8 @@ from django.db.utils import IntegrityError
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
+from django.views.decorators.cache import never_cache
+from django.views.decorators.csrf import ensure_csrf_cookie
 
 from database.models import *
 from externo.forms import InscricaoForm, ResultadoForm
@@ -48,7 +50,8 @@ def home(request):
 
     return render(request, 'externo/home.html', context)
 
-
+@never_cache
+@ensure_csrf_cookie
 def inscricao(request):
     turmas = Turma.objects.select_related('unidade', 'curso').all()
 
@@ -110,7 +113,8 @@ def enviado(request):
 def editais(request):
     return render(request, 'externo/editais.html')
 
-
+@never_cache
+@ensure_csrf_cookie
 def resultado(request, turma_id=None):
     turmas = Turma.objects.select_related('unidade', 'curso').all()
 

@@ -234,9 +234,23 @@ LOGGING = {
     },
 }
 
+# Redis cache
+
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.redis.RedisCache',
         'LOCATION': 'redis://localhost:6379/1',
     }
 }
+
+# CSRF Cookie
+
+CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_DOMAIN = '.incubarobotica.com.br'
+CSRF_TRUSTED_ORIGINS = [
+    'https://incubarobotica.com.br',
+    'https://www.incubarobotica.com.br',
+    'https://naodivulgar.incubarobotica.com.br',
+    'http://localhost:8000',
+]

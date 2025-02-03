@@ -9,6 +9,8 @@ from django.db.utils import IntegrityError
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.http import urlsafe_base64_decode
+from django.views.decorators.cache import never_cache
+from django.views.decorators.csrf import ensure_csrf_cookie
 
 from .forms import *
 from .functions import *
@@ -51,7 +53,8 @@ def get_estatisticas(request):
 
     return JsonResponse(data)
 
-
+@never_cache
+@ensure_csrf_cookie
 # noinspection PyTypeChecker
 @login_required
 def inscrito(request):
@@ -96,7 +99,8 @@ def inscrito(request):
         context.update({'form': BuscaForm})
     return render(request, 'interno/inscrito.html', context)
 
-
+@never_cache
+@ensure_csrf_cookie
 @login_required
 def matricula(request, inscrito_id=None):
     turmas = Turma.objects.select_related('unidade', 'curso').all()
@@ -149,7 +153,8 @@ def matricula(request, inscrito_id=None):
 def enviado_int(request):
     return render(request, 'interno/enviado_int.html')
 
-
+@never_cache
+@ensure_csrf_cookie
 @user_passes_test(is_allowed)
 @login_required
 def aluno(request):
@@ -177,7 +182,8 @@ def aluno(request):
         context.update({'form': BuscaForm})
     return render(request, 'interno/aluno.html', context)
 
-
+@never_cache
+@ensure_csrf_cookie
 @user_passes_test(is_allowed)
 @login_required
 def aluno_editar(request, aluno_id=None):
@@ -235,7 +241,8 @@ def aluno_editar(request, aluno_id=None):
 
     return render(request, 'interno/editar_aluno.html', context)
 
-
+@never_cache
+@ensure_csrf_cookie
 @user_passes_test(is_allowed)
 @login_required
 def aluno_excluir(request, aluno_id=None):
@@ -252,7 +259,8 @@ def aluno_excluir(request, aluno_id=None):
 def unidade(request):
     return render(request, 'interno/ver_unidades.html', {'unidades': Unidade.objects.all()})
 
-
+@never_cache
+@ensure_csrf_cookie
 @user_passes_test(is_allowed)
 @login_required
 def unidade_criar(request):
@@ -277,7 +285,8 @@ def unidade_criar(request):
 
     return render(request, 'interno/unidade.html', context)
 
-
+@never_cache
+@ensure_csrf_cookie
 @user_passes_test(is_allowed)
 @login_required
 def unidade_editar(request, unidade_id=None):
@@ -312,7 +321,8 @@ def unidade_editar(request, unidade_id=None):
 
     return render(request, 'interno/unidade.html', context)
 
-
+@never_cache
+@ensure_csrf_cookie
 @user_passes_test(is_allowed)
 @login_required
 def unidade_excluir(request, unidade_id=None):
@@ -329,7 +339,8 @@ def unidade_excluir(request, unidade_id=None):
 def curso(request):
     return render(request, 'interno/ver_cursos.html', {'cursos': Curso.objects.all()})
 
-
+@never_cache
+@ensure_csrf_cookie
 @user_passes_test(is_allowed)
 @login_required
 def curso_criar(request):
@@ -355,7 +366,8 @@ def curso_criar(request):
 
     return render(request, 'interno/curso.html', context)
 
-
+@never_cache
+@ensure_csrf_cookie
 @user_passes_test(is_allowed)
 @login_required
 def curso_editar(request, curso_id=None):
@@ -391,7 +403,8 @@ def curso_editar(request, curso_id=None):
 
     return render(request, 'interno/curso.html', context)
 
-
+@never_cache
+@ensure_csrf_cookie
 @user_passes_test(is_allowed)
 @login_required
 def curso_excluir(request, curso_id=None):
@@ -407,7 +420,8 @@ def curso_excluir(request, curso_id=None):
 def turma(request):
     return render(request, 'interno/ver_turmas.html', {'turmas': Turma.objects.all()})
 
-
+@never_cache
+@ensure_csrf_cookie
 @user_passes_test(is_allowed)
 @login_required
 def turma_criar(request):
@@ -433,7 +447,8 @@ def turma_criar(request):
 
     return render(request, 'interno/turma.html', context)
 
-
+@never_cache
+@ensure_csrf_cookie
 @user_passes_test(is_allowed)
 @login_required
 def turma_editar(request, turma_id=None):
@@ -473,7 +488,8 @@ def turma_editar(request, turma_id=None):
 
     return render(request, 'interno/turma.html', context)
 
-
+@never_cache
+@ensure_csrf_cookie
 @user_passes_test(is_allowed)
 @login_required
 def turma_excluir(request, turma_id=None):
@@ -495,7 +511,8 @@ def controle(request):
 
     return render(request, 'interno/controle.html', context)
 
-
+@never_cache
+@ensure_csrf_cookie
 @user_passes_test(is_allowed)
 @login_required
 def controle_datetimes(request):
@@ -525,6 +542,8 @@ def controle_datetimes(request):
 
     return render(request, 'interno/controle_datetimes.html', context)
 
+@never_cache
+@ensure_csrf_cookie
 def planilhas(request):
     context = {}
 
@@ -548,6 +567,8 @@ def planilhas(request):
     return render(request, 'interno/controle.html', context)
 
 
+@never_cache
+@ensure_csrf_cookie
 def logs(request):
     context = {}
 
@@ -574,6 +595,8 @@ def logs(request):
 '''
     AUTENTICAÇÃO
 '''
+@never_cache
+@ensure_csrf_cookie
 def login_view(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
@@ -594,7 +617,8 @@ def logout_view(request):
     logout(request)
     return redirect('login')
 
-
+@never_cache
+@ensure_csrf_cookie
 def register_view(request):
     if request.method == 'POST':
         form = RegisterForm(request.POST)
@@ -605,7 +629,8 @@ def register_view(request):
         form = RegisterForm()
     return render(request, 'interno/accounts/register.html', {'form': form})
 
-
+@never_cache
+@ensure_csrf_cookie
 def reset_password_view(request):
     if request.method == 'POST':
         form = CustomPasswordResetForm(request.POST)
