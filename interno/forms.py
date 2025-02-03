@@ -1,6 +1,9 @@
+from datetime import datetime
+
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, PasswordResetForm, SetPasswordForm
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 from database.models import Turma, Curso, Unidade, Aluno, Controle
 
@@ -44,8 +47,20 @@ class MatriculaForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         inscrito: [dict, None] = kwargs.pop('inscrito', None)
         super().__init__(*args, **kwargs)
+
+        today = datetime.strftime(timezone.now().date(), '%Y-%m-%d')
+
         self.fields['nascimento'].input_formats = ['%d/%m/%Y', '%Y-%m-%d']
+        self.fields['nascimento'].widget.attrs.update({
+            'min': '1900-01-01',
+            'max': today
+        })
+
         self.fields['data_emissao'].input_formats = ['%d/%m/%Y', '%Y-%m-%d']
+        self.fields['data_emissao'].widget.attrs.update({
+            'min': '1900-01-01',
+            'max': today
+        })
 
         if inscrito:
             self.fields['nome'].initial = inscrito['nome']
@@ -74,10 +89,20 @@ class MatriculaForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
+
         cpf = cleaned_data.get("cpf")
         if Aluno.objects.filter(cpf=cpf).exists():
             raise forms.ValidationError("Já existe um aluno cadastrado com este CPF.")
-        return cleaned_data
+
+        data_nasc = cleaned_data.get("nascimento")
+        data_emissao = cleaned_data.get("data_emissao")
+
+        if data_nasc and data_emissao:
+            if data_nasc < data_emissao:
+                self.add_error(
+                    'data_emissao',
+                    "A data de emissão do RG não pode ser anterior à data de nascimento."
+                )
     
 
 class BuscaForm(forms.Form):

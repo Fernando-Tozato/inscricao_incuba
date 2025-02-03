@@ -10,15 +10,17 @@ fake = Faker('pt_BR')
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'incubadora.settings')
 django.setup()
 
-from database.models import Inscrito, Turma
+from database.models import Aluno, Turma
 
 # Definindo algumas constantes
-INSCRITOS_POR_TURMA = 30
+ALUNOS_POR_TURMA = 1
 
 def generate_and_insert_data():
     turmas = Turma.objects.all()
     for turma in turmas:
-        for i in range(INSCRITOS_POR_TURMA):
+        num_alunos = ALUNOS_POR_TURMA if ALUNOS_POR_TURMA > 0 else turma.vagas_restantes()
+
+        for i in range(num_alunos):
             nome = fake.name()
             nome_pesquisa = unidecode(nome).upper()
             nascimento = fake.date_of_birth(minimum_age=12, maximum_age=80)
@@ -54,7 +56,7 @@ def generate_and_insert_data():
                 orgao_emissor = fake.random_element(elements=('SSP', 'DETRAN', 'IFP', 'OAB'))
                 uf_emissao = fake.estado_sigla()
 
-            inscrito = Inscrito(
+            aluno = Aluno(
                 nome=nome,
                 nome_pesquisa=nome_pesquisa,
                 nome_social=nome_social,
@@ -83,11 +85,13 @@ def generate_and_insert_data():
             )
 
             try:
-                inscrito.save()
+                aluno.save()
             except Exception as e:
                 print(e)
             else:
-                print(i * int(turma.id))
+                turma.num_alunos += 1
+                turma.save()
+                print((i+1) * int(turma.id))
 
 
 if __name__ == '__main__':

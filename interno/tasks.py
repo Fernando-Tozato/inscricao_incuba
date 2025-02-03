@@ -236,6 +236,8 @@ def preparar_planilhas(email):
             else:
                 print(f'{filename} não encontrado')
 
+    print(zip_filename)
+
     subject = 'Planilhas pedagógicas'
     content = 'Segue em anexo um arquivo zipado com as planilhas de presença.'
 
@@ -243,7 +245,7 @@ def preparar_planilhas(email):
         emails=[email],
         content=content,
         subject=subject,
-        file_path=zip_path,
+        file_path=zip_filename,
     )
 
 
@@ -265,7 +267,6 @@ def ajustar_colunas(ws):
         adjusted_width = max_length + 2
         ws.column_dimensions[column].width = adjusted_width
 
-@shared_task
 def criar_folha_presenca(wb, turmas, aulas_inicio, aulas_fim):
     """
     Cria a folha de presença no workbook.
@@ -401,7 +402,6 @@ def criar_folha_presenca(wb, turmas, aulas_inicio, aulas_fim):
     ajustar_colunas(ws_presenca)
     return ws_presenca
 
-@shared_task
 def criar_folha_alunos(wb, turmas):
     """
     Cria a folha de alunos no workbook.
@@ -450,22 +450,6 @@ def gerar_planilhas():
         aulas_inicio = controle.aulas_inicio
         aulas_fim = controle.aulas_fim
 
-        curso_arq = {
-            'Informática para Iniciantes e Melhor Idade': 'info_melhor_idade',
-            'Informática Básica': 'info_basica',
-            'Excel': 'excel',
-            'Montagem e Manutenção de Computadores': 'montagem',
-            'Robótica e Automação: Módulo 01': 'robotica_01',
-            'Robótica e Automação: Módulo 02': 'robotica_02',
-            'Robótica e Automação: Módulo 03': 'robotica_03',
-            'Design e Modelagem 3D: Módulo 01': 'design_01',
-            'Design e Modelagem 3D: Módulo 02': 'design_02',
-            'Gestão de Pessoas': 'gestao_pessoas',
-            'Educação Financeira': 'educ_finan',
-            'Marketing Digital': 'mark_digital',
-            'Marketing Empreendedor': 'mark_emp'
-        }
-
         turmas = Turma.objects.all()
         professores = set(turma.professor for turma in turmas)  # Elimina duplicatas
 
@@ -475,10 +459,6 @@ def gerar_planilhas():
             cursos = set(turma.curso for turma in turmas_professor)  # Elimina duplicatas
 
             for curso in cursos:
-                if curso not in curso_arq:
-                    print(f"Curso '{curso}' não mapeado em curso_arq. Pulando...")
-                    continue  # Pula cursos que não estão mapeados
-
                 # Filtra turmas específicas do curso e professor
                 turmas_aux = turmas_professor.filter(curso=curso)
 
@@ -491,11 +471,13 @@ def gerar_planilhas():
                 wb.remove(default_sheet)
 
                 # Cria as folhas necessárias
-                criar_folha_presenca.delay(wb, turmas_aux, aulas_inicio, aulas_fim)
-                criar_folha_alunos.delay(wb, turmas_aux)
+                criar_folha_presenca(wb, turmas_aux, aulas_inicio, aulas_fim)
+                criar_folha_alunos(wb, turmas_aux)
 
                 # Definir caminho e nome do arquivo
-                nome_arquivo = f"presenca_{professor}_{curso_arq[curso]}.xlsx"
+                nome_arquivo = f"presenca_{professor}_{curso.nome.replace(' ', '-')}.xlsx"
+                if len(nome_arquivo) > 31:
+                    nome_arquivo = nome_arquivo[:24]+ '_.xlsx'
                 caminho_arquivo = os.path.join('media', 'planilhas', nome_arquivo)
 
                 # Garantir que o diretório exista
@@ -508,10 +490,9 @@ def gerar_planilhas():
     except Exception as e:
         print(f"Ocorreu um erro durante a geração das planilhas: {e}")
 
-@shared_task
 def criar_folha_geral(wb: Workbook):
     ws_geral = wb.create_sheet(title='Geral')
-    headers = ['ID', 'Nome', 'CPF', 'Celular', 'Rua', 'Número', 'Bairro', 'Cidade', 'UF', 'É PCD?', 'OBS', 'Curso', 'Dias', 'Horario']
+    headers = ['ID', 'Nome', 'CPF', 'Celular', 'Rua', 'Número', 'Bairro', 'Cidade', 'UF', 'É PCD?', 'OBS', 'Unidade', 'Curso', 'Dias', 'Horario']
     for col_num, header in enumerate(headers, start=1):
         ws_geral.cell(row=1, column=col_num).value = header
         ws_geral.cell(row=1, column=col_num).font = Font(bold=True)
@@ -533,9 +514,10 @@ def criar_folha_geral(wb: Workbook):
         ws_geral.cell(row=row_num, column=9).value = aluno.uf
         ws_geral.cell(row=row_num, column=10).value = 'PCD' if aluno.pcd else ''
         ws_geral.cell(row=row_num, column=11).value = aluno.observacoes if aluno.observacoes is not None else ''
-        ws_geral.cell(row=row_num, column=12).value = turma.curso
-        ws_geral.cell(row=row_num, column=13).value = turma.dias
-        ws_geral.cell(row=row_num, column=14).value = turma.horario()
+        ws_geral.cell(row=row_num, column=12).value = turma.unidade.nome
+        ws_geral.cell(row=row_num, column=13).value = turma.curso.nome
+        ws_geral.cell(row=row_num, column=14).value = turma.dias
+        ws_geral.cell(row=row_num, column=15).value = turma.horario()
 
         for col in range(1, 15):
             ws_geral.cell(row=row_num, column=col).alignment = Alignment(horizontal="left")
@@ -543,11 +525,10 @@ def criar_folha_geral(wb: Workbook):
     ajustar_colunas(ws_geral)
     return ws_geral
 
-@shared_task
 def criar_folha_curso(wb: Workbook, curso: str, turmas: QuerySet[Turma]):
     dark_fill = PatternFill(start_color="4F4F4F", end_color="4F4F4F", fill_type="solid")
 
-    ws_curso = wb.create_sheet(title=f'{curso}')
+    ws_curso = wb.create_sheet(title=f'{curso.replace(':', '')}')
     headers = ['ID', 'Nome', 'CPF', 'Celular', 'Rua', 'Número', 'Bairro', 'Cidade', 'UF', 'É PCD?', 'OBS']
 
     init_row = 1
@@ -599,29 +580,13 @@ def criar_folha_curso(wb: Workbook, curso: str, turmas: QuerySet[Turma]):
 
 
 def gerar_planilha_coord():
-    curso_title = {
-        'Informática para Iniciantes e Melhor Idade': 'Info Iniciante',
-        'Informática Básica': 'Info Básica',
-        'Excel': 'Excel',
-        'Montagem e Manutenção de Computadores': 'Montagem',
-        'Robótica e Automação: Módulo 01': 'Robótica 1',
-        'Robótica e Automação: Módulo 02': 'Robótica 2',
-        'Robótica e Automação: Módulo 03': 'Robótica 3',
-        'Design e Modelagem 3D: Módulo 01': 'Design 1',
-        'Design e Modelagem 3D: Módulo 02': 'Design 2',
-        'Gestão de Pessoas': 'Gestão',
-        'Educação Financeira': 'Educação Financeira',
-        'Marketing Digital': 'M. Digital',
-        'Marketing Empreendedor': 'M. Empreendedor'
-    }
-
     try:
         wb = Workbook()
 
         default_sheet = wb.active
         wb.remove(default_sheet)
 
-        criar_folha_geral.delay(wb)
+        criar_folha_geral(wb)
 
         turmas = Turma.objects.all()
         cursos = set(turma.curso for turma in turmas)
@@ -632,9 +597,9 @@ def gerar_planilha_coord():
             if not turmas_aux.exists():
                 continue
 
-            criar_folha_curso.delay(wb, curso_title[curso], turmas_aux)
+            criar_folha_curso(wb, curso.nome, turmas_aux)
 
-        nome_arquivo = f'planilha_geral_2024_2.xlsx'
+        nome_arquivo = f'planilha_geral_2025_1.xlsx'
         caminho_arquivo = os.path.join('media', 'planilhas', nome_arquivo)
 
         os.makedirs(os.path.dirname(caminho_arquivo), exist_ok=True)
