@@ -70,10 +70,7 @@ class InscricaoForm(forms.ModelForm):
 
         if data_nasc and data_emissao:
             if data_nasc < data_emissao:
-                self.add_error(
-                    'data_emissao',
-                    "A data de emissão do RG não pode ser anterior à data de nascimento."
-                )
+                raise Exception('Data de nascimento não pode ser menor que a data de emissão do RG.')
 
 
 class ResultadoForm(forms.Form):
