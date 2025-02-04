@@ -93,16 +93,6 @@ class MatriculaForm(forms.ModelForm):
         cpf = cleaned_data.get("cpf")
         if Aluno.objects.filter(cpf=cpf).exists():
             raise forms.ValidationError("Já existe um aluno cadastrado com este CPF.")
-
-        data_nasc = cleaned_data.get("nascimento")
-        data_emissao = cleaned_data.get("data_emissao")
-
-        if data_nasc and data_emissao:
-            if data_nasc < data_emissao:
-                self.add_error(
-                    'data_emissao',
-                    "A data de emissão do RG não pode ser anterior à data de nascimento."
-                )
     
 
 class BuscaForm(forms.Form):

@@ -3,15 +3,27 @@ from rest_framework import serializers
 from .models import *
 
 
-class InscritoSerializer(serializers.ModelSerializer):
+class UnidadeSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Inscrito
+        model = Unidade
+        fields = '__all__'
+
+
+class CursoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Curso
         fields = '__all__'
 
 
 class TurmaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Turma
+        fields = '__all__'
+
+
+class InscritoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Inscrito
         fields = '__all__'
 
 

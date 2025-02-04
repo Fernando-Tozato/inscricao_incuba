@@ -65,13 +65,6 @@ class InscricaoForm(forms.ModelForm):
         if Inscrito.objects.filter(cpf=cpf).exists():
             raise forms.ValidationError("Já existe um inscrito com este CPF.")
 
-        data_nasc = cleaned_data.get("nascimento")
-        data_emissao = cleaned_data.get("data_emissao")
-
-        if data_nasc and data_emissao:
-            if data_nasc < data_emissao:
-                raise Exception('Data de nascimento não pode ser menor que a data de emissão do RG.')
-
 
 class ResultadoForm(forms.Form):
     id_turma = forms.ModelChoiceField(queryset=Turma.objects.all(),

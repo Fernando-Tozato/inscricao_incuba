@@ -21,6 +21,8 @@ from database.views import *
 
 router = DefaultRouter()
 
+router.register(r'unidade', UnidadeViewSet, basename='unidade')
+router.register(r'curso', CursoViewSet, basename='curso')
 router.register(r'turma', TurmaViewSet, basename='turma')
 router.register(r'inscrito', InscritoViewSet, basename='inscrito')
 router.register(r'aluno', AlunoViewSet, basename='aluno')
@@ -28,7 +30,6 @@ router.register(r'controle', ControleViewSet, basename='controle')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include(router.urls)),
     path('', include('externo.urls'), name='externo'),
     path('interno/', include('interno.urls'), name='interno'),
 ]
