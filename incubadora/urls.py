@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 from database.views import *
+from externo.views import aviso
 
 router = DefaultRouter()
 
@@ -29,7 +30,7 @@ router.register(r'aluno', AlunoViewSet, basename='aluno')
 router.register(r'controle', ControleViewSet, basename='controle')
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', include('externo.urls'), name='externo'),
-    path('interno/', include('interno.urls'), name='interno'),
+    path('admin/', aviso),
+    path('', aviso, name='externo'),
+    path('interno/', aviso, name='interno'),
 ]

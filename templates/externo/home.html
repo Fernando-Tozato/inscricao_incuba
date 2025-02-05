@@ -11,14 +11,14 @@
 {% block content %}
     <script src="{% static 'js/home.js' %}" ></script>
     <div class="container my-5 px-5 align-center">
-        {% if inscricao %}
-            <div class="alert alert-info mb-5" role="alert">
-                <h4 class="alert-heading">As inscrições estão abertas!</h4>
-                <p>Caso ainda não tenha feito a sua, faça agora clicando <a href="{% url 'inscricao' %}" class="alert-link">AQUI</a>.</p>
-                <hr>
-                <p>Você tem até {{ inscricao.inscricao_fim|date:"d/m/Y" }} às {{ inscricao.inscricao_fim|date:"H:i" }} para fazer a sua inscrição.</p>
-            </div>
-        {% endif %}
+{#        {% if inscricao %}#}
+{#            <div class="alert alert-info mb-5" role="alert">#}
+{#                <h4 class="alert-heading">As inscrições estão abertas!</h4>#}
+{#                <p>Caso ainda não tenha feito a sua, faça agora clicando <a href="{% url 'inscricao' %}" class="alert-link">AQUI</a>.</p>#}
+{#                <hr>#}
+{#                <p>Você tem até {{ inscricao.inscricao_fim|date:"d/m/Y" }} às {{ inscricao.inscricao_fim|date:"H:i" }} para fazer a sua inscrição.</p>#}
+{#            </div>#}
+{#        {% endif %}#}
 
         {% if matricula %}
             <div class="alert alert-info mb-5" role="alert">
@@ -230,6 +230,21 @@
                         </div>
                     </div>
                     <a href="{% url 'blockchain' %}" class="stretched-link"></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">ATENÇÃO</h3>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Devido a problemas técnicos, as inscrições para o ciclo 2025.1 estão <strong>suspensas</strong>.</p>
+                    <p>Em breve retornaremos com mais informações.</p>
                 </div>
             </div>
         </div>

@@ -18,6 +18,9 @@ from externo.forms import InscricaoForm, ResultadoForm
 from externo.functions import *
 
 
+def aviso(request):
+    return render(request, 'externo/aviso.html')
+
 def home(request):
     context = {}
 
